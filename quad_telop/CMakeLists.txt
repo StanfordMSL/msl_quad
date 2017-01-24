@@ -188,3 +188,6 @@ include_directories(
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+add_executable(quad_telop src/quad_telop.cpp)
+target_link_libraries(quad_telop ${catkin_LIBRARIES})
