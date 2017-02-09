@@ -191,5 +191,12 @@ include_directories(
 # catkin_add_nosetests(test)
 
 include_directories(${quad_lib_INCLUDE_DIRS}) # for including the header files in the "quad_lib" package
+
 add_executable(hover src/hover.cpp)
 target_link_libraries(hover ${catkin_LIBRARIES} ${quad_lib_LIBRARIES})
+
+add_executable(px4_set_pos src/px4_set_pos.cpp)
+target_link_libraries(px4_set_pos ${catkin_LIBRARIES} ${quad_lib_LIBRARIES})
+
+add_executable(check_sys src/check_sys.cpp)
+target_link_libraries(check_sys ${catkin_LIBRARIES} ${quad_lib_LIBRARIES})
