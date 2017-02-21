@@ -200,3 +200,6 @@ target_link_libraries(px4_set_pos ${catkin_LIBRARIES} ${quad_lib_LIBRARIES})
 
 add_executable(check_sys src/check_sys.cpp)
 target_link_libraries(check_sys ${catkin_LIBRARIES} ${quad_lib_LIBRARIES})
+
+add_executable(px4_set_vel src/px4_set_vel.cpp)
+target_link_libraries(px4_set_vel ${catkin_LIBRARIES} ${quad_lib_LIBRARIES})

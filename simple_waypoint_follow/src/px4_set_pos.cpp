@@ -2,6 +2,10 @@
 // Author: Zijian Wang, zjwang@stanford.edu
 // Date: Feb 08, 2017
 
+// Note:
+// Based on the flight test, the built-in position controller does not work very well
+// It (roughly) does the hovering, but not very steady.
+
 #include "ros/ros.h"
 #include "geometry_msgs/PoseStamped.h"
 #include <tf/transform_broadcaster.h>
@@ -62,7 +66,7 @@ int main(int argc, char **argv)
     tf::quaternionTFToMsg(Q_cmd, pose_cmd.pose.orientation);
     pose_cmd.pose.position.x = 0.0;
     pose_cmd.pose.position.y = 0.0;
-    pose_cmd.pose.position.z = 0.3; // hover at z=0.3 
+    pose_cmd.pose.position.z = 1.0; // hover at z=0.3 
     pub_set_pos.publish(pose_cmd); 
 
 				
