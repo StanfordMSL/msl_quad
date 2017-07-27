@@ -1,4 +1,4 @@
-## CAD design of the MSL Quadrotor
+# CAD design of the MSL Quadrotor
 
 Author: Zijian Wang (zjwang AT stanford.edu)
 
@@ -7,12 +7,12 @@ Last modify: Jul 2017
 <img src="https://github.com/StanfordMSL/msl_quad/blob/master/Hardware/quadrotor_rendering.jpg" width="400" height="300" />
 
 
-### CAD Environment
+## CAD Environment
 
 * Solidworks 2016
 * main assembly file: quadrotor.SLDASM
 
-### 3D printing
+## 3D printing
 
 * We used Ultimaker 2+
 
@@ -20,10 +20,10 @@ Last modify: Jul 2017
 
 * Use brim (at leat 5mm is recommended) in Cura to enhance adhesion to the print bed.
 
-### Bills of Material
+## Bills of Materials
 
 TBD
 
-### Assembly Guide
+## Assembly Guide
 
 TBD
