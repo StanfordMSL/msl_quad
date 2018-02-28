@@ -3,15 +3,15 @@ plugin_blacklist:
 - actuator_control
 - ftp
 - safety_area
-- setpoint_attitude
+- hil
 # extras
-- image_pub
-- 'mocap_*'
-- px4flow
-- 'vision_*'
-- distance_sensor
-- vibration
 - altitude
+- debug_value
+- image_pub
+- mocap_pose_estimate
+- px4flow
+- vibration
+- 'vision_*'
 
 plugin_whitelist: []
 #- 'sys_*'

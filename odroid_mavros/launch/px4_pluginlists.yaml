@@ -5,11 +5,8 @@ plugin_blacklist:
 - image_pub
 - vibration
 - distance_sensor
-- ftp
-- 3dr_radio
-- global_position
-- hil_controls
-- px4flow
+- rangefinder
 
 plugin_whitelist: []
-#- 'sys_*'
+# 'sys_*'
+
