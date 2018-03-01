@@ -2,7 +2,7 @@
 
   <!-- Pass in mocap_config_file:=/path/to/config.yaml to change options. -->
   <arg name="mocap_config_file"
-       default="$(find mocap_optitrack)/config/mocap.yaml" />
+       default="$(find mslquad)/launch/mocap.yaml" />
 
   <node pkg="mocap_optitrack"
         type="mocap_node"
