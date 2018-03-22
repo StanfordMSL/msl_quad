@@ -16,7 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
-
+find_package(Eigen3 REQUIRED)
 
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
@@ -136,6 +136,9 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(actuator_test src/actuator_test/actuator_test.cpp)
 target_link_libraries(actuator_test ${catkin_LIBRARIES})
+
+add_executable(se3controller src/SE3Controller.cpp)
+target_link_libraries(se3controller ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
