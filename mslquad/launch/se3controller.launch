@@ -1,0 +1,25 @@
+<launch>
+  <!--node pkg="mslquad"
+        type="se3controller"
+        name="se3controller"
+        output="screen">
+    <param name="KP" value="4.0" />
+    <param name="KV" value="4.0" />
+    <param name="KR" value="2.0" />
+    <param name="KW" value="0.5" />
+    <param name="M" value="1.5" />
+    <param name="TCOEFF" value="6.57" />
+  </node-->
+
+  <node pkg="mslquad"
+        type="se3controller"
+        name="se3controller"
+        output="screen">
+    <param name="KP" value="4.0" />
+    <param name="KV" value="6.0" />
+    <param name="KR" value="0.3" />
+    <param name="KW" value="0.05" />
+    <param name="M" value="1.04" />
+    <param name="TCOEFF" value="4.4" />
+  </node>
+</launch>

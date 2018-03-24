@@ -11,6 +11,7 @@ private:
   ros::NodeHandle nh;
   ros::Subscriber poseSub;
   ros::Subscriber velSub;
+  ros::Subscriber joySub;
   ros::Publisher actuatorPub;
 
   Eigen::Matrix3d mea_R;
@@ -23,6 +24,7 @@ private:
   double fzCmd; // result of SE3 controller computation
   Eigen::Vector3d tauCmd; // result of SE3 controller computation
   double motorCmd[4];
+  double joyCmd[4]; // desired thrust + euler angles from joystick
 
   double KP;
   double KV;
@@ -30,9 +32,11 @@ private:
   double KW;
   double M;
   double g;
+  double TCOEFF;
   
   void poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg);
   void velSubCB(const geometry_msgs::TwistStamped::ConstPtr& msg);
+  void joyCB(const sensor_msgs::JoyConstPtr &joy);
 
 public:
   SE3Controller(void);
@@ -42,32 +46,53 @@ public:
           const Eigen::Vector3d &r_pos,
           const Eigen::Vector3d &r_vel, 
           const Eigen::Vector3d &r_acc);
-
+  void joySE3(void); // give reference input to SE3 controller from joystick. This enables manual joystick control
 };
 
 SE3Controller::SE3Controller(void) {
-  KP = 0.0; //
+  KP = 4.0; //
   KV = 4.0; //
-  KR = 2.0; //0.2;
-  KW = 0.5; //
-  M = 1.5;
+  KR = 2.0; // 2.0
+  KW = 0.5; // 0.5
+  M = 1.5; // Iris in Gazebo
   g = 9.8;
+  TCOEFF = 6.57; // thrust coefficient
 
-  // NED case
-  //W << 1, 1, 1, 1,
-  //    0.22, -0.2, -0.22, 0.2,
-  //    -0.13, 0.13, -0.13, 0.13,
-  //    0.06, 0.06, -0.06, -0.06;
-
-  // ENU case
+  /*
+  // Iris in Gazebo
   W << 1, 1, 1, 1,
       -0.22, 0.2, 0.22, -0.2,
       -0.13, 0.13, -0.13, 0.13,
       -0.06, -0.06, 0.06, 0.06;
+  */
+  
+  // MSL quad
+  W << 1, 1, 1, 1,
+      -0.12, 0.12, 0.12, -0.12,
+      -0.12, 0.12, -0.12, 0.12,
+      -0.06, -0.06, 0.06, 0.06;
+  
+  // handle ros parameters
+  ros::param::get("~KP", KP);
+  ros::param::get("~KV", KV);
+  ros::param::get("~KR", KR);
+  ros::param::get("~KW", KW);
+  ros::param::get("~M", M);
+  ros::param::get("~TCOEFF", TCOEFF);
 
-  poseSub = nh.subscribe<geometry_msgs::PoseStamped>("/mavros/local_position/pose", 10, &SE3Controller::poseSubCB, this);
-  velSub = nh.subscribe<geometry_msgs::TwistStamped>("/mavros/local_position/velocity", 10, &SE3Controller::velSubCB, this);
+  std::cout << "Using the following parameters: " << std::endl;
+  std::cout << "KP = " << KP << std::endl;
+  std::cout << "KV = " << KV << std::endl;
+  std::cout << "KR = " << KR << std::endl;
+  std::cout << "KW = " << KW << std::endl;
+  std::cout << "M = " << M << std::endl;
+  std::cout << "TCOEFF = " << TCOEFF << std::endl;
+
+  poseSub = nh.subscribe<geometry_msgs::PoseStamped>("/mavros/local_position/pose", 1, &SE3Controller::poseSubCB, this);
+  velSub = nh.subscribe<geometry_msgs::TwistStamped>("/mavros/local_position/velocity", 1, &SE3Controller::velSubCB, this);
   actuatorPub = nh.advertise<mavros_msgs::ActuatorControl>("mavros/actuator_control", 1);
+
+  joySub = nh.subscribe<sensor_msgs::Joy>("/joy", 10, &SE3Controller::joyCB, this);
 }
 
 void SE3Controller::poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
@@ -107,6 +132,23 @@ void SE3Controller::velSubCB(const geometry_msgs::TwistStamped::ConstPtr& msg) {
   mea_wb(2) = msg->twist.angular.z;
 }
 
+void SE3Controller::joyCB(const sensor_msgs::Joy::ConstPtr& joy) {
+  joyCmd[0] = 0.2*joy->axes[3]; // [-2,2], can go either up or down
+  joyCmd[1] = -0.2*joy->axes[0];
+  joyCmd[2] = 0.2*joy->axes[1];
+  joyCmd[3] = 1.0*joy->axes[2];
+}
+
+void SE3Controller::joySE3(void) {
+  KP = 0.0; // need to disable position control
+  Eigen::Vector3d r_euler(joyCmd[1], joyCmd[2], joyCmd[3]);
+  Eigen::Vector3d r_wb(0, 0, 0);
+  Eigen::Vector3d r_pos(0, 0, 0); 
+  Eigen::Vector3d r_vel(joyCmd[2], -joyCmd[1], joyCmd[0]); 
+  Eigen::Vector3d r_acc(0, 0, 0);
+  calcSE3(r_euler, r_wb, r_pos, r_vel, r_acc);
+}
+
 void SE3Controller::calcSE3(const Eigen::Vector3d &r_euler, const Eigen::Vector3d &r_wb, 
           const Eigen::Vector3d &r_pos, const Eigen::Vector3d &r_vel, 
           const Eigen::Vector3d &r_acc) {
@@ -130,19 +172,21 @@ void SE3Controller::calcSE3(const Eigen::Vector3d &r_euler, const Eigen::Vector3
   Eigen::Vector3d eR(temp(2,1), temp(0,2), temp(1,0));
   eR = 0.5*eR;
   Eigen::Vector3d ew = mea_wb-r_wb;
-  eR(2) /= 4.0; // Note: reduce gain on yaw
-  ew(2) /= 4.0;
+  eR(2) /= 3.0; // Note: reduce gain on yaw
+  ew(2) /= 3.0;
   tauCmd = -KR*eR - KW*ew;
 
-  std::cout << "fzCmd = " << fzCmd << std::endl;
-  std::cout << "tauCmd = " << tauCmd << std::endl;
+  //std::cout << "fzCmd = " << fzCmd << std::endl;
+  //std::cout << "tauCmd = " << tauCmd << std::endl;
 
   Eigen::Vector4d wrench(fzCmd, tauCmd(0), tauCmd(1), tauCmd(2));
   Eigen::Vector4d ffff = W.colPivHouseholderQr().solve(wrench);
 
   //std::cout << ffff << std::endl;
   for(int i=0; i<4; i++) {
-    motorCmd[i] = ffff(i)/6.57;
+    // motorCmd[i] = ffff(i)/4.55; // msl quad
+    // motorCmd[i] = ffff(i)/6.57; // iris in gazebo
+    motorCmd[i] = ffff(i)/TCOEFF;
   }
 
   // publish commands
@@ -167,12 +211,13 @@ int main(int argc, char **argv)
 
   Eigen::Vector3d r_euler(0, 0, 0);
   Eigen::Vector3d r_wb(0, 0, 0);
-  Eigen::Vector3d r_pos(0, 0, 0); 
-  Eigen::Vector3d r_vel(0, 0, 0.1); 
+  Eigen::Vector3d r_pos(0, 0, 1.0); 
+  Eigen::Vector3d r_vel(0, 0, 0); 
   Eigen::Vector3d r_acc(0, 0, 0);
 
   while(ros::ok()) {
-    se3ctrl.calcSE3(r_euler, r_wb, r_pos, r_vel, r_acc);
+    //se3ctrl.calcSE3(r_euler, r_wb, r_pos, r_vel, r_acc);
+    se3ctrl.joySE3();
     ros::spinOnce();
 	  rate.sleep();    
   }
