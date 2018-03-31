@@ -10,7 +10,7 @@ private:
   ros::Subscriber joySub;
   ros::Publisher actuatorPub;
 
-  float cmdMotor[4];
+  float cmdMotor[8];
 
   void joyCB(const sensor_msgs::JoyConstPtr &joy);
 
@@ -28,10 +28,12 @@ ActuatorJoy::ActuatorJoy()
 
 void ActuatorJoy::joyCB(const sensor_msgs::JoyConstPtr &joy)
 {
+  cmdMotor[7] = 0.0; // secret key to enabling individual motor control in px4
   // button 7,8,9,10: individual motor control mode
   for(int i=0; i<4; i++) { // button 7->motor1, 8->2, 9->3, 10->4
     if(joy->buttons[i+6]) {
       cmdMotor[i] = 0.5*(joy->axes[3]+1);
+      cmdMotor[7] = 0.1234; // secret value
     }
   }
 
@@ -51,6 +53,7 @@ void ActuatorJoy::publishActuator(void) {
   for(int i=0; i<4; i++) {
     cmd.controls[i] = cmdMotor[i];
   }
+  cmd.controls[7] = cmdMotor[7]; // secret message to enable individual motor control
   actuatorPub.publish(cmd);
 }
 

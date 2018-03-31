@@ -5,6 +5,7 @@
 #include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/TwistStamped.h"
 #include <Eigen/Dense>
+#include <string>
 
 class SE3Controller {
 private:
@@ -33,6 +34,7 @@ private:
   double M;
   double g;
   double TCOEFF;
+  std::string MODEL;
   
   void poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg);
   void velSubCB(const geometry_msgs::TwistStamped::ConstPtr& msg);
@@ -49,29 +51,9 @@ public:
   void joySE3(void); // give reference input to SE3 controller from joystick. This enables manual joystick control
 };
 
-SE3Controller::SE3Controller(void) {
-  KP = 4.0; //
-  KV = 4.0; //
-  KR = 2.0; // 2.0
-  KW = 0.5; // 0.5
-  M = 1.5; // Iris in Gazebo
-  g = 9.8;
-  TCOEFF = 6.57; // thrust coefficient
-
-  /*
-  // Iris in Gazebo
-  W << 1, 1, 1, 1,
-      -0.22, 0.2, 0.22, -0.2,
-      -0.13, 0.13, -0.13, 0.13,
-      -0.06, -0.06, 0.06, 0.06;
-  */
-  
-  // MSL quad
-  W << 1, 1, 1, 1,
-      -0.12, 0.12, 0.12, -0.12,
-      -0.12, 0.12, -0.12, 0.12,
-      -0.06, -0.06, 0.06, 0.06;
-  
+SE3Controller::SE3Controller(void): 
+    MODEL("mslquad"), KP(4.0), KV(6.0), KR(0.3), KW(0.05), 
+    M(1.04), g(9.8), TCOEFF(4.4) {
   // handle ros parameters
   ros::param::get("~KP", KP);
   ros::param::get("~KV", KV);
@@ -79,6 +61,23 @@ SE3Controller::SE3Controller(void) {
   ros::param::get("~KW", KW);
   ros::param::get("~M", M);
   ros::param::get("~TCOEFF", TCOEFF);
+  ros::param::get("~MODEL", MODEL);
+  
+  if(MODEL=="mslquad") {
+    W << 1, 1, 1, 1,
+        -0.12, 0.12, 0.12, -0.12,
+        -0.12, 0.12, -0.12, 0.12,
+        -0.06, -0.06, 0.06, 0.06;
+  } else if(MODEL=="iris") {
+    // Iris in Gazebo
+    W << 1, 1, 1, 1,
+        -0.22, 0.2, 0.22, -0.2,
+        -0.13, 0.13, -0.13, 0.13,
+        -0.06, -0.06, 0.06, 0.06;
+  } else {
+    ROS_ERROR("Unknown model name!");   
+  }
+
 
   std::cout << "Using the following parameters: " << std::endl;
   std::cout << "KP = " << KP << std::endl;
@@ -87,6 +86,7 @@ SE3Controller::SE3Controller(void) {
   std::cout << "KW = " << KW << std::endl;
   std::cout << "M = " << M << std::endl;
   std::cout << "TCOEFF = " << TCOEFF << std::endl;
+  std::cout << "MODEL: " << MODEL << std::endl;
 
   poseSub = nh.subscribe<geometry_msgs::PoseStamped>("/mavros/local_position/pose", 1, &SE3Controller::poseSubCB, this);
   velSub = nh.subscribe<geometry_msgs::TwistStamped>("/mavros/local_position/velocity", 1, &SE3Controller::velSubCB, this);
@@ -109,13 +109,7 @@ void SE3Controller::poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
   double q2s = q2*q2;
   double q3s = q3*q3;
   double q4s = q4*q4;
-  // MATLAB version
-  //mea_R <<
-  //  q1s+q2s-q3s-q4s, 2.0*(q2*q3+q1*q4) ,2.0*(q2*q4-q1*q3),
-  //  2.0*(q2*q3-q1*q4), q1s-q2s+q3s-q4s, 2.0*(q3*q4+q1*q2),
-  //  2.0*(q2*q4-q1*q3), 2.0*(q3*q4-q1*q2), q1s-q2s-q3s+q4s;
 
-  // Wikipedia version
   mea_R <<
     q1s+q2s-q3s-q4s, 2.0*(q2*q3-q1*q4) ,2.0*(q2*q4+q1*q3),
     2.0*(q2*q3+q1*q4), q1s-q2s+q3s-q4s, 2.0*(q3*q4-q1*q2),
@@ -184,8 +178,6 @@ void SE3Controller::calcSE3(const Eigen::Vector3d &r_euler, const Eigen::Vector3
 
   //std::cout << ffff << std::endl;
   for(int i=0; i<4; i++) {
-    // motorCmd[i] = ffff(i)/4.55; // msl quad
-    // motorCmd[i] = ffff(i)/6.57; // iris in gazebo
     motorCmd[i] = ffff(i)/TCOEFF;
   }
 
@@ -196,6 +188,7 @@ void SE3Controller::calcSE3(const Eigen::Vector3d &r_euler, const Eigen::Vector3
   for(int i=0; i<4; i++) {
     cmd.controls[i] = motorCmd[i];
   }
+  cmd.controls[7] = 0.1234; // secret key to enabling direct motor control in px4
   actuatorPub.publish(cmd);
 }
   
