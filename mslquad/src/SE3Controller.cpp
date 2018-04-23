@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 #include "ros/ros.h"
 #include "mavros_msgs/ActuatorControl.h"
 #include "sensor_msgs/Joy.h"
@@ -192,6 +193,33 @@ void SE3Controller::calcSE3(const Eigen::Vector3d &r_euler, const Eigen::Vector3
   actuatorPub.publish(cmd);
 }
   
+void flyCircle(SE3Controller& ctrl, const Eigen::Vector3d& r_euler,
+               const Eigen::Vector3d& r_wb, Eigen::Vector3d& r_pos, 
+               const Eigen::Vector3d& r_vel, const Eigen::Vector3d& r_acc) {
+  ros::Rate rate(200.0);
+  // hover to (0,0,1)
+  std::cout << "Going to hover at (0,0,1)" << std::endl;
+  for(int i=0; i<3000; i++) {
+    ctrl.calcSE3(r_euler, r_wb, r_pos, r_vel, r_acc);
+    ros::spinOnce();
+    if(i%200==0){
+      std::cout << "Hovering for " << i/200 << " seconds" << std::endl;
+    }
+    rate.sleep();
+  }
+  std::cout << "Finished hovering. Flying circle" << std::endl;
+  // travel circle
+  for(int i=0; i<2000; i++) {
+    float th = 2*3.14159/2000*i;
+    r_pos(0) = 0.5*std::sin(th);
+    r_pos(2) = 1.5 - 0.5*std::cos(th);
+    ctrl.calcSE3(r_euler, r_wb, r_pos, r_vel, r_acc);
+    ros::spinOnce();
+	  rate.sleep();      
+  }
+
+  r_pos << 0, 0, 1;
+}
 
 int main(int argc, char **argv)
 {
@@ -209,8 +237,8 @@ int main(int argc, char **argv)
   Eigen::Vector3d r_acc(0, 0, 0);
 
   while(ros::ok()) {
-    //se3ctrl.calcSE3(r_euler, r_wb, r_pos, r_vel, r_acc);
-    se3ctrl.joySE3();
+    se3ctrl.calcSE3(r_euler, r_wb, r_pos, r_vel, r_acc);
+    //se3ctrl.joySE3();
     ros::spinOnce();
 	  rate.sleep();    
   }
