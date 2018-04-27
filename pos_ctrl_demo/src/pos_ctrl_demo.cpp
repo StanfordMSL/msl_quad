@@ -10,7 +10,7 @@ double dist(double x1, double y1, double z1,
   return std::sqrt((x1-x2)*(x1-x2)+(y1-y2)*(y1-y2)+(z1-z2)*(z1-z2));
 }
 
-void mocapCb(const geometry_msgs::PoseStamped::ConstPtr& msg) {
+void poseCb(const geometry_msgs::PoseStamped::ConstPtr& msg) {
   curX = msg->pose.position.x;
   curY = msg->pose.position.y;
   curZ = msg->pose.position.z;
@@ -22,10 +22,10 @@ int main(int argc, char **argv)
   ros::NodeHandle nh;
 
   ros::Publisher pubPosCmd;
-  ros::Subscriber subMocap;
+  ros::Subscriber subPose;
 
   pubPosCmd = nh.advertise<geometry_msgs::PoseStamped>("mavros/setpoint_position/local", 1);
-  subMocap = nh.subscribe<geometry_msgs::PoseStamped>("mavros/vision_pose/pose", 1, mocapCb);
+  subPose = nh.subscribe<geometry_msgs::PoseStamped>("mavros/local_position/pose", 1, poseCb);
 
   ros::Duration(0.1).sleep(); // sleep for a while, and wait optitrack stream to sync
 
