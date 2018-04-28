@@ -1,3 +1,10 @@
+/**************************************************************************
+  File Name    : actuator_test.cpp
+  Author       : Zijian Wang
+                 Multi-Robot Systems Lab (MSL), Stanford University
+  Contact      : zjwang@stanford.edu
+  Create Time  : Mar 19, 2018.
+**************************************************************************/
 #include <iostream>
 #include "ros/ros.h"
 #include "mavros_msgs/ActuatorControl.h"

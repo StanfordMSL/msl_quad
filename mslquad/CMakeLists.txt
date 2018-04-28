@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8.3)
 project(mslquad)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+add_compile_options(-std=c++11)
 
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
@@ -136,6 +136,9 @@ include_directories(
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(actuator_test src/actuator_test/actuator_test.cpp)
 target_link_libraries(actuator_test ${catkin_LIBRARIES})
+
+add_executable(pos_ctrl_test src/pos_ctrl_test/pos_ctrl_test.cpp)
+target_link_libraries(pos_ctrl_test ${catkin_LIBRARIES})
 
 add_executable(se3controller src/SE3Controller.cpp)
 target_link_libraries(se3controller ${catkin_LIBRARIES})

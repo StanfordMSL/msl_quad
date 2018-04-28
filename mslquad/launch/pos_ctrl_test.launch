@@ -1,0 +1,11 @@
+<launch>
+  <!-- waypoint format: x1,y1,z1, x2,y2,z2, ... -->
+  <rosparam param="pos_ctrl_test/waypoints">[0.5,0,1.2,  0,0.5,1.2,  0,-0.5,1.2]</rosparam>
+
+  <node pkg="mslquad" type="pos_ctrl_test" name="pos_ctrl_test" output="screen">
+        <param name="autoland" value="true"/>
+        <param name="takeoff_height" value="1.2"/>
+        <param name="reach_radius" value="0.05"/>
+  </node>
+
+</launch>

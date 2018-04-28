@@ -1,3 +1,10 @@
+/**************************************************************************
+  File Name    : SE3Controller.cpp
+  Author       : Zijian Wang
+                 Multi-Robot Systems Lab (MSL), Stanford University
+  Contact      : zjwang@stanford.edu
+  Create Time  : Mar 23, 2018.
+**************************************************************************/
 #include <iostream>
 #include <cmath>
 #include "ros/ros.h"
