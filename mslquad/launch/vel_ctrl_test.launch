@@ -1,0 +1,18 @@
+<launch>
+  <!-- waypoint format: x1,y1,z1, x2,y2,z2, ... -->
+  <rosparam param="vel_ctrl_test/waypoints">[5,0,1.2,  0,5,1.2,  0,-5,1.2]</rosparam>
+
+  <node pkg="mslquad" type="vel_ctrl_test" name="vel_ctrl_test" output="screen">
+        <param name="waypoint_relative" value="false"/>
+        <param name="autoland" value="true"/>
+        <param name="takeoff_height" value="1.2"/>
+        <param name="reach_radius" value="0.05"/>
+        <param name="ctrl_freq" value="50"/>
+        <param name="reach_rad" value="0.1"/>
+        <param name="gain_kp_lin_vel" value="1.2"/>
+        <param name="gain_kp_ang_vel" value="0.2"/>
+        <param name="yaw_maintain" value="0.0"/>
+        <param name="max_vel" value="1.0"/>
+  </node>
+
+</launch>
