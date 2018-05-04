@@ -15,4 +15,12 @@
         <param name="max_vel" value="1.0"/>
   </node>
 
+  <node name="bag_recorder" pkg="rosbag" type="record" 
+      args="-O $(find mslquad)/log/vel_ctrl_test.bag 
+        /mavros/local_position/pose 
+        /mavros/local_position/velocity
+        /mavros/setpoint_velocity/cmd_vel_unstamped
+        /mavros/state"
+  />
+
 </launch>
