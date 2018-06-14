@@ -12,6 +12,6 @@
         required="true"
         output="screen">
     <rosparam file="$(arg mocap_config_file)" command="load" />
-    <remap from="rob_1/pose" to="mavros/vision_pose/pose" />
+    <remap from="rob_2/pose" to="mavros/vision_pose/pose" />
   </node>
 </launch>
