@@ -143,6 +143,9 @@ target_link_libraries(pos_ctrl_test ${catkin_LIBRARIES})
 add_executable(vel_ctrl_test src/vel_ctrl_test/vel_ctrl_test.cpp)
 target_link_libraries(vel_ctrl_test ${catkin_LIBRARIES})
 
+add_executable(offboard src/offboard/offb_node.cpp)
+target_link_libraries(offboard ${catkin_LIBRARIES})
+
 add_executable(se3controller src/SE3Controller.cpp)
 target_link_libraries(se3controller ${catkin_LIBRARIES})
 
