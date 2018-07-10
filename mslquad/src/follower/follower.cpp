@@ -42,12 +42,19 @@ private:
     vector<vector<double>* > waypoints;
     bool autoland; // whether to land automatically after finishing all waypoints
     double takeoffHeight;
+    double landHeight;
     double reachRadius; // radius to determine if a waypoint is reached
 
+
+    //methods
+    void safeLand(); //initiates safe landing at the current position, killes PX4Agent if landed 
+
+    //call backs
     void poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg); // pose callback on PX4 local position
     void stateSubCB(const mavros_msgs::State::ConstPtr& msg); // state callbacj on PX4 state
     void controlTimerCB(const ros::TimerEvent& event);
 
+    //helper functions
     double dist(const vector<double>* p); // calculate dist to a point from current position of the quad
 
 public:
@@ -55,7 +62,7 @@ public:
     ~PX4Agent();
 };
 
-PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), reachRadius(0.05) {
+PX4Agent::PX4Agent() : autoland(true), takeoffHeight(1.2), landHeight(.0), reachRadius(0.05) {
     //SUBCRIBERS
     //get pose 
     px4PoseSub = nh.subscribe<geometry_msgs::PoseStamped>(
@@ -83,8 +90,8 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), reachRadius(0.05) {
     }
 
     // wait for the initial position of the quad
-    while(ros::ok() && curPose.header.seq < 1000) {
-        cout << "Waiting for local_position/pose..." << endl;
+    while(ros::ok() && curPose.header.seq < 100) {
+        //cout << "Waiting for local_position/pose..." << endl;
         ros::spinOnce();
         ros::Duration(1.0).sleep();
     }
@@ -110,8 +117,8 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), reachRadius(0.05) {
     cmdPose.pose.position.y = initPose.pose.position.y;
     cmdPose.pose.position.z = initPose.pose.position.z+takeoffHeight;
 
-    //send a few setpoints before starting to make px4 behave
-    // it needs poses queued else it won't go to off board mode
+    //send a few setpoints before starting
+    // it needs poses queued else it won't go to offboard mode?
     for(int i = 100; ros::ok() && i > 0; --i){
         px4SetPosPub.publish(cmdPose);
         ros::spinOnce();
@@ -149,13 +156,21 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), reachRadius(0.05) {
                 if( arming_client.call(arm_cmd) &&
                     arm_cmd.response.success){
                     ROS_INFO("Flight: Controller Armed");
-                    break;
                 }
                 last_request = ros::Time::now();
             }
         }
+        //cout << curState.mode << endl; 
+        //cout << curState.armed << endl;
+        px4SetPosPub.publish(cmdPose);
+        ros::spinOnce();
+        ros::Duration(.05).sleep();
+        
+        if(curState.mode == "OFFBOARD" && curState.armed){
+            ROS_INFO("Flight: Vehicle cleared for takeoff");
+            break;
+        }
     }
-    ROS_INFO("Flight: Vehicle cleared for takeoff");
     // start timer, operate under timer callbacks
     controlTimer = nh.createTimer(ros::Duration(0.1), &PX4Agent::controlTimerCB, this); // TODO: make the control freq changeable
 }//end initalization
@@ -163,7 +178,7 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), reachRadius(0.05) {
 
 
 PX4Agent::~PX4Agent() {
-    cout << "PX4 agent destroyed" << endl;
+    ROS_WARN("Flight: PX4 agent destroyed");
 }
 
 void PX4Agent::poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
@@ -206,28 +221,38 @@ void PX4Agent::controlTimerCB(const ros::TimerEvent& event) {
     } else { // reached all the waypoints \\\todo add safe land 
         if(autoland) {
             ROS_INFO("Navigation: Trajectory complete. Landing");
-            if(curPose.pose.position.z > initPose.pose.position.z+.2){  //TODO ADD LANDING HEIGHT
-                cmdPose.pose.position.z = cmdPose.pose.position.z - .1;
-            }
-            cmdPose.pose.orientation.x = initPose.pose.orientation.x;
-            cmdPose.pose.orientation.y = initPose.pose.orientation.y;
-            cmdPose.pose.orientation.z = initPose.pose.orientation.z;
-            cmdPose.pose.orientation.w = initPose.pose.orientation.w; 
+            safeLand();
         }
         else{
             ROS_INFO("Navigation: Trajectory complete. Hovering");
         }
         // if not autoland, just keep publishing the previous commands             
     }
+    cmdPose.header.stamp = ros::Time::now();
+    px4SetPosPub.publish(cmdPose); // must keep publishing to maintain offboard state
+}
+void PX4Agent::safeLand(){
+    ROS_INFO("Navigation: Trajectory complete. Landing");
+    if(curPose.pose.position.z > initPose.pose.position.z + landHeight){  //TODO ADD LANDING HEIGHT
+        cmdPose.pose.position.z = cmdPose.pose.position.z - .01;
+    }
+    else{
+     ros::shutdown(); //do something else when landed?
+    }
+    cmdPose.pose.orientation.x = initPose.pose.orientation.x;
+    cmdPose.pose.orientation.y = initPose.pose.orientation.y;
+    cmdPose.pose.orientation.z = initPose.pose.orientation.z;
+    cmdPose.pose.orientation.w = initPose.pose.orientation.w; 
 
     cmdPose.header.stamp = ros::Time::now();
     px4SetPosPub.publish(cmdPose); // must keep publishing to maintain offboard state
+
 }
 
 int main(int argc, char **argv){
   ros::init(argc, argv, "PX4_Agent");
   PX4Agent px4agent;
-  cout << "PX4 agent initiated." << endl;
+  ROS_INFO("Flight: PX4 agent initiated");
   ros::spin();
   return 0;
 }
