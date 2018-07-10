@@ -37,7 +37,7 @@ int main(int argc, char **argv)
         ros::spinOnce();
         rate.sleep();
     }
-
+    // inital height
     geometry_msgs::PoseStamped pose;
     pose.pose.position.x = 0;
     pose.pose.position.y = 0;
