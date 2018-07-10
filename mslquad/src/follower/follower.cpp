@@ -5,12 +5,13 @@
   Contact      : k2shah@stanford.edu
   Create Time  : Jul;. 09th, 2018.
   Descrption   : Waypoint follower for PX4
-                 Tested with NOTHING 
+                 Tested with Gazebo/PX4 
                  **************************************************************************/
 // ros 
 #include "ros/ros.h"
 #include <geometry_msgs/Twist.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <trajectory_msgs/JointTrajectory.h>
 // mavros 
 #include <mavros_msgs/CommandBool.h>
 #include <mavros_msgs/SetMode.h>
@@ -34,7 +35,8 @@ private:
 
     ros::NodeHandle nh;
     ros::Subscriber px4PoseSub; // px4 pose sub
-    ros::Subscriber px4StateSub; // px3 state sub 
+    ros::Subscriber px4StateSub; // px4 state sub 
+    ros::Subscriber trajSub; // trajectory sub 
     ros::Publisher px4SetPosPub;
 
     ros::Timer controlTimer;
@@ -52,6 +54,8 @@ private:
     //call backs
     void poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg); // pose callback on PX4 local position
     void stateSubCB(const mavros_msgs::State::ConstPtr& msg); // state callbacj on PX4 state
+    void trajSubCB(const trajectory_msgs::JointTrajectory::ConstPtr& msg);
+
     void controlTimerCB(const ros::TimerEvent& event);
 
     //helper functions
@@ -70,6 +74,11 @@ PX4Agent::PX4Agent() : autoland(true), takeoffHeight(1.2), landHeight(.0), reach
     //get state 
     px4StateSub = nh.subscribe<mavros_msgs::State>
             ("mavros/state", 10, &PX4Agent::stateSubCB, this);
+    //get trajectory 
+    px4StateSub = nh.subscribe<trajectory_msgs::JointTrajectory>
+            ("command/trajectory", 10, &PX4Agent::trajSubCB, this);
+
+
     //SERVICE CALLS
     //arm 
     ros::ServiceClient arming_client = nh.serviceClient<mavros_msgs::CommandBool>
@@ -85,13 +94,14 @@ PX4Agent::PX4Agent() : autoland(true), takeoffHeight(1.2), landHeight(.0), reach
 
     // wait for FCU connection
     while(ros::ok() && !curState.connected){
+        //cout << "Flight: waitng for mavros" << endl;
         ros::spinOnce();
         ros::Duration(.05).sleep();
     }
 
     // wait for the initial position of the quad
-    while(ros::ok() && curPose.header.seq < 100) {
-        //cout << "Waiting for local_position/pose..." << endl;
+    while(ros::ok() && curPose.header.seq < 10) {
+        cout << "Navigation: waitng for pose" << endl;
         ros::spinOnce();
         ros::Duration(1.0).sleep();
     }
@@ -142,22 +152,22 @@ PX4Agent::PX4Agent() : autoland(true), takeoffHeight(1.2), landHeight(.0), reach
     ros::Time last_request = ros::Time::now();
 
     while(ros::ok()){ //switch to off board and arm 
-        if( curState.mode != "OFFBOARD" &&
-            (ros::Time::now() - last_request > ros::Duration(1.0))){
-            if( set_mode_client.call(offb_set_mode) &&
-                offb_set_mode.response.mode_sent){
-                ROS_INFO("Flight: Offboard Enabled");
-            }
-            last_request = ros::Time::now();
-        }   
-        else {
-            if( !curState.armed &&
-                (ros::Time::now() - last_request > ros::Duration(1.0))){
-                if( arming_client.call(arm_cmd) &&
-                    arm_cmd.response.success){
-                    ROS_INFO("Flight: Controller Armed");
+        if(ros::Time::now() - last_request > ros::Duration(1.0)){
+            if( curState.mode != "OFFBOARD") {
+                if( set_mode_client.call(offb_set_mode) &&
+                    offb_set_mode.response.mode_sent){
+                    ROS_INFO("Flight: Offboard Enabled");
                 }
                 last_request = ros::Time::now();
+          }     
+            else{
+                if(!curState.armed){
+                    if( arming_client.call(arm_cmd) &&
+                        arm_cmd.response.success){
+                        ROS_INFO("Flight: Controller Armed");
+                    }
+                    last_request = ros::Time::now();
+                }
             }
         }
         //cout << curState.mode << endl; 
@@ -195,10 +205,34 @@ double PX4Agent::dist(const vector<double>* p) {
                 pow((*p)[2]-curPose.pose.position.z, 2));
 }
 
-// void PX4Agent::UpdateWaypointsCB(const ma) { //TODO callback that turns the msg to the waypoints
+void PX4Agent::trajSubCB(const trajectory_msgs::JointTrajectory::ConstPtr& msg) { 
+// callback that turns the msg to the waypoints
+    cout <<"Navigation: Waypoints Recieved" <<endl;
+    //for each waypoint
+    for(int waypointNum=0; waypointNum<msg->points.size(); waypointNum++){
+        vector<double>* p = new vector<double>;
+        //there has to be a better way to do this...can't i do vector vector assignemtn?
+        
+        //p=msg->points[waypointNum].positions   
+        //^ERROR: cannot convert ‘const _positions_type {aka const std::vector<double>}’ to ‘std::vector<double>*’
+        
+        p->push_back(msg->points[waypointNum].positions[0]);
+        p->push_back(msg->points[waypointNum].positions[1]);
+        p->push_back(msg->points[waypointNum].positions[2]);
+        waypoints.push_back(p);
+    }
 
 
-// }
+    // print waypoints
+    cout << "Waypoints: " << endl;
+    for(auto it = waypoints.begin(); it != waypoints.end(); it++) {
+        for(auto j=(*it)->begin(); j!=(*it)->end(); j++) {
+            cout << setprecision(3) << *j << ", ";
+        }
+        cout << endl;
+    }
+}
+
 
 void PX4Agent::controlTimerCB(const ros::TimerEvent& event) {
     if(!waypoints.empty()) {
