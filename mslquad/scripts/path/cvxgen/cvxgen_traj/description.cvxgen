@@ -1,0 +1,160 @@
+# Produced by CVXGEN, 2018-05-12 17:48:35 -0400.
+# CVXGEN is Copyright (C) 2006-2017 Jacob Mattingley, jem@cvxgen.com.
+# The code in this file is Copyright (C) 2006-2017 Jacob Mattingley.
+# CVXGEN, or solvers produced by CVXGEN, cannot be used for commercial
+# applications without prior written permission from Jacob Mattingley.
+
+# Filename: description.cvxgen.
+# Description: A description of the CVXGEN problem.
+
+dimensions
+  N = 8 # max number of sections, there are N+1 waypoints
+end
+
+# assumed number of section is >= 3
+# assumed initial and final vel, acc, jerk, snap are all zero
+parameters
+  Q[i] (4,4) symmetric psd, i=1..N
+
+  tf0123[i] (4), i=1..N # final time series, split into two params
+  tf4567[i] (4), i=1..N
+  wpts (N+1) # waypoints
+
+  # final velocity constraint
+  final_v_c0123[i] (4), i=3..N # final vel coefficient, set to zero if not final
+  final_v_c4567[i] (4), i=3..N
+  final_a_c0123[i] (4), i=3..N
+  final_a_c4567[i] (4), i=3..N
+  final_j_c0123[i] (4), i=3..N
+  final_j_c4567[i] (4), i=3..N
+  final_s_c0123[i] (4), i=3..N
+  final_s_c4567[i] (4), i=3..N
+
+  # continuity constraint
+  v_cont_c0123[i] (4), i=1..N-1 # velocity continuity constraint
+  v_cont_c4567[i] (4), i=1..N-1
+  a_cont_c0123[i] (4), i=1..N-1 # acceleration continuity constraint
+  a_cont_c4567[i] (4), i=1..N-1
+  j_cont_c0123[i] (4), i=1..N-1 # jerk continuity constraint
+  j_cont_c4567[i] (4), i=1..N-1
+  s_cont_c0123[i] (4), i=1..N-1 # snap continuity constraint
+  s_cont_c4567[i] (4), i=1..N-1
+  ds_cont_c0123[i] (4), i=1..N-1 # derivative of snap continuity constraint
+  ds_cont_c4567[i] (4), i=1..N-1
+end
+
+variables
+  c0123[i] (4), i=1..N # polynomial coefficients, assumed 7th order poly
+  c4567[i] (4), i=1..N
+end
+
+minimize
+  sum[i=1..N](quad(c4567[i],Q[i]))
+subject to
+  ### waypoint constraints (constrain start and end point)
+  # section 1
+  c0123[1][1] == wpts[1]
+  tf0123[1]'*c0123[1] + tf4567[1]'*c4567[1] == wpts[2]
+  # section 2
+  c0123[2][1] == wpts[2]
+  tf0123[2]'*c0123[2] + tf4567[2]'*c4567[2] == wpts[3]
+  # section 3
+  c0123[3][1] == wpts[3]
+  tf0123[3]'*c0123[3] + tf4567[3]'*c4567[3] == wpts[4]
+  # section 4
+  c0123[4][1] == wpts[4]
+  tf0123[4]'*c0123[4] + tf4567[4]'*c4567[4] == wpts[5]
+  # section 5
+  c0123[5][1] == wpts[5]
+  tf0123[5]'*c0123[5] + tf4567[5]'*c4567[5] == wpts[6]
+  # section 6
+  c0123[6][1] == wpts[6]
+  tf0123[6]'*c0123[6] + tf4567[6]'*c4567[6] == wpts[7]
+  # section 7
+  c0123[7][1] == wpts[7]
+  tf0123[7]'*c0123[7] + tf4567[7]'*c4567[7] == wpts[8]
+  # section 8
+  c0123[8][1] == wpts[8]
+  tf0123[8]'*c0123[8] + tf4567[8]'*c4567[8] == wpts[9]
+
+  ### intial and final velocity constraint
+  # initial
+  c0123[1][2] == 0
+  2*c0123[1][3] == 0
+  6*c0123[1][4] == 0
+  24*c4567[1][1]  == 0
+  # if section 3 is final, if not, coefficients are zero
+  final_v_c0123[3]'*c0123[3] + final_v_c4567[3]'*c4567[3] == 0
+  final_a_c0123[3]'*c0123[3] + final_a_c4567[3]'*c4567[3] == 0
+  final_j_c0123[3]'*c0123[3] + final_j_c4567[3]'*c4567[3] == 0
+  final_s_c0123[3]'*c0123[3] + final_s_c4567[3]'*c4567[3] == 0
+  # if section 4 is final
+  final_v_c0123[4]'*c0123[4] + final_v_c4567[4]'*c4567[4] == 0
+  final_a_c0123[4]'*c0123[4] + final_a_c4567[4]'*c4567[4] == 0
+  final_j_c0123[4]'*c0123[4] + final_j_c4567[4]'*c4567[4] == 0
+  final_s_c0123[4]'*c0123[4] + final_s_c4567[4]'*c4567[4] == 0
+  # if section 5 is final
+  final_v_c0123[5]'*c0123[5] + final_v_c4567[5]'*c4567[5] == 0
+  final_a_c0123[5]'*c0123[5] + final_a_c4567[5]'*c4567[5] == 0
+  final_j_c0123[5]'*c0123[5] + final_j_c4567[5]'*c4567[5] == 0
+  final_s_c0123[5]'*c0123[5] + final_s_c4567[5]'*c4567[5] == 0
+  # if section 6 is final
+  final_v_c0123[6]'*c0123[6] + final_v_c4567[6]'*c4567[6] == 0
+  final_a_c0123[6]'*c0123[6] + final_a_c4567[6]'*c4567[6] == 0
+  final_j_c0123[6]'*c0123[6] + final_j_c4567[6]'*c4567[6] == 0
+  final_s_c0123[6]'*c0123[6] + final_s_c4567[6]'*c4567[6] == 0
+  # if section 7 is final
+  final_v_c0123[7]'*c0123[7] + final_v_c4567[7]'*c4567[7] == 0
+  final_a_c0123[7]'*c0123[7] + final_a_c4567[7]'*c4567[7] == 0
+  final_j_c0123[7]'*c0123[7] + final_j_c4567[7]'*c4567[7] == 0
+  final_s_c0123[7]'*c0123[7] + final_s_c4567[7]'*c4567[7] == 0
+  # if section 8 is final
+  final_v_c0123[8]'*c0123[8] + final_v_c4567[8]'*c4567[8] == 0
+  final_a_c0123[8]'*c0123[8] + final_a_c4567[8]'*c4567[8] == 0
+  final_j_c0123[8]'*c0123[8] + final_j_c4567[8]'*c4567[8] == 0
+  final_s_c0123[8]'*c0123[8] + final_s_c4567[8]'*c4567[8] == 0
+
+  ### continuity constraints
+  # section 1 -> 2
+  v_cont_c0123[1]'*c0123[1] + v_cont_c4567[1]'*c4567[1] == c0123[2][2]
+  a_cont_c0123[1]'*c0123[1] + a_cont_c4567[1]'*c4567[1] == 2*c0123[2][3]
+  j_cont_c0123[1]'*c0123[1] + j_cont_c4567[1]'*c4567[1] == 6*c0123[2][4]
+  s_cont_c0123[1]'*c0123[1] + s_cont_c4567[1]'*c4567[1] == 24*c4567[2][1]
+  ds_cont_c0123[1]'*c0123[1] + ds_cont_c4567[1]'*c4567[1] == 120*c4567[2][2]
+  ## section 2 -> 3
+  v_cont_c0123[2]'*c0123[2] + v_cont_c4567[2]'*c4567[2] == c0123[3][2]
+  a_cont_c0123[2]'*c0123[2] + a_cont_c4567[2]'*c4567[2] == 2*c0123[3][3]
+  j_cont_c0123[2]'*c0123[2] + j_cont_c4567[2]'*c4567[2] == 6*c0123[3][4]
+  s_cont_c0123[2]'*c0123[2] + s_cont_c4567[2]'*c4567[2] == 24*c4567[3][1]
+  ds_cont_c0123[2]'*c0123[2] + ds_cont_c4567[2]'*c4567[2] == 120*c4567[3][2]
+  # section 3 -> 4
+  v_cont_c0123[3]'*c0123[3] + v_cont_c4567[3]'*c4567[3] == c0123[4][2]
+  a_cont_c0123[3]'*c0123[3] + a_cont_c4567[3]'*c4567[3] == 2*c0123[4][3]
+  j_cont_c0123[3]'*c0123[3] + j_cont_c4567[3]'*c4567[3] == 6*c0123[4][4]
+  s_cont_c0123[3]'*c0123[3] + s_cont_c4567[3]'*c4567[3] == 24*c4567[4][1]
+  ds_cont_c0123[3]'*c0123[3] + ds_cont_c4567[3]'*c4567[3] == 120*c4567[4][2]
+  # section 4 -> 5
+  v_cont_c0123[4]'*c0123[4] + v_cont_c4567[4]'*c4567[4] == c0123[5][2]
+  a_cont_c0123[4]'*c0123[4] + a_cont_c4567[4]'*c4567[4] == 2*c0123[5][3]
+  j_cont_c0123[4]'*c0123[4] + j_cont_c4567[4]'*c4567[4] == 6*c0123[5][4]
+  s_cont_c0123[4]'*c0123[4] + s_cont_c4567[4]'*c4567[4] == 24*c4567[5][1]
+  ds_cont_c0123[4]'*c0123[4] + ds_cont_c4567[4]'*c4567[4] == 120*c4567[5][2]
+  # section 5 -> 6
+  v_cont_c0123[5]'*c0123[5] + v_cont_c4567[5]'*c4567[5] == c0123[6][2]
+  a_cont_c0123[5]'*c0123[5] + a_cont_c4567[5]'*c4567[5] == 2*c0123[6][3]
+  j_cont_c0123[5]'*c0123[5] + j_cont_c4567[5]'*c4567[5] == 6*c0123[6][4]
+  s_cont_c0123[5]'*c0123[5] + s_cont_c4567[5]'*c4567[5] == 24*c4567[6][1]
+  ds_cont_c0123[5]'*c0123[5] + ds_cont_c4567[5]'*c4567[5] == 120*c4567[6][2]
+  # section 6 -> 7
+  v_cont_c0123[6]'*c0123[6] + v_cont_c4567[6]'*c4567[6] == c0123[7][2]
+  a_cont_c0123[6]'*c0123[6] + a_cont_c4567[6]'*c4567[6] == 2*c0123[7][3]
+  j_cont_c0123[6]'*c0123[6] + j_cont_c4567[6]'*c4567[6] == 6*c0123[7][4]
+  s_cont_c0123[6]'*c0123[6] + s_cont_c4567[6]'*c4567[6] == 24*c4567[7][1]
+  ds_cont_c0123[6]'*c0123[6] + ds_cont_c4567[6]'*c4567[6] == 120*c4567[7][2]
+  # section 7 -> 8
+  v_cont_c0123[7]'*c0123[7] + v_cont_c4567[7]'*c4567[7] == c0123[8][2]
+  a_cont_c0123[7]'*c0123[7] + a_cont_c4567[7]'*c4567[7] == 2*c0123[8][3]
+  j_cont_c0123[7]'*c0123[7] + j_cont_c4567[7]'*c4567[7] == 6*c0123[8][4]
+  s_cont_c0123[7]'*c0123[7] + s_cont_c4567[7]'*c4567[7] == 24*c4567[8][1]
+  ds_cont_c0123[7]'*c0123[7] + ds_cont_c4567[7]'*c4567[7] == 120*c4567[8][2]
+end
