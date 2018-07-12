@@ -5,6 +5,12 @@ import tf
 import std_msgs.msg
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 
+#trajectory solve code
+from path.objdyn import LoadSim
+from path.visual import VizTool, TrajPlotter
+from path.robot import Thruster
+from path.trajectory import PolynomialTraj, PolynomialTrajOpt
+
 import numpy as np
 
 class Planner:
@@ -14,12 +20,17 @@ class Planner:
 
         self.trajectory
         self.timeResolution = 0.25
-        self.plan_horizon = 30
+        self.trajBranchIdx = 3
         self.trans_listener = tf.TransformListener()
 
         #path goal and position goal topics
         self.trajPub = rospy.Publisher('command/trajectory', JointTrajectory, queue_size=10)
-        
+        self.goalSub = rospy.Subscriber('command/goal', JointTrajectoryPoint, self.getGoalCB)
+
+
+    def getGoalCB(self, msg):
+
+
 
 
     def buildTrajectoryMsg(self, trajectory, timeResolution=self.timeResolution):
@@ -30,11 +41,12 @@ class Planner:
             trajPt=JointTrajectoryPoint()
             #get output
             trajPtFlat=traj_opt_time.get_flatout(t)
-            #fill
-
-            for pos in self.wpP[i]:
-                trajPt.positions.append(pos)
-            trajPt.time_from_start=rospy.Duration.from_sec(self.wpT[i])
+            #fill point
+            trajPt.positions.append(trajPtFlat[:,0])
+            trajPt.velocties.append(trajPtFlat[:,1])
+            trajPt.accelerations.append(trajPtFlat[:,2])
+            trajPt.time_from_start=rospy.Duration.from_sec(t)
+            #append to trajectory message
             trajMsg.points.append(trajPt)
         #fill header
         trajMsg.header.stamp = rospy.Time.now()
