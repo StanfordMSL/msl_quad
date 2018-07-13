@@ -66,7 +66,7 @@ public:
     ~PX4Agent();
 };
 
-PX4Agent::PX4Agent() : autoland(true), takeoffHeight(1.2), landHeight(.0), reachRadius(0.05) {
+PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), landHeight(.0), reachRadius(0.05) {
     //SUBCRIBERS
     //get pose 
     px4PoseSub = nh.subscribe<geometry_msgs::PoseStamped>(
@@ -93,11 +93,11 @@ PX4Agent::PX4Agent() : autoland(true), takeoffHeight(1.2), landHeight(.0), reach
 
 
     // wait for FCU connection
-    while(ros::ok() && !curState.connected){
-        //cout << "Flight: waitng for mavros" << endl;
-        ros::spinOnce();
-        ros::Duration(.05).sleep();
-    }
+    // while(ros::ok() && !curState.connected){
+    //     //cout << "Flight: waitng for mavros" << endl;
+    //     ros::spinOnce();
+    //     ros::Duration(.05).sleep();
+    // }
 
     // wait for the initial position of the quad
     while(ros::ok() && curPose.header.seq < 10) {
@@ -151,36 +151,36 @@ PX4Agent::PX4Agent() : autoland(true), takeoffHeight(1.2), landHeight(.0), reach
 
     // ros::Time last_request = ros::Time::now();
 
-    while(ros::ok()){ //switch to off board and arm 
-        // if(ros::Time::now() - last_request > ros::Duration(1.0)){
-        //     if( curState.mode != "OFFBOARD") {
-        //         if( set_mode_client.call(offb_set_mode) &&
-        //             offb_set_mode.response.mode_sent){
-        //             ROS_INFO("Flight: Offboard Enabled");
-        //         }
-        //         last_request = ros::Time::now();
-        //   }     
-        //     else{
-        //         if(!curState.armed){
-        //             if( arming_client.call(arm_cmd) &&
-        //                 arm_cmd.response.success){
-        //                 ROS_INFO("Flight: Controller Armed");
-        //             }
-        //             last_request = ros::Time::now();
-        //         }
-        //     }
-        // }
-        //cout << curState.mode << endl; 
-        //cout << curState.armed << endl;
-        px4SetPosPub.publish(cmdPose);
-        //ros::spinOnce();
-        ros::Duration(.05).sleep();
-        
-        if(curState.mode == "OFFBOARD" && curState.armed){
-            ROS_INFO("Flight: Vehicle cleared for takeoff");
-            break;
-        }
-    }
+    // while(ros::ok()){ //switch to off board and arm 
+    //     // if(ros::Time::now() - last_request > ros::Duration(1.0)){
+    //     //     if( curState.mode != "OFFBOARD") {
+    //     //         if( set_mode_client.call(offb_set_mode) &&
+    //     //             offb_set_mode.response.mode_sent){
+    //     //             ROS_INFO("Flight: Offboard Enabled");
+    //     //         }
+    //     //         last_request = ros::Time::now();
+    //     //   }     
+    //     //     else{
+    //     //         if(!curState.armed){
+    //     //             if( arming_client.call(arm_cmd) &&
+    //     //                 arm_cmd.response.success){
+    //     //                 ROS_INFO("Flight: Controller Armed");
+    //     //             }
+    //     //             last_request = ros::Time::now();
+    //     //         }
+    //     //     }
+    //     // }
+    //     //cout << curState.mode << endl; 
+    //     //cout << curState.armed << endl;
+    //     px4SetPosPub.publish(cmdPose);
+    //     //ros::spinOnce();
+    //     ros::Duration(.05).sleep();
+    //     ROS_INFO("Flight: Waiting for clearance");
+    //     if(curState.mode == "OFFBOARD" && curState.armed){
+    //         ROS_INFO("Flight: Vehicle cleared for takeoff");
+    //         break;
+    //     }
+    // }
     // start timer, operate under timer callbacks
     controlTimer = nh.createTimer(ros::Duration(0.1), &PX4Agent::controlTimerCB, this); // TODO: make the control freq changeable
 }//end initalization
@@ -218,7 +218,7 @@ void PX4Agent::trajSubCB(const trajectory_msgs::JointTrajectory::ConstPtr& msg) 
         
         p->push_back(msg->points[waypointNum].positions[0]);
         p->push_back(msg->points[waypointNum].positions[1]);
-        p->push_back(msg->points[waypointNum].positions[2])+takeoffHeight;
+        p->push_back(msg->points[waypointNum].positions[2]+takeoffHeight);
         waypoints.push_back(p);
     }
 
