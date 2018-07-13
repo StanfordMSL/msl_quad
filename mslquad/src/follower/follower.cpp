@@ -142,38 +142,38 @@ PX4Agent::PX4Agent() : autoland(true), takeoffHeight(1.2), landHeight(.0), reach
     p->push_back(cmdPose.pose.position.z);
     waypoints.push_back(p);
     
-    //run offboard mode and arm controller
-    mavros_msgs::SetMode offb_set_mode;
-    offb_set_mode.request.custom_mode = "OFFBOARD";
+    // //run offboard mode and arm controller
+    // mavros_msgs::SetMode offb_set_mode;
+    // offb_set_mode.request.custom_mode = "OFFBOARD";
 
-    mavros_msgs::CommandBool arm_cmd;
-    arm_cmd.request.value = true;
+    // mavros_msgs::CommandBool arm_cmd;
+    // arm_cmd.request.value = true;
 
-    ros::Time last_request = ros::Time::now();
+    // ros::Time last_request = ros::Time::now();
 
     while(ros::ok()){ //switch to off board and arm 
-        if(ros::Time::now() - last_request > ros::Duration(1.0)){
-            if( curState.mode != "OFFBOARD") {
-                if( set_mode_client.call(offb_set_mode) &&
-                    offb_set_mode.response.mode_sent){
-                    ROS_INFO("Flight: Offboard Enabled");
-                }
-                last_request = ros::Time::now();
-          }     
-            else{
-                if(!curState.armed){
-                    if( arming_client.call(arm_cmd) &&
-                        arm_cmd.response.success){
-                        ROS_INFO("Flight: Controller Armed");
-                    }
-                    last_request = ros::Time::now();
-                }
-            }
-        }
+        // if(ros::Time::now() - last_request > ros::Duration(1.0)){
+        //     if( curState.mode != "OFFBOARD") {
+        //         if( set_mode_client.call(offb_set_mode) &&
+        //             offb_set_mode.response.mode_sent){
+        //             ROS_INFO("Flight: Offboard Enabled");
+        //         }
+        //         last_request = ros::Time::now();
+        //   }     
+        //     else{
+        //         if(!curState.armed){
+        //             if( arming_client.call(arm_cmd) &&
+        //                 arm_cmd.response.success){
+        //                 ROS_INFO("Flight: Controller Armed");
+        //             }
+        //             last_request = ros::Time::now();
+        //         }
+        //     }
+        // }
         //cout << curState.mode << endl; 
         //cout << curState.armed << endl;
         px4SetPosPub.publish(cmdPose);
-        ros::spinOnce();
+        //ros::spinOnce();
         ros::Duration(.05).sleep();
         
         if(curState.mode == "OFFBOARD" && curState.armed){
@@ -207,7 +207,7 @@ double PX4Agent::dist(const vector<double>* p) {
 
 void PX4Agent::trajSubCB(const trajectory_msgs::JointTrajectory::ConstPtr& msg) { 
 // callback that turns the msg to the waypoints
-    cout <<"Navigation: Waypoints Recieved" <<endl;
+    cout <<"Navigation: JointTrajectory Recieved" <<endl;
     //for each waypoint
     for(int waypointNum=0; waypointNum<msg->points.size(); waypointNum++){
         vector<double>* p = new vector<double>;

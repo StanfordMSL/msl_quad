@@ -9,17 +9,22 @@ class Keyframes:
     """
     class for managing keyframes more conveniently
     """
-    def __init__(self, init_x, init_y, init_z, init_psi):
+    def __init__(self, init_x, init_y, init_z, init_psi=0, init_v=0, init_a=0):
         """
-        assumed the initial vel and acc are zeros
         """
+
+        if init_v==0:
+            init_v=[0]*3
+        if init_a==0:
+            init_a=[0]*3
+
         self.wps = None
         self.ts = [] # duration of each section
 
         init_wp = np.array([
-            [init_x, 0.0, 0.0],
-            [init_y, 0.0, 0.0],
-            [init_z, 0.0, 0.0],
+            [init_x, init_v[0], init_v[0]],
+            [init_y, init_v[1], init_v[1]],
+            [init_z, init_v[2], init_a[2]],
             [init_psi, 0.0, 0.0]
         ])
 
