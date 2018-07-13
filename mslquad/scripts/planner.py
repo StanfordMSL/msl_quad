@@ -58,14 +58,19 @@ class Planner:
         trajTime= goalDist/self.speed
         #build keyframes
 
-        # kf=Keyframes(curPose.position.x, curPose.position.y, curPose.position.z,0)
+        kf=Keyframes(curPose.position.x, curPose.position.y, curPose.position.z,0)
+        
+        #preloaded paths
         # kfpool = KeyframesPool()  
         # kf = kfpool.get_keyframes(name = '003')
 
-        #add mid point to make problem feasiable
-
-        kf.add_waypoint_pos_only(trajTime/2.0, 
-                    goalPose.position.x, goalPose.position.y, goalPose.position.z )
+        #add points to make problem feasiable
+        for i in range (3):
+            frac= (i+1)/4.0
+            kf.add_waypoint_pos_only(trajTime*frac, 
+                    (1.0-frac)*curPose.position.x + frac*goalPose.position.x,
+                    (1.0-frac)*curPose.position.y + frac*goalPose.position.y,
+                    (1.0-frac)*curPose.position.z + frac*goalPose.position.z)
         #add goal 
         kf.add_waypoint_pos_only(trajTime, 
                     goalPose.position.x, goalPose.position.y, goalPose.position.z )

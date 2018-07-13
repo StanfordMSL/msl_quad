@@ -218,7 +218,7 @@ void PX4Agent::trajSubCB(const trajectory_msgs::JointTrajectory::ConstPtr& msg) 
         
         p->push_back(msg->points[waypointNum].positions[0]);
         p->push_back(msg->points[waypointNum].positions[1]);
-        p->push_back(msg->points[waypointNum].positions[2]);
+        p->push_back(msg->points[waypointNum].positions[2])+takeoffHeight;
         waypoints.push_back(p);
     }
 
@@ -266,12 +266,11 @@ void PX4Agent::controlTimerCB(const ros::TimerEvent& event) {
     px4SetPosPub.publish(cmdPose); // must keep publishing to maintain offboard state
 }
 void PX4Agent::safeLand(){
-    ROS_INFO("Navigation: Trajectory complete. Landing");
     if(curPose.pose.position.z > initPose.pose.position.z + landHeight){  //TODO ADD LANDING HEIGHT
         cmdPose.pose.position.z = cmdPose.pose.position.z - .01;
     }
     else{
-     ros::shutdown(); //do something else when landed?
+        ros::shutdown(); //do something else when landed?
     }
     cmdPose.pose.orientation.x = initPose.pose.orientation.x;
     cmdPose.pose.orientation.y = initPose.pose.orientation.y;

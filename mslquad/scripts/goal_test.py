@@ -38,7 +38,6 @@ class Captian:
         print goalMsg
         self.goalPub.publish(goalMsg)
         rospy.loginfo("published goal traj")
-        rospy.spin()
             #rate.sleep()
             
 
