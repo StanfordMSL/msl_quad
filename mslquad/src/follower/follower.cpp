@@ -101,12 +101,12 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), landHeight(.0), reac
 
     // wait for the initial position of the quad
     while(ros::ok() && curPose.header.seq < 10) {
-        cout << "Navigation: waitng for pose" << endl;
+        ROS_INFO("Flight: waitng for pose");
         ros::spinOnce();
         ros::Duration(1.0).sleep();
     }
     initPose = curPose;
-    cout << "Navigation: Inital Position: " 
+    cout << "Flight: Inital Position: " 
                 << initPose.pose.position.x << ", "
                 << initPose.pose.position.y << ", "
                 << initPose.pose.position.z << endl;
@@ -135,7 +135,7 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), landHeight(.0), reac
         ros::Duration(.05).sleep();
     }
     //make inital waypoint list
-    cout << "Navigation: Building hover waypoint" << endl;
+    cout << "Flight: Building hover waypoint" << endl;
     vector<double>* p = new vector<double>;
     p->push_back(cmdPose.pose.position.x);
     p->push_back(cmdPose.pose.position.y);
@@ -207,7 +207,7 @@ double PX4Agent::dist(const vector<double>* p) {
 
 void PX4Agent::trajSubCB(const trajectory_msgs::JointTrajectory::ConstPtr& msg) { 
 // callback that turns the msg to the waypoints
-    cout <<"Navigation: JointTrajectory Recieved" <<endl;
+    ROS_INFO("Flight: Trajectory Recieved");
     //for each waypoint
     for(int waypointNum=0; waypointNum<msg->points.size(); waypointNum++){
         vector<double>* p = new vector<double>;
@@ -223,14 +223,14 @@ void PX4Agent::trajSubCB(const trajectory_msgs::JointTrajectory::ConstPtr& msg) 
     }
 
 
-    // print waypoints
-    cout << "Waypoints: " << endl;
-    for(auto it = waypoints.begin(); it != waypoints.end(); it++) {
-        for(auto j=(*it)->begin(); j!=(*it)->end(); j++) {
-            cout << setprecision(3) << *j << ", ";
-        }
-        cout << endl;
-    }
+    // // print waypoints
+    // cout << "Waypoints: " << endl;
+    // for(auto it = waypoints.begin(); it != waypoints.end(); it++) {
+    //     for(auto j=(*it)->begin(); j!=(*it)->end(); j++) {
+    //         cout << setprecision(3) << *j << ", ";
+    //     }
+    //     cout << endl;
+    // }
 }
 
 
@@ -254,11 +254,11 @@ void PX4Agent::controlTimerCB(const ros::TimerEvent& event) {
         }
     } else { // reached all the waypoints \\\todo add safe land 
         if(autoland) {
-            ROS_INFO("Navigation: Trajectory complete. Landing");
+            ROS_INFO("Flight: Trajectory complete. Landing");
             safeLand();
         }
         else{
-            ROS_INFO("Navigation: Trajectory complete. Hovering");
+            ROS_INFO("Flight: Trajectory complete. Hovering");
         }
         // if not autoland, just keep publishing the previous commands             
     }

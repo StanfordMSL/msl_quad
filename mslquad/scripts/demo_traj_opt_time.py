@@ -48,10 +48,10 @@ for t in np.arange(0.0, T, 0.01):
 # traj_opt_time.load_npz("saved_trajectory/traj_time_opt.npz")
 
 
-# # plot and compare
-# tp = TrajPlotter()
-# tp.plot_traj(traj_opt, 'r--')
-# tp.plot_traj(traj_opt_time, 'k-')
-# tp.plot_ref_stt_in(traj_opt, '--')
-# tp.plot_ref_stt_in(traj_opt_time, '-')
-# tp.show()
+# plot and compare
+tp = TrajPlotter()
+tp.plot_traj(traj_opt, 'r--')
+tp.plot_traj(traj_opt_time, 'k-')
+tp.plot_ref_stt_in(traj_opt, '--')
+tp.plot_ref_stt_in(traj_opt_time, '-')
+tp.show()

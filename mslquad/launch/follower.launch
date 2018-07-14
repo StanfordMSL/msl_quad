@@ -1,0 +1,14 @@
+<launch>
+  <!-- waypoint format: x1,y1,z1, x2,y2,z2, ... -->
+
+  <node pkg="mslquad" type="follower" name="follower" output="screen">
+        <param name="autoland" value="false"/>
+        <param name="takeoff_height" value="1.2"/>
+        <param name="reach_radius" value="0.2"/>
+  </node>
+
+   <node pkg="mslquad" type="planner.py" name="planner" output="screen">
+  </node>
+
+
+</launch>
