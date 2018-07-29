@@ -3,7 +3,7 @@
 	<!-- example launch script for PX4 based FCU's -->
 
     <arg name="quad_name" default="quad"/>
-    <arg name="quad_id" default="2"/>
+    <arg name="quad_id" default="5"/>
 
 	<arg name="fcu_url" default="/dev/ttyUSB0:921600" />
 	<arg name="gcs_url" default="" />

@@ -3,8 +3,9 @@
 	<!-- example launch script for PX4 based FCU's -->
 
     <arg name="quad_name" default="quad"/>
-    <arg name="quad_id" default="2"/> <!-- This determines the ROS group name -->
-	<arg name="mocap_id" default="2"/> <!--User/Trackable ID in Motive-->
+    <arg name="quad_id" default="5"/> <!-- This determines the ROS group name -->
+	<!--arg name="mocap_id" default="5"/--> <!--User/Trackable ID in Motive, depreciatd-->
+	<arg name="vrpn_name" default="quad5"/> <!--Name of the object using VRPN format-->
 
 	<arg name="fcu_url" default="/dev/ttyUSB0:921600" />
 	<arg name="gcs_url" default="" />
@@ -26,7 +27,7 @@
 			<arg name="fcu_protocol" value="$(arg fcu_protocol)" />
 		</include>
 
-		<node pkg="mocap_optitrack"
+		<!--node pkg="mocap_optitrack"
 				type="mocap_node"
 				name="mocap_node"
 				respawn="false"
@@ -38,7 +39,12 @@
 			<param name="rigid_bodies/$(arg mocap_id)/parent_frame_id" value="map"/>
 			<param name="optitrack_config/multicast_address" value="239.255.42.99"/>
 			<remap from="rob_$(arg mocap_id)/pose" to="mavros/vision_pose/pose" /> 
-		</node>
+		</node-->
 	</group>
+
+	<include file="$(find mslquad)/launch/vrpn.launch">
+		<arg name="robot_ns" value="$(arg quad_name)$(arg quad_id)" />
+		<arg name="vrpn_name" value="$(arg vrpn_name)" />
+	</include>
 
 </launch>
