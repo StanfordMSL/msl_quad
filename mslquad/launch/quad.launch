@@ -1,0 +1,50 @@
+<launch>
+	<!-- vim: set ft=xml noet : -->
+	<!-- example launch script for PX4 based FCU's -->
+
+    <arg name="quad_name" default="quad"/>
+    <arg name="quad_id" default="5"/> <!-- This determines the ROS group name -->
+	<!--arg name="mocap_id" default="5"/--> <!--User/Trackable ID in Motive, depreciatd-->
+	<arg name="vrpn_name" default="quad5"/> <!--Name of the object using VRPN format-->
+
+	<arg name="fcu_url" default="/dev/ttyUSB0:921600" />
+	<arg name="gcs_url" default="" />
+	<arg name="tgt_system" default="1" />
+	<arg name="tgt_component" default="1" />
+	<arg name="log_output" default="screen" />
+	<arg name="fcu_protocol" default="v2.0" />
+
+	<group ns="$(arg quad_name)$(arg quad_id)">
+		<include file="$(find mavros)/launch/node.launch">
+			<arg name="pluginlists_yaml" value="$(find mslquad)/launch/px4_pluginlists.yaml" />
+			<arg name="config_yaml" value="$(find mslquad)/launch/px4_config.yaml" />
+
+			<arg name="fcu_url" value="$(arg fcu_url)" />
+			<arg name="gcs_url" value="$(arg gcs_url)" />
+			<arg name="tgt_system" value="$(arg tgt_system)" />
+			<arg name="tgt_component" value="$(arg tgt_component)" />
+			<arg name="log_output" value="$(arg log_output)" />
+			<arg name="fcu_protocol" value="$(arg fcu_protocol)" />
+		</include>
+
+		<!--node pkg="mocap_optitrack"
+				type="mocap_node"
+				name="mocap_node"
+				respawn="false"
+				launch-prefix=""	
+				required="true"
+				output="screen">
+			<param name="rigid_bodies/$(arg mocap_id)/pose" value="rob_$(arg mocap_id)/pose" />
+			<param name="rigid_bodies/$(arg mocap_id)/child_frame_id" value="base_link"/>
+			<param name="rigid_bodies/$(arg mocap_id)/parent_frame_id" value="map"/>
+			<param name="optitrack_config/multicast_address" value="239.255.42.99"/>
+			<remap from="rob_$(arg mocap_id)/pose" to="mavros/vision_pose/pose" /> 
+		</node-->
+	</group>
+
+	<include file="$(find mslquad)/launch/vrpn.launch">
+		<arg name="robot_ns" value="$(arg quad_name)$(arg quad_id)" />
+		<arg name="vrpn_name" value="$(arg vrpn_name)" />
+	</include>
+
+</launch>

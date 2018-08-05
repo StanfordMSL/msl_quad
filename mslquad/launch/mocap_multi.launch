@@ -1,0 +1,20 @@
+<launch>
+
+  <arg name="mocap_id" default="2"/> <!--User/Trackable ID in Motive-->
+  <arg name="quad_name" default="quad"/>
+  <arg name="quad_id" default="2"/>
+
+  <node pkg="mocap_optitrack"
+        type="mocap_node"
+        name="mocap_node"
+        respawn="false"
+        launch-prefix=""
+        required="true"
+        output="screen">
+    <param name="rigid_bodies/$(arg mocap_id)/pose" value="rob_$(arg mocap_id)/pose" />
+    <param name="rigid_bodies/$(arg mocap_id)/child_frame_id" value="base_link"/>
+    <param name="rigid_bodies/$(arg mocap_id)/parent_frame_id" value="map"/>
+    <param name="optitrack_config/multicast_address" value="239.255.42.99"/>
+    <remap from="rob_$(arg mocap_id)/pose" to="$(arg quad_name)$(arg quad_id)/mavros/vision_pose/pose" /> 
+  </node>
+</launch>
