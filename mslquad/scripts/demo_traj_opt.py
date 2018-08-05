@@ -5,7 +5,7 @@
 #   demo_traj_opt_time.py
 # Author: 
 #   Zijian Wang, Stanford University
-# Email: 
+# Email: g
 #   zjwang@stanford.edu
 
 import numpy as np
@@ -13,7 +13,7 @@ from path.objdyn import LoadSim
 from path.visual import VizTool, TrajPlotter
 from path.robot import Thruster
 from path.trajectory import PolynomialTraj, PolynomialTrajOpt
-from path.waypoint import Keyframes, KeyframesPool
+from path.waypoint import Keyframes, KeyframesPool                 
 
 ## define quadrotor and load
 load = LoadSim()
@@ -21,7 +21,7 @@ quad = Thruster(load, 0.0, 0.0, 0.2, 1.0)
 viz = VizTool(load, [quad])
 
 ## define waypoints (retrieve one from the pre-defined library)
-kfpool = KeyframesPool()
+kfpool = KeyframesPool()  
 kf = kfpool.get_keyframes(name = '003')
 
 ## plan trajectory using regular polynomial fit and 

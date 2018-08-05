@@ -270,7 +270,7 @@ class PolynomialTrajOpt( PolynomialTraj ):
         for i in range(self.n_sec):
             self.Fx[i,:,:] = self.get_F_mat( np.asarray(cx[i,:]).reshape(-1) )
             self.Fy[i,:,:] = self.get_F_mat( np.asarray(cy[i,:]).reshape(-1) )
-            self.Fz[i,:,:] = self.get_F_mat( np.asarray(cz[i,:]).reshape(-1) )
+            self.Fz[i,:,:] = self.get_F_mat( np.asarray(cz[i,:]).reshape(-1) ) 
             self.Fpsi[i,:,:] = self.get_F_mat( np.asarray(cpsi[i,:]).reshape(-1) )
 
     def optimize_1d(self, waypoint, ts):
