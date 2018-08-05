@@ -218,7 +218,7 @@ void PX4Agent::trajSubCB(const trajectory_msgs::JointTrajectory::ConstPtr& msg) 
         
         p->push_back(msg->points[waypointNum].positions[0]);
         p->push_back(msg->points[waypointNum].positions[1]);
-        p->push_back(msg->points[waypointNum].positions[2])+takeoffHeight;
+        p->push_back(msg->points[waypointNum].positions[2]+takeoffHeight);
         waypoints.push_back(p);
     }
 
