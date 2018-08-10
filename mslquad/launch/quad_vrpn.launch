@@ -1,10 +1,10 @@
 <launch>
 	<!-- vim: set ft=xml noet : -->
 	<!-- example launch script for PX4 based FCU's -->
-	<!-- launches quad- needs external pose information sent to fly -->
+	<!-- launches quad with local VRPN client -->
 
    	<arg name="robot_type" default="quad"/>
-   	<arg name="id" default="0"/> <!-- This determines the ROS namespace -->
+   	<arg name="id" default="0"/> <!-- This determines the ROS namespace MUST MATCH MOTIVE -->
 	<arg name="fcu_url" default="/dev/ttyUSB0:921600" />
 	<arg name="gcs_url" default="" />
 	<arg name="tgt_system" default="1" />
@@ -25,4 +25,10 @@
 			<arg name="fcu_protocol" value="$(arg fcu_protocol)" />
 		</include>
 	</group>
+
+	<include file="$(find mslquad)/launch/vrpn.launch">
+		<arg name="robot_ns" value="$(arg robot_type)$(arg id)" />
+		<arg name="vrpn_name" value="$(arg robot_type)$(arg id)"/>
+	</include>
+
 </launch>
