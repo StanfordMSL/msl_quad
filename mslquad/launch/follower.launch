@@ -7,8 +7,4 @@
         <param name="reach_radius" value="0.2"/>
   </node>
 
-   <node pkg="mslquad" type="planner.py" name="planner" output="screen">
-  </node>
-
-
 </launch>

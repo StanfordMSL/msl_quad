@@ -70,7 +70,7 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), landHeight(.0), reac
     //SUBCRIBERS
     //get pose 
     px4PoseSub = nh.subscribe<geometry_msgs::PoseStamped>(
-            "mavros/local_position/pose", 1, &PX4Agent::poseSubCB, this);
+            "mavros/local_position/pose", 10, &PX4Agent::poseSubCB, this);
     //get state 
     px4StateSub = nh.subscribe<mavros_msgs::State>
             ("mavros/state", 10, &PX4Agent::stateSubCB, this);
@@ -101,8 +101,15 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), landHeight(.0), reac
 
     // wait for the initial position of the quad
     while(ros::ok() && curPose.header.seq < 10) {
-        ROS_INFO("Flight: waitng for pose");
+        ROS_INFO("Flight: Getting Inital Pose");
         ros::spinOnce();
+        
+        //cout << curPose.header.seq << endl;
+        // cout << "current pose is : " 
+        //     << curPose.pose.position.x << ", "
+        //     << curPose.pose.position.y << ", "
+        //     << curPose.pose.position.z << endl;
+
         ros::Duration(1.0).sleep();
     }
     initPose = curPose;
@@ -218,7 +225,7 @@ void PX4Agent::trajSubCB(const trajectory_msgs::JointTrajectory::ConstPtr& msg) 
         
         p->push_back(msg->points[waypointNum].positions[0]);
         p->push_back(msg->points[waypointNum].positions[1]);
-        p->push_back(msg->points[waypointNum].positions[2]+takeoffHeight);
+        p->push_back(msg->points[waypointNum].positions[2]);
         waypoints.push_back(p);
     }
 
