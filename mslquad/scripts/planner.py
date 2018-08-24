@@ -10,6 +10,7 @@ from geometry_msgs.msg import Pose, PoseStamped
 from path.objdyn import LoadSim
 from path.trajectory import PolynomialTraj, PolynomialTrajOpt
 from path.waypoint import Keyframes, KeyframesPool
+from path.visual import TrajPlotter
 
 import numpy as np
 
@@ -18,7 +19,7 @@ class Planner:
     def __init__(self):
         rospy.init_node('Planner', anonymous=True)
 
-        self.timeResolution = 0.25
+        self.timeResolution = .2
         self.trajBranchIdx = 3
         self.trans_listener = tf.TransformListener()
         self.speed=1.0 # straight line speed goal, used for calculating time for trajectory
@@ -29,12 +30,14 @@ class Planner:
         self.goalSub = rospy.Subscriber('command/goal', PoseStamped, self.getGoalCB)
         self.poseSub = rospy.Subscriber('mavros/local_position/pose', PoseStamped, self.updatePoseCB)
 
-    def posePosDist(self, pose0, pose1):
-        #calulates the l2 dist between pose.position
+        rospy.loginfo("Navigation: Planner initalization complete")
+
+    def posePosDist(self, pose):
+        #calulates the l2 dist between self.pose and pose
         d = np.array(
-            [pose0.position.x-pose1.position.x, 
-            pose0.position.y-pose1.position.y,
-            pose0.position.z-pose1.position.z])
+            [pose.position.x-self.pose.position.x, 
+            pose.position.y-self.pose.position.y,
+            pose.position.z-self.pose.position.z])
         return np.linalg.norm(d)
 
 
@@ -46,52 +49,58 @@ class Planner:
         #msg is Pose Stamped
         rospy.loginfo("got goal")
         goalPose=msg.pose
-        #curPose=self.pose
-        curPose=Pose()
-        curPose.position.x=0.0
-        curPose.position.y=0.0
-        curPose.position.z=0.0
-
-
+        currentPose=self.pose
+        
         #calcuate trajectory time
-        goalDist=self.posePosDist(goalPose, curPose)
+        goalDist=self.posePosDist(goalPose)
         trajTime= goalDist/self.speed
         #build keyframes
 
-        kf=Keyframes(curPose.position.x, curPose.position.y, curPose.position.z,0)
+        kf=Keyframes(currentPose.position.x, currentPose.position.y, currentPose.position.z,0)
         
         #preloaded paths
         # kfpool = KeyframesPool()  
         # kf = kfpool.get_keyframes(name = '003')
 
         #add points to make problem feasiable
-        for i in range (3):
-            frac= (i+1)/4.0
-            kf.add_waypoint_pos_only(trajTime*frac, 
-                    (1.0-frac)*curPose.position.x + frac*goalPose.position.x,
-                    (1.0-frac)*curPose.position.y + frac*goalPose.position.y,
-                    (1.0-frac)*curPose.position.z + frac*goalPose.position.z)
-        #add goal 
-        kf.add_waypoint_pos_only(trajTime, 
-                    goalPose.position.x, goalPose.position.y, goalPose.position.z )
+        nPts=4
+        for i in range(nPts):
+            frac= (i+1.)/(nPts)
+            kf.add_waypoint_pos_only(trajTime/nPts, 
+                    (1.0-frac)*currentPose.position.x + frac*goalPose.position.x,
+                    (1.0-frac)*currentPose.position.y + frac*goalPose.position.y,
+                    (1.0-frac)*currentPose.position.z + frac*goalPose.position.z)
+        
+
         #calculate trajectory
+        for wp in kf.wps:
+            print wp
         load=LoadSim()
 
         trajectory = PolynomialTrajOpt(load, kf.wps, kf.ts) 
+
+        # plot Traj
+        # tp = TrajPlotter()
+        # tp.plot_traj(trajectory, 'r')
+        # tp.show()
+
+
         trajMsg=self.buildTrajectoryMsg(trajectory)
         self.trajPub.publish(trajMsg)
-        rospy.loginfo("published traj")
+        rospy.loginfo("Navigation: Trajectory Sent")
 
 
 
     def buildTrajectoryMsg(self, trajectory):
         #build the trajectory_msgs/JointTrajectory message 
         trajMsg=JointTrajectory()
-        for t in np.arange(0.0, trajectory.t_table[-1], self.timeResolution):
+        print sum(trajectory.ts)
+        for t in np.arange(0.0, sum(trajectory.ts), self.timeResolution):
             #get empty traj pt
             trajPt=JointTrajectoryPoint()
             #get output
             trajPtFlat=trajectory.get_flatout(t)
+            print trajPtFlat[:,0]
             #fill point
             trajPt.positions=trajPtFlat[:,0]
             trajPt.velocities=trajPtFlat[:,1]

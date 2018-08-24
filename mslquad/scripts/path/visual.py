@@ -386,12 +386,12 @@ class TrajPlotter:
         self.ax1.invert_zaxis() # z-down frame
         self.ax1.invert_xaxis()
 
-        # self.ax2.set_title('Reference thrust fz')
-        self.ax2.set_xlabel('t / s', fontsize=22)
-        self.ax2.set_ylabel('thrust', fontsize=22)
-        # self.ax3.set_title('Reference moment tau')
-        self.ax3.set_xlabel('t / s', fontsize=22)
-        self.ax3.set_ylabel('moments', fontsize=22)
+        # # self.ax2.set_title('Reference thrust fz')
+        # self.ax2.set_xlabel('t / s', fontsize=22)
+        # self.ax2.set_ylabel('thrust', fontsize=22)
+        # # self.ax3.set_title('Reference moment tau')
+        # self.ax3.set_xlabel('t / s', fontsize=22)
+        # self.ax3.set_ylabel('moments', fontsize=22)
 
         # non-general code, only for the paper plots. please comment out
         '''
