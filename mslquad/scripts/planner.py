@@ -64,9 +64,9 @@ class Planner:
 
         #add points to make problem feasiable
         nPts=4
-        for i in range(nPts):
-            frac= (i+1.)/(nPts)
-            kf.add_waypoint_pos_only(trajTime/nPts, 
+        for i in range(nPts-1):
+            frac= (i+1.)/(nPts-1)
+            kf.add_waypoint_pos_only(trajTime/(nPts-1), 
                     (1.0-frac)*currentPose.position.x + frac*goalPose.position.x,
                     (1.0-frac)*currentPose.position.y + frac*goalPose.position.y,
                     (1.0-frac)*currentPose.position.z + frac*goalPose.position.z)
@@ -94,6 +94,7 @@ class Planner:
     def buildTrajectoryMsg(self, trajectory):
         #build the trajectory_msgs/JointTrajectory message 
         trajMsg=JointTrajectory()
+        print trajectory.ts
         print sum(trajectory.ts)
         for t in np.arange(0.0, sum(trajectory.ts), self.timeResolution):
             #get empty traj pt

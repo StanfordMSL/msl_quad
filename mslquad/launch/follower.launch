@@ -1,10 +1,14 @@
 <launch>
-  <!-- waypoint format: x1,y1,z1, x2,y2,z2, ... -->
+  <!-- launches follower onboard the quad, verify namespace -->
+    <arg name="robot_type" default="quad"/>
+    <arg name="id" default="0"/> <!-- This determines the ROS namespace -->
 
-  <node pkg="mslquad" type="follower" name="follower" output="screen">
-        <param name="autoland" value="false"/>
-        <param name="takeoff_height" value="1.2"/>
-        <param name="reach_radius" value="0.2"/>
-  </node>
+    <group ns="$(arg robot_type)$(arg id)">
+      <node pkg="mslquad" type="follower" name="follower" output="screen">
+            <param name="autoland" value="false"/>
+            <param name="takeoff_height" value=".8"/>
+            <param name="reach_radius" value="0.2"/>
+      </node>
+    </group>
 
 </launch>

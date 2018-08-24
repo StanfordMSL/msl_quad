@@ -1,0 +1,11 @@
+<launch>
+  <!-- launches follower onboard the quad, verify namespace -->
+    <arg name="robot_type" default="quad"/>
+    <arg name="id" default="2"/> <!-- This determines the ROS namespace -->
+
+    <group ns="$(arg robot_type)$(arg id)">
+      <node pkg="mslquad" type="planner.py" name="planner" output="screen">
+      </node> 
+    </group>
+
+</launch>

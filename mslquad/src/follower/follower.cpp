@@ -101,7 +101,7 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), landHeight(.0), reac
 
     // wait for the initial position of the quad
     while(ros::ok() && curPose.header.seq < 10) {
-        ROS_INFO("Flight: Getting Inital Pose");
+        ROS_INFO("Flight: Getting Inital Position");
         ros::spinOnce();
         
         //cout << curPose.header.seq << endl;
@@ -180,7 +180,7 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), landHeight(.0), reac
     //     //cout << curState.mode << endl; 
     //     //cout << curState.armed << endl;
     //     px4SetPosPub.publish(cmdPose);
-    //     //ros::spinOnce();
+    //     ros::spinOnce();
     //     ros::Duration(.05).sleep();
     //     ROS_INFO("Flight: Waiting for clearance");
     //     if(curState.mode == "OFFBOARD" && curState.armed){
@@ -265,9 +265,9 @@ void PX4Agent::controlTimerCB(const ros::TimerEvent& event) {
             safeLand();
         }
         else{
+            // if not autoland, just keep publishing the previous commands             
             ROS_INFO("Flight: Trajectory complete. Hovering");
         }
-        // if not autoland, just keep publishing the previous commands             
     }
     cmdPose.header.stamp = ros::Time::now();
     px4SetPosPub.publish(cmdPose); // must keep publishing to maintain offboard state

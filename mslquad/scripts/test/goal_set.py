@@ -14,10 +14,11 @@ class Captian:
         rospy.init_node('Captian', anonymous=True)
 
         #goal topic
-        self.goalPub = rospy.Publisher('command/goal', PoseStamped, queue_size=10)
+        self.quadnName="quad2/"
+        self.goalPub = rospy.Publisher(self.quadnName+'command/goal', PoseStamped, queue_size=10)
         
         #test goal
-        self.goal=[[-3.0, -13.0, 3.0],
+        self.goal=[[4, -1, 2.],
                 [0.0, 0.0, 0],
                 [0.0, 0.0, 0.0]]
         rospy.sleep(2)
