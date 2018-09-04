@@ -1,14 +1,12 @@
 <launch>
-  <!-- launches follower onboard the quad, verify namespace -->
-    <arg name="robot_type" default="quad"/>
-    <arg name="id" default="0"/> <!-- This determines the ROS namespace -->
-
-    <group ns="$(arg robot_type)$(arg id)">
+  <!-- launches follower onboard the quad, under postman namespace-->
+    <group ns="postman">
       <node pkg="mslquad" type="follower" name="follower" output="screen">
             <param name="autoland" value="false"/>
             <param name="takeoff_height" value=".8"/>
             <param name="reach_radius" value="0.2"/>
       </node>
+      <node pkg="mslquad" type="planner.py" name="planner" output="screen">
+      </node> 
     </group>
-
 </launch>
