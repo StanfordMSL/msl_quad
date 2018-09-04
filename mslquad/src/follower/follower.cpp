@@ -73,12 +73,10 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), landHeight(.0), reac
             "mavros/local_position/pose", 10, &PX4Agent::poseSubCB, this);
     //get state 
     px4StateSub = nh.subscribe<mavros_msgs::State>
-            ("/mavros/state", 10, &PX4Agent::stateSubCB, this);
+            ("mavros/state", 10, &PX4Agent::stateSubCB, this);
     //get trajectory 
     px4StateSub = nh.subscribe<trajectory_msgs::JointTrajectory>
             ("command/trajectory", 10, &PX4Agent::trajSubCB, this);
-
-
 
 
     //SERVICE CALLS
@@ -91,8 +89,7 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), landHeight(.0), reac
     //PUBLISHERS
     //send cmd pose
     px4SetPosPub = nh.advertise<geometry_msgs::PoseStamped>(
-            "command/pose", 5); //for testing avoid
-    //        "mavros/setpoint_position/local", 5);
+            "mavros/setpoint_position/local", 5);
 
 
     // wait for FCU connection
@@ -106,6 +103,12 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), landHeight(.0), reac
     while(ros::ok() && curPose.header.seq < 10) {
         ROS_INFO("Flight: Getting Inital Position");
         ros::spinOnce();
+        
+        //cout << curPose.header.seq << endl;
+        // cout << "current pose is : " 
+        //     << curPose.pose.position.x << ", "
+        //     << curPose.pose.position.y << ", "
+        //     << curPose.pose.position.z << endl;
 
         ros::Duration(1.0).sleep();
     }
@@ -146,14 +149,14 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), landHeight(.0), reac
     p->push_back(cmdPose.pose.position.z);
     waypoints.push_back(p);
     
-    //run offboard mode and arm controller
-    mavros_msgs::SetMode offb_set_mode;
-    offb_set_mode.request.custom_mode = "OFFBOARD";
+    // //run offboard mode and arm controller
+    // mavros_msgs::SetMode offb_set_mode;
+    // offb_set_mode.request.custom_mode = "OFFBOARD";
 
-    mavros_msgs::CommandBool arm_cmd;
-    arm_cmd.request.value = true;
+    // mavros_msgs::CommandBool arm_cmd;
+    // arm_cmd.request.value = true;
 
-    ros::Time last_request = ros::Time::now();
+    // ros::Time last_request = ros::Time::now();
 
     // while(ros::ok()){ //switch to off board and arm 
     //     // if(ros::Time::now() - last_request > ros::Duration(1.0)){
@@ -174,13 +177,15 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), landHeight(.0), reac
     //     //         }
     //     //     }
     //     // }
+    //     //cout << curState.mode << endl; 
+    //     //cout << curState.armed << endl;
     //     px4SetPosPub.publish(cmdPose);
-    //     //ROS_INFO("Flight: Waiting for clearance");
+    //     ros::spinOnce();
+    //     ros::Duration(.05).sleep();
+    //     ROS_INFO("Flight: Waiting for clearance");
     //     if(curState.mode == "OFFBOARD" && curState.armed){
     //         ROS_INFO("Flight: Vehicle cleared for takeoff");
     //         break;
-    //     //ros::spinOnce();
-    //     ros::Duration(0.2).sleep();
     //     }
     // }
     // start timer, operate under timer callbacks
@@ -198,11 +203,7 @@ void PX4Agent::poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
     curPose = *msg;
 }
 void PX4Agent::stateSubCB(const mavros_msgs::State::ConstPtr& msg){
-    //curState = *msg;
-    cout << "got state" << endl;
-    if(curState.mode !="OFFBOARD"){
-    	cout << "nope"<< endl;
-    }
+    curState = *msg;
 }
 
 double PX4Agent::dist(const vector<double>* p) {
@@ -291,7 +292,7 @@ void PX4Agent::safeLand(){
 int main(int argc, char **argv){
   ros::init(argc, argv, "PX4_Agent");
   PX4Agent px4agent;
-  ROS_INFO("Flight: Vehicle cleared for takeoff");
+  ROS_INFO("Flight: PX4 agent initiated");
   ros::spin();
   return 0;
 }
