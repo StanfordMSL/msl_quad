@@ -15,7 +15,6 @@ from path.visual import TrajPlotter
 import numpy as np
 
 class Planner:
-
     def __init__(self):
         rospy.init_node('Planner', anonymous=True)
 
