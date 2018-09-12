@@ -79,6 +79,12 @@ class Planner:
 
         trajectory = PolynomialTrajOpt(load, kf.wps, kf.ts) 
 
+        #time opt
+        trajectory_time= PolynomialTrajOptTime(load, kf.wps, 
+        tmax=5.3, fz_eq=-19.8, fz_thres=0.5, 
+        taux_thres=0.01, tauy_thres=0.01, tauz_thres=0.01, 
+        n_cycle=5, n_line_search=15)
+
         # plot Traj
         # tp = TrajPlotter()
         # tp.plot_traj(trajectory, 'r')
