@@ -15,6 +15,7 @@ from path.visual import TrajPlotter
 import numpy as np
 
 class Planner:
+
     def __init__(self):
         rospy.init_node('Planner', anonymous=True)
 
@@ -44,14 +45,12 @@ class Planner:
         #msg is PoseStamped
         self.pose=msg.pose
 
-    def getGoalCB(self, msg):
+    def run(self):
         #msg is Pose Stamped
-        rospy.loginfo("got goal")
-        goalPose=msg.pose
+        rospy.loginfo("lucky number 8")
         currentPose=self.pose
         
         #calcuate trajectory time
-        goalDist=self.posePosDist(goalPose)
         trajTime= goalDist/self.speed
         #build keyframes
 
@@ -61,14 +60,29 @@ class Planner:
         # kfpool = KeyframesPool()  
         # kf = kfpool.get_keyframes(name = '003')
 
-        #add points to make problem feasiable
+        #figure 8, x, y, z, phi
+        f8_rel=[(1, 1,  .25, np.pi/2),
+                (2, 0,  .5, np.pi),
+                (3, -1, .75, np.pi/2.),
+                (4, 0,  1, 0),
+                (3, 1, .75, -np.pi/2),
+                (2, 0, .5, -np.pi),
+                (2, 0, .5, -np.pi),
+                (1, -1, .25, -np.pi/2),
+                (0, 0, .0, 0)]
+
+
         nPts=4
-        for i in range(nPts-1):
-            frac= (i+1.)/(nPts-1)
-            kf.add_waypoint_pos_only(trajTime/(nPts-1), 
-                    (1.0-frac)*currentPose.position.x + frac*goalPose.position.x,
-                    (1.0-frac)*currentPose.position.y + frac*goalPose.position.y,
-                    (1.0-frac)*currentPose.position.z + frac*goalPose.position.z)
+        for i,pos_rel in enumerate(f8_rel):
+            if i>0 and i<8:
+                section_time=1.5
+            else:
+                section_time=2
+            kf.add_waypoint_pos_only(section_time, 
+                    currentPose.position.x + pos_rel[0],
+                    currentPose.position.y + pos_rel[1],
+                    currentPose.position.z + pos_rel[2],
+                    0 + pos_rel[3])
         
 
         #calculate trajectory
@@ -85,9 +99,9 @@ class Planner:
         n_cycle=5, n_line_search=15)
 
         # plot Traj
-        # tp = TrajPlotter()
-        # tp.plot_traj(trajectory, 'r')
-        # tp.show()
+        tp = TrajPlotter()
+        tp.plot_traj(trajectory, 'r')
+        tp.show()
 
 
         trajMsg=self.buildTrajectoryMsg(trajectory)
