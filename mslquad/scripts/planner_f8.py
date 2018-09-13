@@ -23,11 +23,11 @@ class Planner:
         self.trajBranchIdx = 3
         self.trans_listener = tf.TransformListener()
         self.speed=1.0 # straight line speed goal, used for calculating time for trajectory
+        self.baseHeight=4 #baseheight
         self.pose=Pose()
 
         #path goal and position goal topics
         self.trajPub = rospy.Publisher('command/trajectory', JointTrajectory, queue_size=10)
-        self.goalSub = rospy.Subscriber('command/goal', PoseStamped, self.getGoalCB)
         self.poseSub = rospy.Subscriber('mavros/local_position/pose', PoseStamped, self.updatePoseCB)
 
         rospy.loginfo("Navigation: Planner initalization complete")
@@ -50,8 +50,6 @@ class Planner:
         rospy.loginfo("lucky number 8")
         currentPose=self.pose
         
-        #calcuate trajectory time
-        trajTime= goalDist/self.speed
         #build keyframes
 
         kf=Keyframes(currentPose.position.x, currentPose.position.y, currentPose.position.z,0)
@@ -67,7 +65,6 @@ class Planner:
                 (4, 0,  1, 0),
                 (3, 1, .75, -np.pi/2),
                 (2, 0, .5, -np.pi),
-                (2, 0, .5, -np.pi),
                 (1, -1, .25, -np.pi/2),
                 (0, 0, .0, 0)]
 
@@ -75,13 +72,13 @@ class Planner:
         nPts=4
         for i,pos_rel in enumerate(f8_rel):
             if i>0 and i<8:
-                section_time=1.5
+                section_time=4.5
             else:
-                section_time=2
+                section_time=5
             kf.add_waypoint_pos_only(section_time, 
                     currentPose.position.x + pos_rel[0],
                     currentPose.position.y + pos_rel[1],
-                    currentPose.position.z + pos_rel[2],
+                    currentPose.position.z + pos_rel[2]+self.baseHeight,
                     0 + pos_rel[3])
         
 
@@ -93,15 +90,15 @@ class Planner:
         trajectory = PolynomialTrajOpt(load, kf.wps, kf.ts) 
 
         #time opt
-        trajectory_time= PolynomialTrajOptTime(load, kf.wps, 
-        tmax=5.3, fz_eq=-19.8, fz_thres=0.5, 
-        taux_thres=0.01, tauy_thres=0.01, tauz_thres=0.01, 
-        n_cycle=5, n_line_search=15)
+        # trajectory_time= PolynomialTrajOptTime(load, kf.wps, 
+        # tmax=5.3, fz_eq=-19.8, fz_thres=0.5, 
+        # taux_thres=0.01, tauy_thres=0.01, tauz_thres=0.01, 
+        # n_cycle=5, n_line_search=15)
 
-        # plot Traj
-        tp = TrajPlotter()
-        tp.plot_traj(trajectory, 'r')
-        tp.show()
+        # # plot Traj
+        # tp = TrajPlotter()
+        # tp.plot_traj(trajectory, 'r')
+        # tp.show()
 
 
         trajMsg=self.buildTrajectoryMsg(trajectory)
@@ -135,8 +132,6 @@ class Planner:
 
         return trajMsg
 
-    def run(self):
-        rospy.spin()
             
 
 
