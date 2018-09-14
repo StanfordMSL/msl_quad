@@ -18,7 +18,7 @@ class Captian:
         self.goalPub = rospy.Publisher(self.quadnName+'command/goal', PoseStamped, queue_size=10)
         
         #test goal
-        self.goal=[[3, 3, 5],
+        self.goal=[[9, 5, 6],
                 [0.0, 0.0, 0],
                 [0.0, 0.0, 0.0]]
         rospy.sleep(2)
