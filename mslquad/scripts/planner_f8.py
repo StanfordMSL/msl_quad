@@ -24,7 +24,7 @@ class Planner:
         self.trans_listener = tf.TransformListener()
         self.speed=1.0 # straight line speed goal, used for calculating time for trajectory
         self.baseHeight=4 #baseheight
-        self.pose=Pose()
+        self.pose=None
 
         #path goal and position goal topics
         self.trajPub = rospy.Publisher('command/trajectory', JointTrajectory, queue_size=10)
@@ -48,11 +48,14 @@ class Planner:
     def run(self):
         #msg is Pose Stamped
         rospy.loginfo("lucky number 8")
+        while self.pose ==None:
+            rospy.sleep(.3)
+            rospy.loginfo("weeee")
         currentPose=self.pose
         
         #build keyframes
 
-        kf=Keyframes(currentPose.position.x, currentPose.position.y, currentPose.position.z,0)
+        kf=Keyframes(currentPose.position.x, currentPose.position.y, currentPose.position.z)
         
         #preloaded paths
         # kfpool = KeyframesPool()  
@@ -78,7 +81,7 @@ class Planner:
             kf.add_waypoint_pos_only(section_time, 
                     currentPose.position.x + pos_rel[0],
                     currentPose.position.y + pos_rel[1],
-                    currentPose.position.z + pos_rel[2]+self.baseHeight,
+                    5+ pos_rel[2],
                     0 + pos_rel[3])
         
 
@@ -96,9 +99,9 @@ class Planner:
         # n_cycle=5, n_line_search=15)
 
         # # plot Traj
-        # tp = TrajPlotter()
-        # tp.plot_traj(trajectory, 'r')
-        # tp.show()
+        tp = TrajPlotter()
+        tp.plot_traj(trajectory, 'r')
+        tp.show()
 
 
         trajMsg=self.buildTrajectoryMsg(trajectory)
