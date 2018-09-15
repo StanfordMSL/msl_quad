@@ -18,14 +18,20 @@ class Captian:
         self.goalPub = rospy.Publisher(self.quadnName+'command/goal', PoseStamped, queue_size=10)
         
         #test goal
-        self.goal=[[9, 5, 6],
-                [0.0, 0.0, 0],
-                [0.0, 0.0, 0.0]]
+        self.goal=None
         rospy.sleep(2)
 
 
     def run(self):
-    #rate = rospy.Rate(10) # 10hz
+    
+    while not rospy.is_Shutdown()
+
+        x, y, z = [int(val) for val in raw_input("Enter goal position: ").split()]
+        
+        self.goal=[[x, y, z],
+                [0.0, 0.0, 0],
+                [0.0, 0.0, 0.0]]
+
         goalMsg=PoseStamped()
         #lazy unpack
         goalMsg.pose.position.x=self.goal[0][0]
@@ -38,7 +44,6 @@ class Captian:
         #publish
         print goalMsg
         self.goalPub.publish(goalMsg)
-        rospy.loginfo("published goal traj")
             #rate.sleep()
             
 
