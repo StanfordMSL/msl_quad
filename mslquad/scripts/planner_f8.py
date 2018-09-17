@@ -50,7 +50,6 @@ class Planner:
         rospy.loginfo("lucky number 8")
         while self.pose ==None:
             rospy.sleep(.3)
-            rospy.loginfo("weeee")
         currentPose=self.pose
         
         #build keyframes
@@ -71,8 +70,6 @@ class Planner:
                 (1, -1, .25, -np.pi/2),
                 (0, 0, .0, 0)]
 
-
-        nPts=4
         for i,pos_rel in enumerate(f8_rel):
             if i>0 and i<8:
                 section_time=4.5
@@ -81,7 +78,7 @@ class Planner:
             kf.add_waypoint_pos_only(section_time, 
                     currentPose.position.x + pos_rel[0],
                     currentPose.position.y + pos_rel[1],
-                    5+ pos_rel[2],
+                    currentPose.position.z+ pos_rel[2],
                     0 + pos_rel[3])
         
 
@@ -99,9 +96,9 @@ class Planner:
         # n_cycle=5, n_line_search=15)
 
         # # plot Traj
-        tp = TrajPlotter()
-        tp.plot_traj(trajectory, 'r')
-        tp.show()
+        # tp = TrajPlotter()
+        # tp.plot_traj(trajectory, 'r')
+        # tp.show()
 
 
         trajMsg=self.buildTrajectoryMsg(trajectory)
