@@ -14,6 +14,7 @@
 #include <trajectory_msgs/JointTrajectory.h>
 // mavros 
 #include <mavros_msgs/CommandBool.h>
+#include <mavros_msgs/CommandTOL.h>
 #include <mavros_msgs/SetMode.h>
 #include <mavros_msgs/State.h>
 //math
@@ -47,6 +48,7 @@ private:
     double landHeight;
     double reachRadius; // radius to determine if a waypoint is reached
 
+    bool missionComplete; //flag for mission being complete 
 
     //methods
     void safeLand(); //initiates safe landing at the current position, killes PX4Agent if landed 
@@ -55,8 +57,10 @@ private:
     void poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg); // pose callback on PX4 local position
     void stateSubCB(const mavros_msgs::State::ConstPtr& msg); // state callbacj on PX4 state
     void trajSubCB(const trajectory_msgs::JointTrajectory::ConstPtr& msg);
-
     void controlTimerCB(const ros::TimerEvent& event);
+
+    //services
+    ros::ServiceClient landCL = nh.serviceClient<mavros_msgs::CommandTOL>("mavros/cmd/land");
 
     //helper functions
     double dist(const vector<double>* p); // calculate dist to a point from current position of the quad
@@ -113,10 +117,10 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), landHeight(.0), reac
         ros::Duration(1.0).sleep();
     }
     initPose = curPose;
-    cout << "Flight: Inital Position: " 
-                << initPose.pose.position.x << ", "
-                << initPose.pose.position.y << ", "
-                << initPose.pose.position.z << endl;
+    // cout << "Flight: Inital Position: " 
+    //             << initPose.pose.position.x << ", "
+    //             << initPose.pose.position.y << ", "
+    //             << initPose.pose.position.z << endl;
 
     // retrieve parameters
     if(ros::param::has("~autoland")) {
@@ -142,53 +146,16 @@ PX4Agent::PX4Agent() : autoland(false), takeoffHeight(1.2), landHeight(.0), reac
         ros::Duration(.05).sleep();
     }
     //make inital waypoint list
-    cout << "Flight: Building hover waypoint" << endl;
+    cout << "Flight: Building Home waypoint" << endl;
     vector<double>* p = new vector<double>;
     p->push_back(cmdPose.pose.position.x);
     p->push_back(cmdPose.pose.position.y);
     p->push_back(cmdPose.pose.position.z);
     waypoints.push_back(p);
-    
-    // //run offboard mode and arm controller
-    // mavros_msgs::SetMode offb_set_mode;
-    // offb_set_mode.request.custom_mode = "OFFBOARD";
 
-    // mavros_msgs::CommandBool arm_cmd;
-    // arm_cmd.request.value = true;
+    //flight controler waypoint publisher
+    missionComplete=false;
 
-    // ros::Time last_request = ros::Time::now();
-
-    // while(ros::ok()){ //switch to off board and arm 
-    //     // if(ros::Time::now() - last_request > ros::Duration(1.0)){
-    //     //     if( curState.mode != "OFFBOARD") {
-    //     //         if( set_mode_client.call(offb_set_mode) &&
-    //     //             offb_set_mode.response.mode_sent){
-    //     //             ROS_INFO("Flight: Offboard Enabled");
-    //     //         }
-    //     //         last_request = ros::Time::now();
-    //     //   }     
-    //     //     else{
-    //     //         if(!curState.armed){
-    //     //             if( arming_client.call(arm_cmd) &&
-    //     //                 arm_cmd.response.success){
-    //     //                 ROS_INFO("Flight: Controller Armed");
-    //     //             }
-    //     //             last_request = ros::Time::now();
-    //     //         }
-    //     //     }
-    //     // }
-    //     //cout << curState.mode << endl; 
-    //     //cout << curState.armed << endl;
-    //     px4SetPosPub.publish(cmdPose);
-    //     ros::spinOnce();
-    //     ros::Duration(.05).sleep();
-    //     ROS_INFO("Flight: Waiting for clearance");
-    //     if(curState.mode == "OFFBOARD" && curState.armed){
-    //         ROS_INFO("Flight: Vehicle cleared for takeoff");
-    //         break;
-    //     }
-    // }
-    // start timer, operate under timer callbacks
     controlTimer = nh.createTimer(ros::Duration(0.1), &PX4Agent::controlTimerCB, this); // TODO: make the control freq changeable
 }//end initalization
 
@@ -215,18 +182,22 @@ double PX4Agent::dist(const vector<double>* p) {
 void PX4Agent::trajSubCB(const trajectory_msgs::JointTrajectory::ConstPtr& msg) { 
 // callback that turns the msg to the waypoints
     ROS_INFO("Flight: Trajectory Recieved");
+    missionComplete=false; 
+
     //for each waypoint
     for(int waypointNum=0; waypointNum<msg->points.size(); waypointNum++){
-        vector<double>* p = new vector<double>;
+        //vector<double>* p = new vector<double>;
         //there has to be a better way to do this...can't i do vector vector assignemtn?
         
         //p=msg->points[waypointNum].positions   
         //^ERROR: cannot convert ‘const _positions_type {aka const std::vector<double>}’ to ‘std::vector<double>*’
         
-        p->push_back(msg->points[waypointNum].positions[0]);
-        p->push_back(msg->points[waypointNum].positions[1]);
-        p->push_back(msg->points[waypointNum].positions[2]);
-        waypoints.push_back(p);
+        waypoints.push_back(new vector<double>(msg->points[waypointNum].positions));
+
+        // p->push_back(msg->points[waypointNum].positions[0]);
+        // p->push_back(msg->points[waypointNum].positions[1]);
+        // p->push_back(msg->points[waypointNum].positions[2]);
+        // waypoints.push_back(p);
     }
 
 
@@ -259,21 +230,42 @@ void PX4Agent::controlTimerCB(const ros::TimerEvent& event) {
                         (*p)[0] << ", " << (*p)[1] << ", " << (*p)[2] << endl;
             waypoints.erase(waypoints.begin()); // if yes, remove the waypoint
         }
-    } else { // reached all the waypoints \\\todo add safe land 
+    } else { // reached all the waypoints
         if(autoland) {
-            ROS_INFO("Flight: Trajectory complete. Landing");
+            if(!missionComplete){
+                ROS_INFO("Flight: Trajectory complete. Landing");
+                missionComplete=true;
+            }
             safeLand();
         }
         else{
-            // if not autoland, just keep publishing the previous commands             
-            ROS_INFO("Flight: Trajectory complete. Hovering");
+            // if not autoland, just keep publishing the previous commands      
+            if(!missionComplete){
+                ROS_INFO("Flight: Trajectory complete. Hovering");
+                missionComplete=true;
+            }
         }
     }
     cmdPose.header.stamp = ros::Time::now();
     px4SetPosPub.publish(cmdPose); // must keep publishing to maintain offboard state
 }
 void PX4Agent::safeLand(){
-    if(curPose.pose.position.z > initPose.pose.position.z + landHeight){  //TODO ADD LANDING HEIGHT
+
+    // mavros_msgs::CommandTOL landSrv;
+    // landSrv.request.altitude = 10;
+    // landSrv.request.latitude = 0;
+    // landSrv.request.longitude = 0;
+    // landSrv.request.min_pitch = 0;
+    // landSrv.request.yaw = 0;
+
+    // if(landCL.call(landSrv)){
+    //     ROS_INFO("Flight: Land Service Success");
+    // }else{
+    //     ROS_ERROR("Flight: Land Service Failure");
+    // }
+
+
+    if(curPose.pose.position.z > initPose.pose.position.z + landHeight){ 
         cmdPose.pose.position.z = cmdPose.pose.position.z - .01;
     }
     else{
