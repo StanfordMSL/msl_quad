@@ -41,7 +41,6 @@ class Captian:
             goalMsg.header.stamp = rospy.Time.now()
             goalMsg.header.frame_id = "1"
             #publish
-            print goalMsg
             self.goalPub.publish(goalMsg)
             rospy.sleep(.5)
                 
