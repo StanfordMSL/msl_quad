@@ -25,7 +25,7 @@ class Captian:
     
         while not rospy.is_shutdown():
 
-            x, y, z = [int(val) for val in raw_input("Enter goal position: ").split()]
+            x, y, z = [float(val) for val in raw_input("Enter goal position: ").split()]
             
             self.goal=[[x, y, z],
                     [0.0, 0.0, 0],
