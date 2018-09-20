@@ -143,9 +143,6 @@ target_link_libraries(pos_ctrl_test ${catkin_LIBRARIES})
 add_executable(vel_ctrl_test src/vel_ctrl_test/vel_ctrl_test.cpp)
 target_link_libraries(vel_ctrl_test ${catkin_LIBRARIES})
 
-add_executable(offboard src/offboard/offb_node.cpp)
-target_link_libraries(offboard ${catkin_LIBRARIES})
-
 add_executable(follower src/follower/follower.cpp)
 target_link_libraries(follower ${catkin_LIBRARIES})
 

@@ -15,6 +15,7 @@ from path.visual import TrajPlotter
 import numpy as np
 
 class Planner:
+
     def __init__(self):
         rospy.init_node('Planner', anonymous=True)
 
@@ -22,11 +23,11 @@ class Planner:
         self.trajBranchIdx = 3
         self.trans_listener = tf.TransformListener()
         self.speed=1.0 # straight line speed goal, used for calculating time for trajectory
-        self.pose=Pose()
+        self.baseHeight=4 #baseheight
+        self.pose=None
 
         #path goal and position goal topics
         self.trajPub = rospy.Publisher('command/trajectory', JointTrajectory, queue_size=10)
-        self.goalSub = rospy.Subscriber('command/goal', PoseStamped, self.getGoalCB)
         self.poseSub = rospy.Subscriber('mavros/local_position/pose', PoseStamped, self.updatePoseCB)
 
         rospy.loginfo("Navigation: Planner initalization complete")
@@ -44,31 +45,41 @@ class Planner:
         #msg is PoseStamped
         self.pose=msg.pose
 
-    def getGoalCB(self, msg):
+    def run(self):
         #msg is Pose Stamped
-        rospy.loginfo("got goal")
-        goalPose=msg.pose
+        rospy.loginfo("lucky number 8")
+        while self.pose ==None:
+            rospy.sleep(.3)
         currentPose=self.pose
         
-        #calcuate trajectory time
-        goalDist=self.posePosDist(goalPose)
-        trajTime= goalDist/self.speed
         #build keyframes
 
-        kf=Keyframes(currentPose.position.x, currentPose.position.y, currentPose.position.z,0)
+        kf=Keyframes(currentPose.position.x, currentPose.position.y, currentPose.position.z)
         
         #preloaded paths
         # kfpool = KeyframesPool()  
         # kf = kfpool.get_keyframes(name = '003')
 
-        #add points to make problem feasiable
-        nPts=4
-        for i in range(nPts-1):
-            frac= (i+1.)/(nPts-1)
-            kf.add_waypoint_pos_only(trajTime/(nPts-1), 
-                    (1.0-frac)*currentPose.position.x + frac*goalPose.position.x,
-                    (1.0-frac)*currentPose.position.y + frac*goalPose.position.y,
-                    (1.0-frac)*currentPose.position.z + frac*goalPose.position.z)
+        #figure 8, x, y, z, phi
+        f8_rel=[(1, 1,  .25, np.pi/2),
+                (2, 0,  .5, np.pi),
+                (3, -1, .75, np.pi/2.),
+                (4, 0,  1, 0),
+                (3, 1, .75, -np.pi/2),
+                (2, 0, .5, -np.pi),
+                (1, -1, .25, -np.pi/2),
+                (0, 0, .0, 0)]
+
+        for i,pos_rel in enumerate(f8_rel):
+            if i>0 and i<8:
+                section_time=4.5
+            else:
+                section_time=5
+            kf.add_waypoint_pos_only(section_time, 
+                    currentPose.position.x + pos_rel[0],
+                    currentPose.position.y + pos_rel[1],
+                    currentPose.position.z+ pos_rel[2],
+                    0 + pos_rel[3])
         
 
         #calculate trajectory
@@ -78,8 +89,13 @@ class Planner:
 
         trajectory = PolynomialTrajOpt(load, kf.wps, kf.ts) 
 
-        
-        # plot Traj
+        #time opt
+        # trajectory_time= PolynomialTrajOptTime(load, kf.wps, 
+        # tmax=5.3, fz_eq=-19.8, fz_thres=0.5, 
+        # taux_thres=0.01, tauy_thres=0.01, tauz_thres=0.01, 
+        # n_cycle=5, n_line_search=15)
+
+        # # plot Traj
         # tp = TrajPlotter()
         # tp.plot_traj(trajectory, 'r')
         # tp.show()
@@ -116,8 +132,6 @@ class Planner:
 
         return trajMsg
 
-    def run(self):
-        rospy.spin()
             
 
 
