@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
     <!-- quad joy node-->
-    <group ns="ob1">
+    <group ns="quad0">
         <!-- joy -->
         <arg name="teleop_args" default="-att" />
 
@@ -10,9 +10,7 @@
             <param name="dev" type="string" value="/dev/input/js1" />
         </node>
 
-        <node pkg="doctoral" type="joy.py" name="teleop" output="screen">
-            <param name="offset/x" value="5" />
-            <param name="offset/y" value="5" />
+        <node pkg="mslquad" type="joy.py" name="teleop" output="screen">
         </node> 
     </group>
 </launch>
