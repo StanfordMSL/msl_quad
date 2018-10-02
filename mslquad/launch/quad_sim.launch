@@ -36,16 +36,6 @@
             <arg name="mavlink_udp_port" value="14561"/>
             <arg name="ID" value="$(arg ID)"/>
         </include>
-        <!-- follower -->
-<!--         <node pkg="mslquad" type="follower" name="follower" output="screen">
-            <param name="autoland" value="false"/>
-            <param name="takeoff_height" value="2"/>
-            <param name="reach_radius" value="0.5"/>
-        </node> -->
-        <!-- clearance -->
-        <node pkg="mslquad" type="clearance.py" name="clearance" output="screen">
-        	<param name="delay" 	value="15" />
-        </node>
         <!-- MAVROS -->
         <include file="$(find mavros)/launch/px4.launch">
             <arg name="fcu_url" value="$(arg fcu_url)"/>
