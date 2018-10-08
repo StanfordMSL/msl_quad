@@ -36,3 +36,30 @@ If you find our work useful in your research, please consider citing:
 - glog: https://github.com/ethz-asl/glog_catkin
 - ros_vrpn_client: https://github.com/StanfordMSL/ros_vrpn_client
 - Eigen3
+
+## Usage
+
+#### Common
+- Start mavros and VRPN for mocap: ```roslaunch mslquad quad_vrpn.launch```
+
+#### Trajectory Following
+- A basic trajectory following controller is implemented in **src/traj_follow/**.
+
+    ```roslaunch mslquad traj_follow_control.launch```
+
+- The controller accepts trajectory from topic ```command/trajectory```, which is of type *MultiDOFJointTrajectory*. It's important that the trajectory is updated at least 10Hz since the controller uses a simple lookahead strategy.
+
+- At the moment, the controller operates at a fixed height (only works for 2D trajectory). 3D trajectory is TODO. 
+
+#### Tests
+- Test position control: 
+
+    ```roslaunch mslquad pos_ctrl_test.launch```
+
+- Test velocity control: 
+    
+    ```roslaunch mslquad vel_ctrl_test.launch```
+
+- Experimental: test direct motor control (se3 control). This requires <a href="https://github.com/StanfordMSL/Firmware/tree/msl-quads-manip" target="_blank">custom PX4 firmware</a>:
+
+    ```roslaunch mslquad se3controller.launch```
