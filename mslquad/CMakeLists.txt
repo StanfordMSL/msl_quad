@@ -104,7 +104,7 @@ find_package(Eigen3 REQUIRED)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+  INCLUDE_DIRS include
 #  LIBRARIES mslquad
 #  CATKIN_DEPENDS roscpp rospy
 #  DEPENDS system_lib
@@ -117,7 +117,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -151,6 +151,9 @@ target_link_libraries(traj_follow_control ${catkin_LIBRARIES})
 
 add_executable(se3controller src/SE3Controller.cpp)
 target_link_libraries(se3controller ${catkin_LIBRARIES})
+
+add_executable(default_controller src/default_controller_node.cpp src/px4_base_controller.cpp)
+target_link_libraries(default_controller ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
