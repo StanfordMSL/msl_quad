@@ -152,8 +152,12 @@ target_link_libraries(traj_follow_control ${catkin_LIBRARIES})
 add_executable(se3controller src/SE3Controller.cpp)
 target_link_libraries(se3controller ${catkin_LIBRARIES})
 
-add_executable(default_controller src/default_controller_node.cpp src/px4_base_controller.cpp)
-target_link_libraries(default_controller ${catkin_LIBRARIES})
+add_library(controller_lib
+  src/px4_base_controller.cpp
+  src/yaw_track_controller.cpp)
+add_executable(default_controller 
+  src/default_controller_node.cpp)
+target_link_libraries(default_controller ${catkin_LIBRARIES} controller_lib)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

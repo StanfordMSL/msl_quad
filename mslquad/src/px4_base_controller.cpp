@@ -1,4 +1,14 @@
+/**************************************************************************
+  File Name    : px4_base_controller.cpp
+  Author       : Zijian Wang
+                 Multi-Robot Systems Lab (MSL), Stanford University
+  Contact      : zjwang@stanford.edu
+  Create Time  : Oct 27, 2018.
+  Description  : Base class for interfacing with px4
+**************************************************************************/
+
 #include<mslquad/px4_base_controller.h>
+#include<cmath>
 
 PX4BaseController::PX4BaseController() : 
         quadNS_("/"), 
@@ -23,7 +33,7 @@ PX4BaseController::PX4BaseController() :
     px4SetVelPub_ = nh_.advertise<geometry_msgs::Twist>(
         quadNS_+"mavros/setpoint_velocity/cmd_vel_unstamped", 1);
     odomPub_ = nh_.advertise<nav_msgs::Odometry>("ground_truth/odometry", 1);
-    
+
     // wait for initial position of the quad
     while (ros::ok() && curPose_.header.seq < 1000) {
         std::cout << "[PX4BaseController.cpp]: Waiting for initial position." << std::endl;
@@ -32,7 +42,7 @@ PX4BaseController::PX4BaseController() :
     }
 
     // take off first at the current location
-    // takeoff(curPose_.pose.position.x, curPose_.pose.position.y, fixedHeight);
+    takeoff(curPose_.pose.position.x, curPose_.pose.position.y, fixedHeight_);
 
     // start timer, operate under timer callbacks
     controlTimer_ = nh_.createTimer(
@@ -46,11 +56,11 @@ PX4BaseController::~PX4BaseController() {
 }
 
 
-void PX4BaseController::takeoff(const float desx, const float desy, const float desz) {
+void PX4BaseController::takeoff(const double desx, const double desy, const double desz) {
     Eigen::Vector3d desPos(desx, desy, desz);
     Eigen::Vector3d curPos;
     Eigen::Vector3d desVel;
-    float posErr = 1000;
+    double posErr = 1000;
     ros::Rate rate(10);
     geometry_msgs::Twist twist;
     std::cout << "Taking off..." << std::endl;
@@ -75,10 +85,10 @@ void PX4BaseController::takeoff(const float desx, const float desy, const float 
     }
 }
 
-float PX4BaseController::calcVelCmd(
+double PX4BaseController::calcVelCmd(
         Eigen::Vector3d& desVel, 
         const Eigen::Vector3d& desPos, 
-        const float vmax, const float kp) {
+        const double vmax, const double kp) {
     // 3d velocity < vmax
     Eigen::Vector3d curPos(curPose_.pose.position.x, curPose_.pose.position.y, curPose_.pose.position.z);
     Eigen::Vector3d errPos = desPos-curPos;
@@ -89,10 +99,10 @@ float PX4BaseController::calcVelCmd(
     return errPos.norm();    
 }
 
-float PX4BaseController::calcVelCmd2D(
+double PX4BaseController::calcVelCmd2D(
         Eigen::Vector3d& desVel, 
         const Eigen::Vector3d& desPos, 
-        const float vmax, const float kp) {
+        const double vmax, const double kp) {
     // 2d velocity < vmax
     // XY
     Eigen::Vector2d curPos(curPose_.pose.position.x, curPose_.pose.position.y);
@@ -103,8 +113,8 @@ float PX4BaseController::calcVelCmd2D(
         desVelXY = vmax * desVelXY / desVelXY.norm();
     }
     // Z
-    float errZ = desPos(2)-curPose_.pose.position.z;
-    float desVelZ = 1.5*errZ; // TODO: make it a parameter
+    double errZ = desPos(2)-curPose_.pose.position.z;
+    double desVelZ = 1.5*errZ; // TODO: make it a parameter
     if(std::fabs(desVelZ) > 1.0) { // TODO: make it a parameter
         desVelZ = 1.0 * desVelZ / std::fabs(desVelZ);
     }
@@ -138,6 +148,11 @@ void PX4BaseController::poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& ms
 }
 
 void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {
+    this->controlLoop();
+}
+
+void PX4BaseController::controlLoop(void) {
+    // default control loop
     geometry_msgs::Twist twist;
     if(0 == desTraj_.points.size()) {
         twist.linear.x = 0;
@@ -158,4 +173,12 @@ void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {
         twist.linear.z = desVel(2);
         px4SetVelPub_.publish(twist);
     }
+}
+
+double PX4BaseController::getYawRad(void) const {
+    double q0 = curPose_.pose.orientation.w;
+    double q1 = curPose_.pose.orientation.x;
+    double q2 = curPose_.pose.orientation.y;
+    double q3 = curPose_.pose.orientation.z;
+    return atan2(2*(q0*q3+q1*q2), 1-2*(q2*q2+q3*q3));
 }
