@@ -8,14 +8,27 @@
 
 #include<ros/ros.h>
 #include<iostream>
-#include<mslquad/px4_base_controller.h>
-#include<mslquad/yaw_track_controller.h>
+#include<string>
+#include"mslquad/px4_base_controller.h"
+#include"mslquad/yaw_track_controller.h"
+#include"mslquad/se3_controller.h"
 
 int main(int argc, char **argv){
     ros::init(argc, argv, "default_controller_node");
-    //PX4BaseController *px4agent = new PX4BaseController();
-    PX4BaseController *px4agent = new YawTrackController();
-    std::cout << "PX4 agent initiated." << std::endl;
+    PX4BaseController *px4agent;
+    std::string ctrlType;
+    ros::param::get("~controller_type", ctrlType);
+    if(ctrlType == "default") {
+        px4agent = new PX4BaseController();
+    } else if(ctrlType == "se3") {
+        px4agent = new SE3Controller();
+    } else if(ctrlType == "yaw_track") {
+        px4agent = new YawTrackController();
+    } else {
+      px4agent = new PX4BaseController();
+    }
+    std::cout << "PX4 controller node initiated. Controller type: " 
+              << ctrlType << std::endl;
     ros::spin();
     delete px4agent;
     return 0;

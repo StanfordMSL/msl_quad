@@ -13,15 +13,20 @@
 PX4BaseController::PX4BaseController() : 
         quadNS_("/"), 
         fixedHeight_(0), 
-        maxVel_(0) {
+        maxVel_(0),
+        controlLoopFreq_(20),
+        slowLoopFreq_(10) {
     // retrieve parameters
     std::string strtmp;
     ros::param::get("~quad_ns", strtmp);
-    quadNS_ += strtmp;
-    quadNS_ += "/";
-
+    if(strtmp.size()!=0) {
+        quadNS_ += strtmp;
+        quadNS_ += "/";
+    }
     ros::param::get("~fixed_height", fixedHeight_);
     ros::param::get("~max_vel", maxVel_);
+    ros::param::get("~control_freq", controlLoopFreq_);
+    ros::param::get("~slow_freq", slowLoopFreq_);
 
     // pub and subs
     cmdTrajSub_ = nh_.subscribe(
@@ -30,9 +35,14 @@ PX4BaseController::PX4BaseController() :
     px4PoseSub_ = nh_.subscribe<geometry_msgs::PoseStamped>(
         quadNS_+"mavros/local_position/pose", 
         1, &PX4BaseController::poseSubCB, this);
+    px4VelSub_ = nh_.subscribe<geometry_msgs::TwistStamped>(
+        quadNS_+"mavros/local_position/velocity",
+        1, &PX4BaseController::velSubCB, this);
     px4SetVelPub_ = nh_.advertise<geometry_msgs::Twist>(
         quadNS_+"mavros/setpoint_velocity/cmd_vel_unstamped", 1);
     odomPub_ = nh_.advertise<nav_msgs::Odometry>("ground_truth/odometry", 1);
+    actuatorPub_ = nh_.advertise<mavros_msgs::ActuatorControl>(
+        quadNS_+"mavros/actuator_control", 1);
 
     // wait for initial position of the quad
     while (ros::ok() && curPose_.header.seq < 1000) {
@@ -41,13 +51,18 @@ PX4BaseController::PX4BaseController() :
         ros::Duration(1.0).sleep();
     }
 
+    // TODO: check if vision_pose and local_position are consistent, for safety
+
     // take off first at the current location
-    takeoff(curPose_.pose.position.x, curPose_.pose.position.y, fixedHeight_);
+    // takeoff(curPose_.pose.position.x, curPose_.pose.position.y, fixedHeight_);
 
     // start timer, operate under timer callbacks
     controlTimer_ = nh_.createTimer(
-        ros::Duration(0.1), 
+        ros::Duration(1.0/controlLoopFreq_), 
         &PX4BaseController::controlTimerCB, this); // TODO: make the control freq changeable
+    slowTimer_ = nh_.createTimer(
+        ros::Duration(1.0/slowLoopFreq_),
+        &PX4BaseController::slowTimerCB, this);
 }
 
 
@@ -132,23 +147,18 @@ void PX4BaseController::pathCB(const trajectory_msgs::MultiDOFJointTrajectory::C
 void PX4BaseController::poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
     // store the currect pose
     curPose_ = *msg;
-    // publish odom to planner
-    nav_msgs::Odometry odom;
-    odom.header.stamp = ros::Time::now();
-    odom.header.frame_id = "world";
-    odom.child_frame_id = "base_link"; // TODO: change this
-    odom.pose.pose.position.x = msg->pose.position.x;
-    odom.pose.pose.position.y = msg->pose.position.y;
-    odom.pose.pose.orientation.w = msg->pose.orientation.w;
-    odom.pose.pose.orientation.x = msg->pose.orientation.x;
-    odom.pose.pose.orientation.y = msg->pose.orientation.y;
-    odom.pose.pose.orientation.z = msg->pose.orientation.z;
-    
-    odomPub_.publish(odom);
+}
+
+void PX4BaseController::velSubCB(const geometry_msgs::TwistStamped::ConstPtr& msg) {
+    curVel_ = *msg;
 }
 
 void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {
     this->controlLoop();
+}
+
+void PX4BaseController::slowTimerCB(const ros::TimerEvent& event) {
+    this->slowLoop();
 }
 
 void PX4BaseController::controlLoop(void) {
@@ -175,10 +185,43 @@ void PX4BaseController::controlLoop(void) {
     }
 }
 
+void PX4BaseController::slowLoop(void) {
+    // publish odom to planner
+    nav_msgs::Odometry odom;
+    odom.header.stamp = ros::Time::now();
+    odom.header.frame_id = "world";
+    odom.child_frame_id = "base_link"; // TODO: change this
+    odom.pose.pose.position.x = curPose_.pose.position.x;
+    odom.pose.pose.position.y = curPose_.pose.position.y;
+    odom.pose.pose.position.z = curPose_.pose.position.z;
+    odom.pose.pose.orientation.w = curPose_.pose.orientation.w;
+    odom.pose.pose.orientation.x = curPose_.pose.orientation.x;
+    odom.pose.pose.orientation.y = curPose_.pose.orientation.y;
+    odom.pose.pose.orientation.z = curPose_.pose.orientation.z;
+    odomPub_.publish(odom);
+}
+
 double PX4BaseController::getYawRad(void) const {
     double q0 = curPose_.pose.orientation.w;
     double q1 = curPose_.pose.orientation.x;
     double q2 = curPose_.pose.orientation.y;
     double q3 = curPose_.pose.orientation.z;
     return atan2(2*(q0*q3+q1*q2), 1-2*(q2*q2+q3*q3));
+}
+
+Eigen::Matrix3d PX4BaseController::getRotMat(void) const {
+    double q1 = curPose_.pose.orientation.w;
+    double q2 = curPose_.pose.orientation.x;
+    double q3 = curPose_.pose.orientation.y;
+    double q4 = curPose_.pose.orientation.z;
+    double q1s = q1*q1;
+    double q2s = q2*q2;
+    double q3s = q3*q3;
+    double q4s = q4*q4;
+    Eigen::Matrix3d R;
+    R <<
+        q1s+q2s-q3s-q4s, 2.0*(q2*q3-q1*q4) ,2.0*(q2*q4+q1*q3),
+        2.0*(q2*q3+q1*q4), q1s-q2s+q3s-q4s, 2.0*(q3*q4-q1*q2),
+        2.0*(q2*q4-q1*q3), 2.0*(q3*q4+q1*q2), q1s-q2s-q3s+q4s;
+    return R;
 }

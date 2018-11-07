@@ -1,5 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
 <launch>
-  <!--node pkg="mslquad"
+
+	<arg name="mav_name" default="quad"/>
+	<arg name="id" default="5"/>
+	<arg name="quad_ns"  default="$(arg mav_name)$(arg id)"/>
+	<arg name="fixed_height" default="1.5"/>
+	<arg name="max_vel" default="0.5"/>
+	
+	<group ns="$(arg mav_name)$(arg id)">
+		<node pkg="mslquad" type="default_controller" name="default_controller" output="screen">
+      <param name="controller_type" value="se3"/>
+			<param name="quad_ns" value="$(arg quad_ns)"/>
+			<param name="fixed_height" value="$(arg fixed_height)" />
+			<param name="max_vel" value="$(arg max_vel)" />
+			<param name="control_freq" value="250"/>
+			<param name="slow_freq" value="10"/>
+      <param name="KP" value="6.0" />
+      <param name="KV" value="4.0" />
+      <param name="KR" value="0.8" />
+      <param name="KW" value="0.1" />
+      <param name="M" value="1.04" />
+      <param name="quadFrame" value="mslquad"/>      
+		</node>
+
+	</group>
+</launch>
+
+<!--launch>
+  <node pkg="mslquad"
         type="se3controller"
         name="se3controller"
         output="screen">
@@ -10,7 +39,7 @@
     <param name="M" value="1.04" />
     <param name="TCOEFF" value="4.4" />
     <param name="MODEL" value="mslquad"/>
-  </node-->
+  </node>
 
   <node pkg="mslquad"
         type="se3controller"
@@ -24,4 +53,4 @@
     <param name="TCOEFF" value="6.57" />
     <param name="MODEL" value="iris"/>
   </node>
-</launch>
+</launch-->

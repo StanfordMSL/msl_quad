@@ -10,9 +10,12 @@
 	
 	<group ns="$(arg mav_name)$(arg id)">
 		<node pkg="mslquad" type="default_controller" name="default_controller" output="screen">
+			<param name="controller_type" value="default"/>
 			<param name="quad_ns" value="$(arg quad_ns)"/>
 			<param name="fixed_height" value="$(arg fixed_height)" />
 			<param name="max_vel" value="$(arg max_vel)" />
+			<param name="control_freq" value="20"/>
+			<param name="slow_freq" value="10"/>
 		</node>
 
 	</group>

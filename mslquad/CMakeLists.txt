@@ -154,7 +154,8 @@ target_link_libraries(se3controller ${catkin_LIBRARIES})
 
 add_library(controller_lib
   src/px4_base_controller.cpp
-  src/yaw_track_controller.cpp)
+  src/yaw_track_controller.cpp
+  src/se3_controller.cpp)
 add_executable(default_controller 
   src/default_controller_node.cpp)
 target_link_libraries(default_controller ${catkin_LIBRARIES} controller_lib)
