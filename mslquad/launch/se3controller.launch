@@ -7,6 +7,7 @@
 	<arg name="quad_ns"  default="$(arg mav_name)$(arg id)"/>
 	<arg name="fixed_height" default="1.5"/>
 	<arg name="max_vel" default="0.5"/>
+  <arg name="auto_takeoff" default="false"/>
 	
 	<group ns="$(arg mav_name)$(arg id)">
 		<node pkg="mslquad" type="default_controller" name="default_controller" output="screen">
@@ -16,6 +17,7 @@
 			<param name="max_vel" value="$(arg max_vel)" />
 			<param name="control_freq" value="250"/>
 			<param name="slow_freq" value="10"/>
+      <param name="auto_takeoff" value="$(arg auto_takeoff)"/>
       <param name="KP" value="6.0" />
       <param name="KV" value="4.0" />
       <param name="KR" value="0.8" />

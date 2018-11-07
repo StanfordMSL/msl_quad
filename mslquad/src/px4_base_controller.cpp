@@ -29,9 +29,7 @@ PX4BaseController::PX4BaseController() :
     ros::param::get("~slow_freq", slowLoopFreq_);
 
     // pub and subs
-    cmdTrajSub_ = nh_.subscribe(
-        quadNS_+"command/trajectory", 
-        1, &PX4BaseController::pathCB, this);
+    // mavros related, namespace under quadNS_
     px4PoseSub_ = nh_.subscribe<geometry_msgs::PoseStamped>(
         quadNS_+"mavros/local_position/pose", 
         1, &PX4BaseController::poseSubCB, this);
@@ -43,20 +41,24 @@ PX4BaseController::PX4BaseController() :
         1, &PX4BaseController::visionPoseSubCB, this);
     px4SetVelPub_ = nh_.advertise<geometry_msgs::Twist>(
         quadNS_+"mavros/setpoint_velocity/cmd_vel_unstamped", 1);
-    odomPub_ = nh_.advertise<nav_msgs::Odometry>("ground_truth/odometry", 1);
     actuatorPub_ = nh_.advertise<mavros_msgs::ActuatorControl>(
         quadNS_+"mavros/actuator_control", 1);
+    // non-mavros related, namespace depending on the group ns in the launch file
+    odomPub_ = nh_.advertise<nav_msgs::Odometry>("ground_truth/odometry", 1);
+    cmdTrajSub_ = nh_.subscribe(
+        "command/trajectory", 
+        1, &PX4BaseController::pathCB, this);    
 
     // wait for mocap pose
     while (ros::ok() && curVisionPose_.header.seq < 200) {
-        std::cout << "[PX4BaseController.cpp]: Waiting for mocap pose." << std::endl;
+        std::cout << quadNS_ << ": waiting for mocap pose." << std::endl;
         ros::spinOnce();
         ros::Duration(1.0).sleep();
     }
 
     // wait for initial position of the quad
     while (ros::ok() && curPose_.header.seq < 1000) {
-        std::cout << "[PX4BaseController.cpp]: Waiting for initial pose." << std::endl;
+        std::cout << quadNS_ << ": waiting for initial pose." << std::endl;
         ros::spinOnce();
         ros::Duration(1.0).sleep();
     }
@@ -68,23 +70,28 @@ PX4BaseController::PX4BaseController() :
         for(int i=0; i<10; ++i) { // must be consistent for 10 checks
             if(getDist(curPose_, curVisionPose_) > 0.05) {
                 mocapCheck = false;
-                std::cout << "[PX4BaseController.cpp]: mocap inconsistent." << std::endl;
+                std::cout << quadNS_ << ": mocap inconsistent." << std::endl;
             }
             ros::Duration(0.2).sleep();
         }
     }
     visionPoseSub_.shutdown(); // shutdown subscriber after sanity check
 
-    // take off first at the current location
-    // takeoff(curPose_.pose.position.x, curPose_.pose.position.y, fixedHeight_);
-
-    // start timer, operate under timer callbacks
-    controlTimer_ = nh_.createTimer(
-        ros::Duration(1.0/controlLoopFreq_), 
-        &PX4BaseController::controlTimerCB, this); // TODO: make the control freq changeable
+    // start slow timer
     slowTimer_ = nh_.createTimer(
         ros::Duration(1.0/slowLoopFreq_),
         &PX4BaseController::slowTimerCB, this);
+
+    // take off first at the current location
+    bool isAutoTakeOff = false;
+    ros::param::get("~auto_takeoff", isAutoTakeOff);
+    if(isAutoTakeOff)
+        takeoff(curPose_.pose.position.x, curPose_.pose.position.y, fixedHeight_);
+
+    // start faster timer for main control loop
+    controlTimer_ = nh_.createTimer(
+        ros::Duration(1.0/controlLoopFreq_), 
+        &PX4BaseController::controlTimerCB, this); // TODO: make the control freq changeable
 }
 
 
