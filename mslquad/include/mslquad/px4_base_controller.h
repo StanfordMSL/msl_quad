@@ -24,9 +24,8 @@ class PX4BaseController {
 public:
     PX4BaseController();
     virtual ~PX4BaseController();
-
-    // return yaw angle in radius, [-pi, pi]
-    double getYawRad(void) const;
+    
+    double getYawRad(void) const; // return yaw angle in radius, [-pi, pi]
     inline Eigen::Vector3d getLinVel(void) const {
         return Eigen::Vector3d(curVel_.twist.linear.x,
             curVel_.twist.linear.y, curVel_.twist.linear.z);
@@ -42,6 +41,9 @@ public:
     Eigen::Matrix3d getRotMat(void) const; // get rotation matrix
     inline double getControlLoopFreq(void) const {return controlLoopFreq_;};
 
+    static double getDist(const geometry_msgs::PoseStamped &ps1,
+                        const geometry_msgs::PoseStamped &ps2);
+
 protected:
     std::string quadNS_; // ROS name space
     double fixedHeight_; // the fixed height that the quad will be flying at
@@ -50,6 +52,7 @@ protected:
     ros::NodeHandle nh_;
     geometry_msgs::PoseStamped curPose_; // current pose of quad from px4
     geometry_msgs::TwistStamped curVel_; // current vellocity from px4
+    geometry_msgs::PoseStamped curVisionPose_; // current mocap pose, used for sanity check
     trajectory_msgs::MultiDOFJointTrajectory desTraj_; // desired trajectory from the planner
 
     ros::Publisher px4SetVelPub_; // px4 setpoint_velocity command
@@ -73,6 +76,7 @@ private:
     ros::Subscriber cmdTrajSub_; // game planner command traj sub
     ros::Subscriber px4PoseSub_; // px4 pose sub
     ros::Subscriber px4VelSub_; // px4 velocity sub
+    ros::Subscriber visionPoseSub_; // subscribe to mocap
 
     ros::Timer controlTimer_; // for fast loop
     ros::Timer slowTimer_;  // for slow loop
@@ -83,6 +87,7 @@ private:
     void pathCB(const trajectory_msgs::MultiDOFJointTrajectory::ConstPtr& traj);
     void poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg); // pose callback on PX4 local position
     void velSubCB(const geometry_msgs::TwistStamped::ConstPtr& msg);
+    void visionPoseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg);
     void controlTimerCB(const ros::TimerEvent& event);
     void slowTimerCB(const ros::TimerEvent& event);
 };

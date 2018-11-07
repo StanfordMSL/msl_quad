@@ -38,20 +38,42 @@ PX4BaseController::PX4BaseController() :
     px4VelSub_ = nh_.subscribe<geometry_msgs::TwistStamped>(
         quadNS_+"mavros/local_position/velocity",
         1, &PX4BaseController::velSubCB, this);
+    visionPoseSub_ = nh_.subscribe<geometry_msgs::PoseStamped>(
+        quadNS_+"mavros/vision_pose/pose",
+        1, &PX4BaseController::visionPoseSubCB, this);
     px4SetVelPub_ = nh_.advertise<geometry_msgs::Twist>(
         quadNS_+"mavros/setpoint_velocity/cmd_vel_unstamped", 1);
     odomPub_ = nh_.advertise<nav_msgs::Odometry>("ground_truth/odometry", 1);
     actuatorPub_ = nh_.advertise<mavros_msgs::ActuatorControl>(
         quadNS_+"mavros/actuator_control", 1);
 
-    // wait for initial position of the quad
-    while (ros::ok() && curPose_.header.seq < 1000) {
-        std::cout << "[PX4BaseController.cpp]: Waiting for initial position." << std::endl;
+    // wait for mocap pose
+    while (ros::ok() && curVisionPose_.header.seq < 200) {
+        std::cout << "[PX4BaseController.cpp]: Waiting for mocap pose." << std::endl;
         ros::spinOnce();
         ros::Duration(1.0).sleep();
     }
 
-    // TODO: check if vision_pose and local_position are consistent, for safety
+    // wait for initial position of the quad
+    while (ros::ok() && curPose_.header.seq < 1000) {
+        std::cout << "[PX4BaseController.cpp]: Waiting for initial pose." << std::endl;
+        ros::spinOnce();
+        ros::Duration(1.0).sleep();
+    }
+
+    // check if vision_pose and local_position are consistent, for safety
+    bool mocapCheck = false;
+    while(!mocapCheck) {
+        mocapCheck = true;
+        for(int i=0; i<10; ++i) { // must be consistent for 10 checks
+            if(getDist(curPose_, curVisionPose_) > 0.05) {
+                mocapCheck = false;
+                std::cout << "[PX4BaseController.cpp]: mocap inconsistent." << std::endl;
+            }
+            ros::Duration(0.2).sleep();
+        }
+    }
+    visionPoseSub_.shutdown(); // shutdown subscriber after sanity check
 
     // take off first at the current location
     // takeoff(curPose_.pose.position.x, curPose_.pose.position.y, fixedHeight_);
@@ -105,7 +127,8 @@ double PX4BaseController::calcVelCmd(
         const Eigen::Vector3d& desPos, 
         const double vmax, const double kp) {
     // 3d velocity < vmax
-    Eigen::Vector3d curPos(curPose_.pose.position.x, curPose_.pose.position.y, curPose_.pose.position.z);
+    Eigen::Vector3d curPos(
+        curPose_.pose.position.x, curPose_.pose.position.y, curPose_.pose.position.z);
     Eigen::Vector3d errPos = desPos-curPos;
     desVel = kp*errPos;
     if(desVel.norm() > vmax) {
@@ -151,6 +174,10 @@ void PX4BaseController::poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& ms
 
 void PX4BaseController::velSubCB(const geometry_msgs::TwistStamped::ConstPtr& msg) {
     curVel_ = *msg;
+}
+
+void PX4BaseController::visionPoseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
+    curVisionPose_ = *msg;
 }
 
 void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {
@@ -224,4 +251,13 @@ Eigen::Matrix3d PX4BaseController::getRotMat(void) const {
         2.0*(q2*q3+q1*q4), q1s-q2s+q3s-q4s, 2.0*(q3*q4-q1*q2),
         2.0*(q2*q4-q1*q3), 2.0*(q3*q4+q1*q2), q1s-q2s-q3s+q4s;
     return R;
+}
+
+double PX4BaseController::getDist(
+        const geometry_msgs::PoseStamped &ps1,
+        const geometry_msgs::PoseStamped &ps2) {
+    return sqrt(
+        pow(ps1.pose.position.x-ps2.pose.position.x, 2) +
+        pow(ps1.pose.position.y-ps2.pose.position.y, 2) +
+        pow(ps1.pose.position.z-ps2.pose.position.z, 2));
 }
