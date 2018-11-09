@@ -149,9 +149,6 @@ target_link_libraries(follower ${catkin_LIBRARIES})
 add_executable(traj_follow_control src/traj_follow/traj_follow_control.cpp)
 target_link_libraries(traj_follow_control ${catkin_LIBRARIES})
 
-add_executable(se3controller src/se3_controller.cpp)
-target_link_libraries(se3controller ${catkin_LIBRARIES})
-
 add_library(controller_lib
   src/px4_base_controller.cpp
   src/yaw_track_controller.cpp
