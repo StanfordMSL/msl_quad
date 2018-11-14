@@ -41,6 +41,8 @@ PX4BaseController::PX4BaseController() :
         1, &PX4BaseController::visionPoseSubCB, this);
     px4SetVelPub_ = nh_.advertise<geometry_msgs::Twist>(
         quadNS_+"mavros/setpoint_velocity/cmd_vel_unstamped", 1);
+    px4SetPosPub_ = nh_.advertise<geometry_msgs::PoseStamped>(
+        quadNS_+"mavros/setpoint_position/local", 1);
     actuatorPub_ = nh_.advertise<mavros_msgs::ActuatorControl>(
         quadNS_+"mavros/actuator_control", 1);
     // non-mavros related, namespace depending on the group ns in the launch file
@@ -82,6 +84,7 @@ PX4BaseController::PX4BaseController() :
         ros::Duration(1.0/slowLoopFreq_),
         &PX4BaseController::slowTimerCB, this);
 
+    takeoffPose_ = curPose_; // record takeoff postion before takeoff
     // take off first at the current location
     bool isAutoTakeOff = false;
     ros::param::get("~auto_takeoff", isAutoTakeOff);
@@ -132,7 +135,7 @@ void PX4BaseController::takeoff(const double desx, const double desy, const doub
 double PX4BaseController::calcVelCmd(
         Eigen::Vector3d& desVel, 
         const Eigen::Vector3d& desPos, 
-        const double vmax, const double kp) {
+        const double vmax, const double kp) const {
     // 3d velocity < vmax
     Eigen::Vector3d curPos(
         curPose_.pose.position.x, curPose_.pose.position.y, curPose_.pose.position.z);
@@ -147,7 +150,7 @@ double PX4BaseController::calcVelCmd(
 double PX4BaseController::calcVelCmd2D(
         Eigen::Vector3d& desVel, 
         const Eigen::Vector3d& desPos, 
-        const double vmax, const double kp) {
+        const double vmax, const double kp) const {
     // 2d velocity < vmax
     // XY
     Eigen::Vector2d curPos(curPose_.pose.position.x, curPose_.pose.position.y);
@@ -197,12 +200,10 @@ void PX4BaseController::slowTimerCB(const ros::TimerEvent& event) {
 
 void PX4BaseController::controlLoop(void) {
     // default control loop
-    geometry_msgs::Twist twist;
     if(0 == desTraj_.points.size()) {
-        twist.linear.x = 0;
-        twist.linear.y = 0;
-        twist.linear.z = 0;
-        px4SetVelPub_.publish(twist);
+        geometry_msgs::PoseStamped hoverPose = takeoffPose_;
+        hoverPose.pose.position.z = fixedHeight_;
+        px4SetPosPub_.publish(hoverPose);
     } else {
         // std::cout << "Traj #: " << desTraj.header.seq << std::endl; // print the seq # of traj
         Eigen::Vector3d desVel;

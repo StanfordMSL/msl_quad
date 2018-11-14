@@ -53,20 +53,22 @@ protected:
     geometry_msgs::PoseStamped curPose_; // current pose of quad from px4
     geometry_msgs::TwistStamped curVel_; // current vellocity from px4
     geometry_msgs::PoseStamped curVisionPose_; // current mocap pose, used for sanity check
+    geometry_msgs::PoseStamped takeoffPose_; // record the position before takeoff
     trajectory_msgs::MultiDOFJointTrajectory desTraj_; // desired trajectory from the planner
 
     ros::Publisher px4SetVelPub_; // px4 setpoint_velocity command
+    ros::Publisher px4SetPosPub_; // 
     ros::Publisher odomPub_; // publish pose of px4 agent to the planner
     ros::Publisher actuatorPub_; // px4 actuator_control topic
 
     // calculate desired velocity vector given desired position
     // vmax is the maximum velocity. return the norm of the position error
     double calcVelCmd(Eigen::Vector3d& desVel, const Eigen::Vector3d& desPos, 
-        const double vmax, const double kp);
+        const double vmax, const double kp) const;
 
     // in this version, vmax only constrains XY velocity. Z vel is independent
     double calcVelCmd2D(Eigen::Vector3d& desVel, const Eigen::Vector3d& desPos, 
-            const double vmax, const double kp);
+            const double vmax, const double kp) const;
 
     virtual void takeoff(const double desx, const double desy, const double desz);
     virtual void controlLoop(void); // main controller loop (fast, up to >200 Hz), overload in derived class
