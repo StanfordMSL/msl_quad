@@ -70,6 +70,6 @@ If you find our work useful in your research, please consider citing:
 
 - Report bug or reqeust feature by opening issues on Github
 
-- Contribution is very welcome. Please fork the project and submit pull requests.
+- Contribution is very welcome. Please fork the project and submit pull requests. New code will be reviewed before merging into the codebase.
 
-- Common functionality should be implemented in ```src/px4_base_controller.cpp```. New controller should derive from the base controller. 
+- Common functionality should be implemented in ```src/px4_base_controller.cpp```. New controller should derive from the base controller, and override the ```controlLoop()``` function.
