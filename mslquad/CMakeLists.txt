@@ -146,6 +146,14 @@ target_link_libraries(vel_ctrl_test ${catkin_LIBRARIES})
 add_executable(follower src/follower/follower.cpp)
 target_link_libraries(follower ${catkin_LIBRARIES})
 
+add_executable(se3_simulate src/ctrl_alloc_test/se3_simulate.cpp)
+target_link_libraries(se3_simulate ${catkin_LIBRARIES})
+#add_dependencies(se3_simulate msl_quad_messages_cpp)
+
+add_executable(ctrl_alloc src/ctrl_alloc_test/ctrl_alloc.cpp)
+target_link_libraries(ctrl_alloc ${catkin_LIBRARIES})
+#add_dependencies(ctrl_alloc msl_quad_messages_cpp)
+
 add_library(controller_lib
   src/px4_base_controller.cpp
   src/yaw_track_controller.cpp
