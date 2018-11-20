@@ -67,10 +67,10 @@ PX4BaseController::PX4BaseController() :
 
     // check if vision_pose and local_position are consistent, for safety
     bool mocapCheck = false;
-    while(!mocapCheck) {
+    while(ros::ok() && !mocapCheck) {
         mocapCheck = true;
         for(int i=0; i<10; ++i) { // must be consistent for 10 checks
-            if(getDist(curPose_, curVisionPose_) > 0.05) {
+            if(getDist(curPose_, curVisionPose_) > 0.08) {
                 mocapCheck = false;
                 std::cout << quadNS_ << ": mocap inconsistent." << std::endl;
             }

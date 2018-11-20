@@ -13,11 +13,16 @@
 
 #define PI_M 3.1415926
 
-YawTrackController::YawTrackController() {
+YawTrackController::YawTrackController() : diffYawPrev_(0), KP_YAW_(0.8), KD_YAW_(0) {
+    // retrieve ROS parameter
+    std::string yawTargetTopic;
+    ros::param::get("~yaw_target_topic", yawTargetTopic);
+    ros::param::get("~kp_yaw", KP_YAW_);
+    ros::param::get("~kd_yaw", KD_YAW_);
+    // ROS subs and pub
     yawTargetPoseSub_ = nh_.subscribe<geometry_msgs::PoseStamped>(
-        "/quad2/mavros/vision_pose/pose", 
+        yawTargetTopic, 
         1, &YawTrackController::yawTargetPoseCB, this);
-    // TODO: check whether the topic is indeed being published
 }
 
 YawTrackController::~YawTrackController() {
@@ -37,27 +42,26 @@ void YawTrackController::controlLoop(void) {
 
     double diffYaw = desYaw-curYaw;
     if(diffYaw>PI_M) diffYaw -= 2*PI_M;
-    if(diffYaw<-PI_M) diffYaw += 2*PI_M;
-    const double K_YAW = 0.5; // TODO: make parameter
+    if(diffYaw<-PI_M) diffYaw += 2*PI_M; 
+    double diffYawDot = diffYawPrev_ - diffYaw;
+    diffYawPrev_ = diffYaw;
     
     geometry_msgs::Twist twist;
-    if(0 == desTraj_.points.size()) {
-        twist.linear.x = 0;
-        twist.linear.y = 0;
-        twist.linear.z = 0;
+    Eigen::Vector3d desVel;
+    Eigen::Vector3d desPos;
+    if(0 == desTraj_.points.size()) { // not receiving desired trajectory
+        desPos(0) = takeoffPose_.pose.position.x;
+        desPos(1) = takeoffPose_.pose.position.y;
+        desPos(2) = fixedHeight_;
     } else {
-        // std::cout << "Traj #: " << desTraj.header.seq << std::endl; // print the seq # of traj
-        Eigen::Vector3d desVel;
-        Eigen::Vector3d desPos;
         desPos(0) = desTraj_.points[1].transforms[0].translation.x;
         desPos(1) = desTraj_.points[1].transforms[0].translation.y;
         desPos(2) = fixedHeight_;
-        calcVelCmd2D(desVel, desPos, maxVel_, 4.0);
-        geometry_msgs::Twist twist;
-        twist.linear.x = desVel(0);
-        twist.linear.y = desVel(1);
-        twist.linear.z = desVel(2);
     }
-    twist.angular.z = K_YAW * diffYaw; // yaw tracking, diffYaw > 0 turn left, otherwise turn right
+    calcVelCmd2D(desVel, desPos, maxVel_, 4.0);
+    twist.linear.x = desVel(0);
+    twist.linear.y = desVel(1);
+    twist.linear.z = desVel(2);
+    twist.angular.z = KP_YAW_ * diffYaw + KD_YAW_ * diffYawDot; // yaw tracking, diffYaw > 0 turn left, otherwise turn right
     px4SetVelPub_.publish(twist);
 }

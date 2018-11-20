@@ -25,6 +25,10 @@ protected:
 private:
     ros::Subscriber yawTargetPoseSub_; // px4 pose sub
 
+    double diffYawPrev_; // variable for derivative control
+    double KP_YAW_; // P and D gains for yaw control
+    double KD_YAW_;
+
     void yawTargetPoseCB(const geometry_msgs::PoseStamped::ConstPtr& msg);
 };
 

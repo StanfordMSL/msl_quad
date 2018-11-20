@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+
+	<arg name="mav_name" default="quad"/>
+	<arg name="id" default="3"/>
+	<arg name="quad_ns"  default="$(arg mav_name)$(arg id)"/>
+	<arg name="fixed_height" default="0.8"/>
+	<arg name="max_vel" default="0.5"/>
+	<arg name="auto_takeoff" default="true"/>
+	<arg name="yaw_target_topic" default="/quad0/sphere_tracker/vision_estimate"/>
+	
+	<group ns="$(arg mav_name)$(arg id)">
+		<node pkg="mslquad" type="default_controller" name="default_controller" output="screen">
+			<param name="controller_type" value="yaw_track"/>
+			<param name="quad_ns" value="$(arg quad_ns)"/>
+			<param name="fixed_height" value="$(arg fixed_height)" />
+			<param name="max_vel" value="$(arg max_vel)" />
+			<param name="control_freq" value="30"/>
+			<param name="slow_freq" value="10"/>
+			<param name="auto_takeoff" value="$(arg auto_takeoff)"/>
+			<param name="yaw_target_topic" value="$(arg yaw_target_topic)"/>
+			<param name="kp_yaw" value="1.2"/>
+			<param name="kd_yaw" value="0.2"/>
+		</node>
+
+	</group>
+</launch>
