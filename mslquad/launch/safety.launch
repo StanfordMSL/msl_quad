@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+	<rosparam param="safety/quad_name">quad</rosparam>
+    <rosparam param="safety/quad_ids">[3,4]</rosparam>
+
+    <node pkg="mslquad" type="safety" name="safety" output="screen">
+        <param name="check_min_dist" value="0.6"/>
+        <param name="sep_dist" value="0.5"/>
+        <param name="dt_pred" value="0.1"/>
+        <param name="min_x" value="-7"/>
+        <param name="max_x" value="7"/>
+        <param name="min_y" value="-2.7"/>
+        <param name="max_y" value="2.7"/>
+    </node>
+
+</launch>

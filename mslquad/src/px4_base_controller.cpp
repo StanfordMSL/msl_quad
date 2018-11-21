@@ -15,7 +15,8 @@ PX4BaseController::PX4BaseController() :
         fixedHeight_(0), 
         maxVel_(0),
         controlLoopFreq_(20),
-        slowLoopFreq_(10) {
+        slowLoopFreq_(10),
+        state_(State::AUTO) {
     // retrieve parameters
     std::string strtmp;
     ros::param::get("~quad_ns", strtmp);
@@ -45,6 +46,9 @@ PX4BaseController::PX4BaseController() :
         quadNS_+"mavros/setpoint_position/local", 1);
     actuatorPub_ = nh_.advertise<mavros_msgs::ActuatorControl>(
         quadNS_+"mavros/actuator_control", 1);
+    emergencyLandSrv_ = nh_.advertiseService(
+        quadNS_+"emergency_land", 
+        &PX4BaseController::emergencyLandHandle, this);
     // non-mavros related, namespace depending on the group ns in the launch file
     odomPub_ = nh_.advertise<nav_msgs::Odometry>("ground_truth/odometry", 1);
     cmdTrajSub_ = nh_.subscribe(
@@ -191,7 +195,14 @@ void PX4BaseController::visionPoseSubCB(const geometry_msgs::PoseStamped::ConstP
 }
 
 void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {
-    this->controlLoop();
+    if(state_ == State::EMERGENCY_LAND) {
+        geometry_msgs::PoseStamped ps;
+        ps.header.stamp = ros::Time::now();
+        ps.pose = emergencyLandPose_;
+        px4SetPosPub_.publish(ps);
+    } else {
+        this->controlLoop();
+    }
 }
 
 void PX4BaseController::slowTimerCB(const ros::TimerEvent& event) {
@@ -268,4 +279,13 @@ double PX4BaseController::getDist(
         pow(ps1.pose.position.x-ps2.pose.position.x, 2) +
         pow(ps1.pose.position.y-ps2.pose.position.y, 2) +
         pow(ps1.pose.position.z-ps2.pose.position.z, 2));
+}
+
+bool PX4BaseController::emergencyLandHandle(
+        mslquad::EmergencyLand::Request &req,
+        mslquad::EmergencyLand::Response &res) {
+    emergencyLandPose_ = req.landpos;
+    state_ = State::EMERGENCY_LAND;
+    res.success = true;
+    return true;
 }
