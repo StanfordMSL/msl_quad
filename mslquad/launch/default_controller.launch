@@ -3,7 +3,7 @@
 <launch>
 
 	<arg name="mav_name" default="quad"/>
-	<arg name="id" default="4"/>
+	<arg name="id" default="0"/>
 	<arg name="quad_ns"  default="$(arg mav_name)$(arg id)"/>
 	<arg name="fixed_height" default="1.0"/>
 	<arg name="max_vel" default="0.5"/>
