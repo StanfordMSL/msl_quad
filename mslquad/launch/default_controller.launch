@@ -3,16 +3,21 @@
 <launch>
 
 	<arg name="mav_name" default="quad"/>
-	<arg name="id" default="2"/>
+	<arg name="id" default="0"/>
 	<arg name="quad_ns"  default="$(arg mav_name)$(arg id)"/>
-	<arg name="fixed_height" default="1.5"/>
+	<arg name="fixed_height" default="1.0"/>
 	<arg name="max_vel" default="0.5"/>
+	<arg name="auto_takeoff" default="true"/>
 	
 	<group ns="$(arg mav_name)$(arg id)">
-		<node pkg="mslquad" type="traj_follow_control" name="traj_follow_control" output="screen">
+		<node pkg="mslquad" type="default_controller" name="default_controller" output="screen">
+			<param name="controller_type" value="default"/>
 			<param name="quad_ns" value="$(arg quad_ns)"/>
 			<param name="fixed_height" value="$(arg fixed_height)" />
 			<param name="max_vel" value="$(arg max_vel)" />
+			<param name="control_freq" value="20"/>
+			<param name="slow_freq" value="10"/>
+			<param name="auto_takeoff" value="$(arg auto_takeoff)"/>
 		</node>
 
 	</group>

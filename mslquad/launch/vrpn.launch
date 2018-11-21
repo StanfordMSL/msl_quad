@@ -1,11 +1,11 @@
 <!-- mocap_optitrack is incompatible with Motive Tracker v2.0. Use VRPN instead -->
 <launch>
-  <arg name="robot_ns" default="quad5" />
-  <arg name="vrpn_name" default="quad5" />
+  <arg name="robot_ns" default="quad0" />
+  <arg name="vrpn_name" default="quad0" />
   <arg name="pose_out_global_topic" default="/$(arg robot_ns)/mavros/vision_pose/pose" />
   
   <node ns="$(arg robot_ns)" name="vrpn_client" type="ros_vrpn_client" pkg="ros_vrpn_client" output="screen">
-    <param name="vrpn_server_ip" value="192.168.0.3" />
+    <param name="vrpn_server_ip" value="mocap.local" />
     <param name="vrpn_coordinate_system" value="optitrack" />
     <param name="timestamping_system" value="ros" />
     <param name="object_name" value="$(arg vrpn_name)" />

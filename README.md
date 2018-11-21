@@ -42,10 +42,12 @@ If you find our work useful in your research, please consider citing:
 #### Common
 - Start mavros and VRPN for mocap: ```roslaunch mslquad quad_vrpn.launch```
 
-#### Trajectory Following
-- A basic trajectory following controller is implemented in **src/traj_follow/**.
+- May need to change ```vrpn_server_ip``` in ```launch/vrpn.launch``` to the ip address of the mocap machine.
 
-    ```roslaunch mslquad traj_follow_control.launch```
+#### Trajectory Following
+- A basic trajectory following controller is implemented in **src/px4_base_controller.cpp**.
+
+    ```roslaunch mslquad default_controller.launch```
 
 - The controller accepts trajectory from topic ```command/trajectory```, which is of type *MultiDOFJointTrajectory*. It's important that the trajectory is updated at least 10Hz since the controller uses a simple lookahead strategy.
 
@@ -63,3 +65,11 @@ If you find our work useful in your research, please consider citing:
 - Experimental: test direct motor control (se3 control). This requires <a href="https://github.com/StanfordMSL/Firmware/tree/msl-quads-manip" target="_blank">custom PX4 firmware</a>:
 
     ```roslaunch mslquad se3controller.launch```
+
+## Contributing
+
+- Report bug or reqeust feature by opening issues on Github
+
+- Contribution is very welcome. Please fork the project and submit pull requests. New code will be reviewed before merging into the codebase.
+
+- Common functionality should be implemented in ```src/px4_base_controller.cpp```. New controller should derive from the base controller, and override the ```controlLoop()``` function.
