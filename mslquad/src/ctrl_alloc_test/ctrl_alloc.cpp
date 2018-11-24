@@ -38,7 +38,7 @@ ctrl_alloc::ctrl_alloc(int quad_count, float arm_length)
 
   // Setup the variables for the math we'll be doing.
   A.resize(4, quad_count * 4);
-  x_ln.resize(quad_count,1);
+  x_ls.resize(quad_count,1);
 
   Eigen::Vector4f feeder;
   for (int i = 0; i < quad_count; i++)
@@ -67,19 +67,41 @@ ctrl_alloc::~ctrl_alloc()
 }
 
 void ctrl_alloc::se3Callback(const std_msgs::Float32MultiArray::ConstPtr &command)
-{    
+{ 
+  int quad_count = 4;
+
   y(0,0) = command->data[0];
   y(1,0) = command->data[1];
   y(2,0) = command->data[2];
   y(3,0) = command->data[3];
 
+  int row_count    = (quad_count*4) + 4;
+  int column_count = (quad_count*4) + 4;
+
+  Eigen::MatrixXf A_tilde(row_count,column_count);
+  Eigen::VectorXf y_tilde(row_count);
+  Eigen::VectorXf x_tilde(row_count);
+
+  A_tilde.topLeftCorner(quad_count*4, quad_count*4) = Eigen::MatrixXf::Identity(quad_count*4, quad_count*4);
+  A_tilde.topRightCorner(quad_count*4,4) = A.transpose();
+  A_tilde.bottomLeftCorner(4,quad_count*4) = A;
+  A_tilde.bottomRightCorner(4,4) = Eigen::MatrixXf::Zero(4,4);
+
+  y_tilde.head(quad_count*4) =  Eigen::VectorXf::Zero(quad_count*4);
+  y_tilde.tail(4) = y;
+
+  x_tilde = A_tilde.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y_tilde);
+  x_ls = x_tilde.head(quad_count*4);
+  
+  std::string sep = "\n----------------------------------------\n";
+  std::cout << A*x_ls << sep;
+/*
   x_ln = A.transpose() * (A * A.transpose()).inverse() * y;
   y_tilde = A*x_ln;
 
   std::string sep = "\n----------------------------------------\n";
   std::cout << y_tilde << sep;
-
-  //ROS_INFO("I received: [%f] [%f] [%f] [%f]", output.data[0], output.data[1], output.data[2], output.data[3]);
+*/
 }
 
 int main(int argc, char **argv)
