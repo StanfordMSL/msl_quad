@@ -35,9 +35,8 @@ class ctrl_alloc
 
     vector<profile_struct> quad;
     Eigen::MatrixXf A;
-    Eigen::VectorXf x_ln;
+    Eigen::VectorXf x_ls;
     Eigen::Vector4f y;
-    Eigen::Vector4f y_tilde;
 
   private:
     //
