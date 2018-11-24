@@ -69,7 +69,7 @@ ctrl_alloc::~ctrl_alloc()
 void ctrl_alloc::se3Callback(const std_msgs::Float32MultiArray::ConstPtr &command)
 { 
   int quad_count = 4;
-
+   
   y(0,0) = command->data[0];
   y(1,0) = command->data[1];
   y(2,0) = command->data[2];
@@ -93,15 +93,11 @@ void ctrl_alloc::se3Callback(const std_msgs::Float32MultiArray::ConstPtr &comman
   x_tilde = A_tilde.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y_tilde);
   x_ls = x_tilde.head(quad_count*4);
   
-  std::string sep = "\n----------------------------------------\n";
-  std::cout << A*x_ls << sep;
-/*
-  x_ln = A.transpose() * (A * A.transpose()).inverse() * y;
-  y_tilde = A*x_ln;
+  //x_ls = A.transpose() * (A * A.transpose()).inverse() * y;
+  //y_tilde = A*x_ls;
 
   std::string sep = "\n----------------------------------------\n";
-  std::cout << y_tilde << sep;
-*/
+  std::cout << A*x_ls << sep;
 }
 
 int main(int argc, char **argv)
