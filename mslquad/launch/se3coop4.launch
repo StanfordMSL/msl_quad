@@ -1,8 +1,8 @@
 
 <launch>
 
-	<arg name="mav_name" default="quad"/>
-	<arg name="id" default="2"/>
+    <arg name="mav_name" default="quad"/>
+	<arg name="id" default="4"/>
 	<arg name="quad_ns"  default="$(arg mav_name)$(arg id)"/>
 	<arg name="fixed_height" default="1.5"/>
 	<arg name="max_vel" default="0.5"/>
@@ -19,11 +19,11 @@
       <param name="auto_takeoff" value="$(arg auto_takeoff)"/>
       <param name="KP" value="6.0" />
       <param name="KV" value="4.0" />
-      <param name="KR" value="10.0" />
+      <param name="KR" value="2.0" />
       <param name="KW" value="0.1" />
       <param name="M" value="2.635" />
       <param name="quadFrame" value="mslquad"/>
-			<param name="quad_addr" value="0"/>    
+			<param name="quad_addr" value="1"/>    
 			<param name="quad_count" value="2"/>  
 			<param name="arm_length" value="0.35"/>    
 		</node>

@@ -19,7 +19,7 @@
       <param name="auto_takeoff" value="$(arg auto_takeoff)"/>
       <param name="KP" value="6.0" />
       <param name="KV" value="4.0" />
-      <param name="KR" value="10.0" />
+      <param name="KR" value="2.0" />
       <param name="KW" value="0.1" />
       <param name="M" value="2.635" />
       <param name="quadFrame" value="mslquad"/>

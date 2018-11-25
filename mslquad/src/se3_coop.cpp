@@ -21,6 +21,8 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
     ros::param::get("~M", M_);
     ros::param::get("~quadFrame", quadFrame_);
     ros::param::get("~quad_addr", quad_addr);
+    ros::param::get("~quad_count", quad_count);
+    ros::param::get("~arm_length", arm_length);
 
     if (quadFrame_ == "mslquad")
     {
@@ -56,15 +58,15 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
     std::cout << "M = " << M_ << std::endl;
     std::cout << "QuadFrame: " << quadFrame_ << std::endl;
     std::cout << "quad_addr: " << quad_addr << std::endl;
+    std::cout << "quad_count: " << quad_count << std::endl;
+    std::cout << "arm_length: " << arm_length << std::endl;
     
     ros::Duration(3).sleep();
 
     // =================================================================================
     // Setup the coop configuration (quad and motor positions).
-    quad_count = 2;
-    arm_length = 0.35;
 
-    float base_angle = 2 * M_PI / quad_count;
+    float base_angle = 2 * M_PI / quad_count;  // angle between each quad (radians)
 
     for (int i = 0; i < quad_count; i++)
     {
@@ -84,7 +86,7 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
         {
             float angle;
 
-            angle = (base_angle * i + (M_PI / 2)) - (M_PI / 4) + (j * M_PI / 2);
+            angle = (base_angle * i + (M_PI / 2)) - (M_PI / 4) - (j * M_PI / 2);
 
             quad[i].motor_pos[2 * j][0] = quad[i].x_offset + (quad[i].arm_length * cos(angle));
             quad[i].motor_pos[2 * j][1] = quad[i].y_offset + (quad[i].arm_length * sin(angle));
@@ -224,11 +226,11 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
     const double c_b = 1.68915;
     const double c_c = -0.05628;
 
-    int loc_add = 4 * quad_addr;
-
     for (int i = 0; i < 4; i++)
     {
-        motorCmd[i] = (-c_b + sqrt((c_b * c_b) - (4 * c_a * (c_c - x_ls(loc_add + i))))) / (2 * c_a);
+        float force = x_ls((quad_addr*4)+i);
+
+        motorCmd[i] = (-c_b + sqrt((c_b * c_b) - (4 * c_a * (c_c - force)))) / (2 * c_a);
 
         if (motorCmd[i] < 0)
         {
@@ -244,13 +246,14 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
         }
     }
     // =================================================================================
+
 /*
     Eigen::Vector4f y_fwd = A * x_ls;
 
     std::string sep = "\n----------------------------------------\n";
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 8; i++)
     {
-        std::cout << y[i] << "  " << y_fwd[i] << std::endl;
+        std::cout << x_ls[i] << std::endl;
     }
 
     std::cout << sep;
@@ -263,6 +266,6 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
     {
         cmd.controls[i] = motorCmd[i];
     }
-    cmd.controls[7] = 0.1234; // secret key to enabling direct motor control in px4
+    //cmd.controls[7] = 0.1234; // secret key to enabling direct motor control in px4
     actuatorPub_.publish(cmd);
 }
