@@ -266,6 +266,6 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
     {
         cmd.controls[i] = motorCmd[i];
     }
-    //cmd.controls[7] = 0.1234; // secret key to enabling direct motor control in px4
+    cmd.controls[7] = 0.1234; // secret key to enabling direct motor control in px4
     actuatorPub_.publish(cmd);
 }
