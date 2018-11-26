@@ -19,13 +19,20 @@
       <param name="auto_takeoff" value="$(arg auto_takeoff)"/>
       <param name="KP" value="6.0" />
       <param name="KV" value="4.0" />
-      <param name="KR" value="10.0" />
+      <param name="KR" value="2.0" />
       <param name="KW" value="0.1" />
-      <param name="M" value="2.635" />
+      <param name="M" value="1.04" />
       <param name="quadFrame" value="mslquad"/>
 			<param name="quad_addr" value="0"/>    
-			<param name="quad_count" value="2"/>  
-			<param name="arm_length" value="0.35"/>    
+			<param name="quad_count" value="1"/>  
+			<param name="bar_radius" value="0"/>
+			<param name="arm_radius" value="0.169"/> 
+			<param name="c_deg2" value="4.67636"/>
+			<param name="c_deg1" value="1.68915"/> 
+			<param name="c_deg0" value="-0.05628"/>
+			<param name="c_ft_lin"   value="0.016666"/>
+			<param name="solver_type" value="1"/>   
+         
 		</node>
 
 	</group>

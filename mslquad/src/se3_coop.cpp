@@ -22,7 +22,13 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
     ros::param::get("~quadFrame", quadFrame_);
     ros::param::get("~quad_addr", quad_addr);
     ros::param::get("~quad_count", quad_count);
-    ros::param::get("~arm_length", arm_length);
+    ros::param::get("~bar_radius", bar_radius);
+    ros::param::get("~arm_radius", arm_radius);
+    ros::param::get("~c_deg2", c_deg2);
+    ros::param::get("~c_deg1", c_deg1);
+    ros::param::get("~c_deg0", c_deg0);
+    ros::param::get("~c_ft_lin", c_ft_lin);
+    ros::param::get("~solver_type", solver_type);
 
     if (quadFrame_ == "mslquad")
     {
@@ -57,49 +63,37 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
     std::cout << "KW = " << KW_ << std::endl;
     std::cout << "M = " << M_ << std::endl;
     std::cout << "QuadFrame: " << quadFrame_ << std::endl;
-    std::cout << "quad_addr: " << quad_addr << std::endl;
-    std::cout << "quad_count: " << quad_count << std::endl;
-    std::cout << "arm_length: " << arm_length << std::endl;
-    
-    ros::Duration(3).sleep();
+    std::cout << "Quad Address / Quad Total: " << quad_addr << "/" << quad_count << std::endl;
+    std::cout << "bar_radius: " << bar_radius << std::endl;
+    std::cout << "arm_radius: " << arm_radius << std::endl;
+    std::cout << "Motor Profile: " << c_deg2 << "x^2 +" << c_deg1 << "x +" << c_deg0 << std::endl;
+    std::cout << "Motor Force -> Torque Linear Approx: " << c_ft_lin << std::endl;
 
-    // =================================================================================
     // Setup the coop configuration (quad and motor positions).
-
-    float base_angle = 2 * M_PI / quad_count;  // angle between each quad (radians)
+    double base_angle = 2 * M_PI / quad_count; // angle between each quad (radians)
 
     for (int i = 0; i < quad_count; i++)
     {
         quad.push_back(profile_struct());
-        quad[i].x_offset = arm_length * cos(base_angle * i + (M_PI / 2));
-        quad[i].y_offset = arm_length * sin(base_angle * i + (M_PI / 2));
+        quad[i].x_offset = bar_radius * cos(base_angle * i + (M_PI / 2));
+        quad[i].y_offset = bar_radius * sin(base_angle * i + (M_PI / 2));
 
         quad[i].rot_offset = 0;
-        quad[i].arm_length = 0.2;
-
-        quad[i].motor_prof[0] = 4.67636;
-        quad[i].motor_prof[1] = 1.68915;
-        quad[i].motor_prof[2] = -0.05628;
-        quad[i].motor_prof[3] = 1.0 / 60.0;
+        quad[i].arm_radius = arm_radius;
 
         for (int j = 0; j < 2; j++)
         {
-            float angle;
+            // TODO: Check if this new version carries over to n number of quads.
+            double angle = (base_angle * i + (M_PI / 2)) - (M_PI / 4) + (j * M_PI / 2);
 
-            angle = (base_angle * i + (M_PI / 2)) - (M_PI / 4) - (j * M_PI / 2);
-
-            quad[i].motor_pos[2 * j][0] = quad[i].x_offset + (quad[i].arm_length * cos(angle));
-            quad[i].motor_pos[2 * j][1] = quad[i].y_offset + (quad[i].arm_length * sin(angle));
+            quad[i].motor_pos[2 * j][0] = quad[i].x_offset + (quad[i].arm_radius * cos(angle));
+            quad[i].motor_pos[2 * j][1] = quad[i].y_offset + (quad[i].arm_radius * sin(angle));
 
             angle += M_PI;
-            quad[i].motor_pos[(2 * j) + 1][0] = quad[i].x_offset + (quad[i].arm_length * cos(angle));
-            quad[i].motor_pos[(2 * j) + 1][1] = quad[i].y_offset + (quad[i].arm_length * sin(angle));
+            quad[i].motor_pos[(2 * j) + 1][0] = quad[i].x_offset + (quad[i].arm_radius * cos(angle));
+            quad[i].motor_pos[(2 * j) + 1][1] = quad[i].y_offset + (quad[i].arm_radius * sin(angle));
         }
     }
-
-    // Setup this quad's specific address.
-    //quad_addr = 0;
-    //quad_addr = stoi(this->quadNS_);
 
     // Setup the variables for the math we'll be doing.
     A.resize(4, quad_count * 4);
@@ -110,25 +104,24 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
     {
         for (int j = 0; j < 4; j++)
         {
-
             feeder(0) = 1;
-            feeder(1) = quad[i].motor_pos[j][1];
-            feeder(2) = -quad[i].motor_pos[j][0];
+            feeder(1) = -quad[i].motor_pos[j][0];
+            feeder(2) = -quad[i].motor_pos[j][1];
             if (j <= 1)
             {
-                feeder(3) = -quad[i].motor_prof[3];
+                feeder(3) = -c_ft_lin;
             }
             else
             {
-                feeder(3) = quad[i].motor_prof[3];
+                feeder(3) = c_ft_lin;
             }
             A.col(4 * i + j) = feeder;
         }
     }
-  //  std::string sep = "\n----------------------------------------\n";
-  //  std::cout << A << sep;
 
-    // =================================================================================
+    visualise();
+
+    ros::Duration(3).sleep();
 }
 
 SE3Coop::~SE3Coop()
@@ -193,44 +186,31 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
 
     // =================================================================================
     // Solve for individual motor thrust
+    
+    /*
+    // Static Test
+    y(0) = 23.0;
+    y(1) = 0.0;
+    y(2) = 1.0;
+    y(3) = 0.0;
+    */
+
     y(0) = fzCmd;
     y(1) = tauCmd(0);
     y(2) = tauCmd(1);
     y(3) = tauCmd(2);
-/*
-    int motor_count = quad_count * 4;
-    int row_count = (motor_count) + 4;
-    int column_count = (motor_count) + 4;
+    
+    //std::string sep = "\n----------------------------------------\n";
+    //std::cout << y << sep;
 
-    Eigen::MatrixXf A_tilde(row_count, column_count);
-    Eigen::VectorXf y_tilde(row_count);
-    Eigen::VectorXf x_tilde(row_count);
-
-    A_tilde.topLeftCorner(motor_count, motor_count) = Eigen::MatrixXf::Identity(motor_count, motor_count);
-    A_tilde.topRightCorner(motor_count, 4) = A.transpose();
-    A_tilde.bottomLeftCorner(4, motor_count) = A;
-    A_tilde.bottomRightCorner(4, 4) = Eigen::MatrixXf::Zero(4, 4);
-
-    y_tilde.head(motor_count) = Eigen::VectorXf::Zero(motor_count);
-    y_tilde.tail(4) = y;
-
-    x_tilde = A_tilde.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y_tilde);
-    x_ls = x_tilde.head(motor_count);
-*/
-    // Basic Least Square
-    x_ls = A.transpose() * ((A * A.transpose()).inverse()) * y;
+    linear_solver(solver_type);
 
     // solve for PWM command using motor calibration data
-    // TODO: these numbers are only good for mslquad
-    const double c_a = 4.67636;
-    const double c_b = 1.68915;
-    const double c_c = -0.05628;
-
     for (int i = 0; i < 4; i++)
     {
-        float force = x_ls((quad_addr*4)+i);
+        float force = x_ls((quad_addr * 4) + i);
 
-        motorCmd[i] = (-c_b + sqrt((c_b * c_b) - (4 * c_a * (c_c - force)))) / (2 * c_a);
+        motorCmd[i] = (-c_deg1 + sqrt((c_deg1 * c_deg1) - (4 * c_deg2 * (c_deg0 - force)))) / (2 * c_deg2);
 
         if (motorCmd[i] < 0)
         {
@@ -245,19 +225,9 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
             // Carry On
         }
     }
+
     // =================================================================================
 
-/*
-    Eigen::Vector4f y_fwd = A * x_ls;
-
-    std::string sep = "\n----------------------------------------\n";
-    for (int i = 0; i < 8; i++)
-    {
-        std::cout << x_ls[i] << std::endl;
-    }
-
-    std::cout << sep;
-*/
     // publish commands
     mavros_msgs::ActuatorControl cmd;
     cmd.header.stamp = ros::Time::now();
@@ -268,4 +238,100 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
     }
     cmd.controls[7] = 0.1234; // secret key to enabling direct motor control in px4
     actuatorPub_.publish(cmd);
+}
+
+void SE3Coop::visualise(void)
+{
+    std::string sep = "\n----------------------------------------\n";
+    std::cout << sep << A << sep;
+    
+    if (solver_type == 0)
+    {
+        std::cout << "Solver Type: Basic Least Square Solver" << sep;
+    }
+    else if (solver_type == 1)
+    {
+        std::cout << "Solver Type: QR Factorization with Pivot and <TODO: Insert ObjFunc Option>" << sep;
+    }
+    else if (solver_type == 2)
+    {
+        std::cout << "Solver Type: Jacobi with ObjFunc Options" << sep;
+    }
+    else
+    {
+        std::cout << "Warning, solver definition overwritten. Do not fly." << sep;
+    }
+
+    std::cout << "Quad Address  |  \tMotor 1\t\t\t|\tMotor 2\t\t\t|\tMotor 3\t\t\t|\tMotor 4" << std::endl;
+
+    for (int i = 0; i < quad_count; i++)
+    {
+        std::cout << "\t" << i << "\t";
+        for (int j = 0; j < 4; j++)
+        {
+            std::cout << "[x: " << quad[i].motor_pos[j][0] << "]\t"
+                      << "[y: " << quad[i].motor_pos[j][1] << "]\t";
+        }
+        std::cout << sep;
+    }
+}
+
+void SE3Coop::linear_solver(int type)
+{
+    float relative_error;
+    if (type == 0)
+    { // Default. Basic Least Squares.
+        x_ls = A.transpose() * ((A * A.transpose()).inverse()) * y;
+    }
+    else if (type == 1) // QR with column pivoting (fast,accurate). TODO: Finish ability to switch objective functions.
+    {
+        int motor_count = quad_count * 4;
+        int row_count = (motor_count) + 4;
+        int column_count = (motor_count) + 4;
+
+        Eigen::MatrixXf A_tilde(row_count, column_count);
+        Eigen::VectorXf y_tilde(row_count);
+        Eigen::VectorXf x_tilde(row_count);
+
+        A_tilde.topLeftCorner(motor_count, motor_count) = Eigen::MatrixXf::Identity(motor_count, motor_count);
+        A_tilde.topRightCorner(motor_count, 4) = A.transpose();
+        A_tilde.bottomLeftCorner(4, motor_count) = A;
+        A_tilde.bottomRightCorner(4, 4) = Eigen::MatrixXf::Zero(4, 4);
+
+        y_tilde.head(motor_count) = Eigen::VectorXf::Zero(motor_count);
+        y_tilde.tail(4) = y;
+
+        x_tilde = A_tilde.colPivHouseholderQr().solve(y_tilde);
+        x_ls = x_tilde.head(motor_count);
+    }
+
+    else if (type == 2) // Jacobi (slow, accurate).
+    {
+        int motor_count = quad_count * 4;
+        int row_count = (motor_count) + 4;
+        int column_count = (motor_count) + 4;
+
+        Eigen::MatrixXf A_tilde(row_count, column_count);
+        Eigen::VectorXf y_tilde(row_count);
+        Eigen::VectorXf x_tilde(row_count);
+
+        A_tilde.topLeftCorner(motor_count, motor_count) = Eigen::MatrixXf::Identity(motor_count, motor_count);
+        A_tilde.topRightCorner(motor_count, 4) = A.transpose();
+        A_tilde.bottomLeftCorner(4, motor_count) = A;
+        A_tilde.bottomRightCorner(4, 4) = Eigen::MatrixXf::Zero(4, 4);
+
+        y_tilde.head(motor_count) = Eigen::VectorXf::Zero(motor_count);
+        y_tilde.tail(4) = y;
+
+        x_tilde = A_tilde.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y_tilde);
+        x_ls = x_tilde.head(motor_count);
+    }
+    else
+    {
+        // Shouldn't ever be here!
+        std::cout << "You messed up somewhere. The Default Least Square Solver Overwritten!" << std::endl;
+    }
+
+    relative_error = (A * x_ls - y).norm() / y.norm();
+    //std::cout << relative_error << std::endl;
 }
