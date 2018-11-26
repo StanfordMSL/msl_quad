@@ -24,25 +24,6 @@ public:
     SE3Coop();
     ~SE3Coop();
 
-    int quad_count;
-    float arm_length;
-    int quad_addr;
-
-    struct profile_struct
-    {
-        float rot_offset;      // Rotate offset, 0 at y collinear to bar
-        float x_offset;        // x-axis arm offset from CoM to CoQ
-        float y_offset;        // y-axis arm offset from CoM to CoQ
-        float arm_length;      // x and y offset of motors (assume symmetrical frame)
-        float motor_prof[4];   // Motor profile [(f=[0]x^2+[1]x+[2]), (tau = [3]f)]
-        float motor_pos[4][2]; // Individual Motor Positions (relative to global), numbered in PX4 convention
-    };
-
-    vector<profile_struct> quad;
-    Eigen::MatrixXf A;
-    Eigen::VectorXf x_ls;
-    Eigen::Vector4f y;
-
 protected:
     void controlLoop(void) override;
     void se3control(
@@ -62,6 +43,37 @@ private:
     std::string quadFrame_;
 
     Eigen::Matrix4d W_;
+
+    // =================================================================================
+    int quad_addr;
+    int quad_count;
+
+    struct profile_struct
+    {
+        float rot_offset;      // Rotate offset, 0 at y collinear to bar
+        float x_offset;        // x-axis arm offset from CoM to CoQ
+        float y_offset;        // y-axis arm offset from CoM to CoQ
+        float arm_radius;      // x and y offset of motors (assume symmetrical frame)
+        float motor_pos[4][2]; // Individual Motor Positions (relative to global), numbered in PX4 convention
+    };
+
+    vector<profile_struct> quad;
+    Eigen::MatrixXf A;
+    Eigen::VectorXf x_ls;
+    Eigen::Vector4f y;
+
+    double bar_radius;
+    double arm_radius;
+    double c_deg2;
+    double c_deg1;
+    double c_deg0;
+    double c_ft_lin;
+    int solver_type;
+
+    void visualise(void);
+    void linear_solver(int type = 0);
+    // =================================================================================
+
 };
 
 #endif
