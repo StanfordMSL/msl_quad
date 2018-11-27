@@ -19,11 +19,17 @@
 #include "mavros_msgs/ActuatorControl.h"
 #include <Eigen/Dense>
 #include <string>
+#include "mslquad/EmergencyLand.h"
 
 class PX4BaseController {
 public:
     PX4BaseController();
     virtual ~PX4BaseController();
+
+    enum class State {
+        AUTO,
+        EMERGENCY_LAND
+    };
     
     double getYawRad(void) const; // return yaw angle in radius, [-pi, pi]
     inline Eigen::Vector3d getLinVel(void) const {
@@ -48,12 +54,14 @@ protected:
     std::string quadNS_; // ROS name space
     double fixedHeight_; // the fixed height that the quad will be flying at
     double maxVel_;
+    State state_;
 
     ros::NodeHandle nh_;
     geometry_msgs::PoseStamped curPose_; // current pose of quad from px4
     geometry_msgs::TwistStamped curVel_; // current vellocity from px4
     geometry_msgs::PoseStamped curVisionPose_; // current mocap pose, used for sanity check
     geometry_msgs::PoseStamped takeoffPose_; // record the position before takeoff
+    geometry_msgs::Pose emergencyLandPose_;
     trajectory_msgs::MultiDOFJointTrajectory desTraj_; // desired trajectory from the planner
 
     ros::Publisher px4SetVelPub_; // px4 setpoint_velocity command
@@ -79,6 +87,7 @@ private:
     ros::Subscriber px4PoseSub_; // px4 pose sub
     ros::Subscriber px4VelSub_; // px4 velocity sub
     ros::Subscriber visionPoseSub_; // subscribe to mocap
+    ros::ServiceServer emergencyLandSrv_; // service for emergency landing 
 
     ros::Timer controlTimer_; // for fast loop
     ros::Timer slowTimer_;  // for slow loop
@@ -92,6 +101,9 @@ private:
     void visionPoseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg);
     void controlTimerCB(const ros::TimerEvent& event);
     void slowTimerCB(const ros::TimerEvent& event);
+    bool emergencyLandHandle(
+        mslquad::EmergencyLand::Request &req,
+        mslquad::EmergencyLand::Response &res);
 };
 
 #endif
