@@ -17,14 +17,14 @@
 //ros
 #include "ros/ros.h"
 //msg
-#include "trajectory_msgs/MultiDOFJointTrajectory.h"
 #include "geometry_msgs/PoseStamped.h"
+#include "geometry_msgs/Twist.h"
 #include "geometry_msgs/TwistStamped.h"
 #include "nav_msgs/Odometry.h"
-#include "geometry_msgs/Twist.h"
+#include "trajectory_msgs/MultiDOFJointTrajectory.h"
 #include "mavros_msgs/ActuatorControl.h"
 //srv
-#include "mslquad/EmergencyLand.h"
+#include "mslquad/Emergency.h"
 
 class PX4BaseController {
 public:
@@ -32,8 +32,18 @@ public:
     virtual ~PX4BaseController();
 
     enum class State {
-        AUTO,
-        EMERGENCY_LAND
+        AUTO,   //nominal flight 
+        EMERGENCY  //emergency control
+
+    };
+    enum class EmergencyMode 
+    /*enumeration for different emergency sub states
+    enables different emergency actions to be taken 
+    */
+    {
+        DISABLE //default off state
+        POSE //pose control
+        VEL //velocity control
     };
     
     double getYawRad(void) const; // return yaw angle in radius, [-pi, pi]
@@ -59,15 +69,20 @@ protected:
     std::string quadNS_; // ROS name space
     double fixedHeight_; // the fixed height that the quad will be flying at
     double maxVel_;
-    State state_;
+    State state_; //top level state of the quad 
+    EmergencyMode eMode_; //emergency sub state 
+    ros::Time eTime: //time of last emergency call
 
     ros::NodeHandle nh_;
     geometry_msgs::PoseStamped curPose_; // current pose of quad from px4
     geometry_msgs::TwistStamped curVel_; // current vellocity from px4
     geometry_msgs::PoseStamped curVisionPose_; // current mocap pose, used for sanity check
     geometry_msgs::PoseStamped takeoffPose_; // record the position before takeoff
-    geometry_msgs::Pose emergencyLandPose_;
     trajectory_msgs::MultiDOFJointTrajectory desTraj_; // desired trajectory from the planner
+
+    //FOR EMERGENCY ONLY SET BY THE EMERGENCY SERVICE HANDLER
+    geometry_msgs::Pose emergencyPose_; 
+    geometry_msgs::Twist emergencyVel_;
 
     ros::Publisher px4SetVelPub_; // px4 setpoint_velocity command
     ros::Publisher px4SetPosPub_; // 
@@ -106,9 +121,9 @@ private:
     void visionPoseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg);
     void controlTimerCB(const ros::TimerEvent& event);
     void slowTimerCB(const ros::TimerEvent& event);
-    bool emergencyLandHandle(
-        mslquad::EmergencyLand::Request &req,
-        mslquad::EmergencyLand::Response &res);
+    bool emergencyHandle(
+        mslquad::Emergency::Request &req,
+        mslquad::Emergency::Response &res);
 };
 
 #endif

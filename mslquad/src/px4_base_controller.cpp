@@ -16,7 +16,8 @@ PX4BaseController::PX4BaseController() :
         maxVel_(0),
         controlLoopFreq_(20),
         slowLoopFreq_(10),
-        state_(State::AUTO) {
+        state_(State::AUTO),
+        eMode_(EmergencyMode::DISABLE) {
     // retrieve parameters
     std::string strtmp;
     ros::param::get("~quad_ns", strtmp);
@@ -46,9 +47,9 @@ PX4BaseController::PX4BaseController() :
         quadNS_+"mavros/setpoint_position/local", 1);
     actuatorPub_ = nh_.advertise<mavros_msgs::ActuatorControl>(
         quadNS_+"mavros/actuator_control", 1);
-    emergencyLandSrv_ = nh_.advertiseService(
-        quadNS_+"emergency_land", 
-        &PX4BaseController::emergencyLandHandle, this);
+    emergencySrv_ = nh_.advertiseService(
+        quadNS_+"emergency", 
+        &PX4BaseController::emergencyHandle, this);
     // non-mavros related, namespace depending on the group ns in the launch file
     odomPub_ = nh_.advertise<nav_msgs::Odometry>("ground_truth/odometry", 1);
     cmdTrajSub_ = nh_.subscribe(
@@ -195,12 +196,37 @@ void PX4BaseController::visionPoseSubCB(const geometry_msgs::PoseStamped::ConstP
 }
 
 void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {
-    if(state_ == State::EMERGENCY_LAND) {
-        geometry_msgs::PoseStamped ps;
-        ps.header.stamp = ros::Time::now();
-        ps.pose = emergencyLandPose_;
-        px4SetPosPub_.publish(ps);
+    if(state_ == State::EMERGENCY) {
+        try{
+            if (eMode_ == EmergencyMode::POSE){
+                geometry_msgs::PoseStamped ps;
+                ps.header.stamp = ros::Time::now();
+                ps.pose = emergencyPose_;
+                px4SetPosPub_.publish(ps);
+        }else if(eMode_ == EmergencyMode::VEL){
+                geometry_msgs::Twist tw;
+                if((ros::Time.now()- eTime) < 0.5;) //within half a second{
+                    tw = emergencyVel_;
+                }else {
+                    tw.linear.x=0;
+                    tw.linear.y=0;
+                    tw.linear.z=0;
+                }
+                px4SetVelPub_.publish(tw);
+        }
+        catch (...){
+            ROS_INFO("Exception occured during emergency service call: Holding Position ");
+            geometry_msgs::Twist tw;
+
+            //hard stop
+            tw.linear.x=0;
+            tw.linear.y=0;
+            tw.linear.z=0;
+            px4SetVelPub_.publish(tw);
+        }
     } else {
+        }
+            
         this->controlLoop();
     }
 }
@@ -281,11 +307,19 @@ double PX4BaseController::getDist(
         pow(ps1.pose.position.z-ps2.pose.position.z, 2));
 }
 
-bool PX4BaseController::emergencyLandHandle(
-        mslquad::EmergencyLand::Request &req,
-        mslquad::EmergencyLand::Response &res) {
-    emergencyLandPose_ = req.landpos;
-    state_ = State::EMERGENCY_LAND;
+bool PX4BaseController::emergencyHandle(
+        mslquad::Emergency::Request &req,
+        mslquad::Emergency::Response &res) {
+    //handles the emergency service call
+    State_ = State::EMERGENCY; //state of emergency
+    eTime = ros::Time::now();
+    if(req.usePose){
+        eMode_= EmergencyMode::POSE;
+        emergencyPose_ = req.pose;
+    } else{
+        eMode_ = EmergencyMode::VEL;
+        emergencyVel_ = req.vel;
+    }
     res.success = true;
     return true;
 }
