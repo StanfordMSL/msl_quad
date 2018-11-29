@@ -203,9 +203,9 @@ void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {
                 ps.header.stamp = ros::Time::now();
                 ps.pose = emergencyPose_;
                 px4SetPosPub_.publish(ps);
-        }else if(eMode_ == EmergencyMode::VEL){
+            }else if(eMode_ == EmergencyMode::VEL){
                 geometry_msgs::Twist tw;
-                if((ros::Time.now()- eTime) < 0.5;) //within half a second{
+                if((ros::Time::now()- eTime_).toSec() < 0.5){ //within half a second{
                     tw = emergencyVel_;
                 }else {
                     tw.linear.x=0;
@@ -213,8 +213,8 @@ void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {
                     tw.linear.z=0;
                 }
                 px4SetVelPub_.publish(tw);
-        }
-        catch (...){
+            }
+        }catch (...){
             ROS_INFO("Exception occured during emergency service call: Holding Position ");
             geometry_msgs::Twist tw;
 
@@ -224,9 +224,7 @@ void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {
             tw.linear.z=0;
             px4SetVelPub_.publish(tw);
         }
-    } else {
-        }
-            
+    } else {         
         this->controlLoop();
     }
 }
@@ -311,8 +309,8 @@ bool PX4BaseController::emergencyHandle(
         mslquad::Emergency::Request &req,
         mslquad::Emergency::Response &res) {
     //handles the emergency service call
-    State_ = State::EMERGENCY; //state of emergency
-    eTime = ros::Time::now();
+    state_ = State::EMERGENCY; //state of emergency
+    eTime_ = ros::Time::now();
     if(req.usePose){
         eMode_= EmergencyMode::POSE;
         emergencyPose_ = req.pose;

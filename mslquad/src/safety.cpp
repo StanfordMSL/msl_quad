@@ -106,7 +106,7 @@ maxY_(2.7) {
         srvName += "/emergency_land";
         ros::service::waitForService(srvName, -1);
         landClis_.push_back(
-            nh_.serviceClient<mslquad::EmergencyLand>(srvName)
+            nh_.serviceClient<mslquad::Emergency>(srvName)
         );
     }
 

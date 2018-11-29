@@ -36,13 +36,12 @@ public:
         EMERGENCY  //emergency control
 
     };
-    enum class EmergencyMode 
+    enum class EmergencyMode {
     /*enumeration for different emergency sub states
     enables different emergency actions to be taken 
     */
-    {
-        DISABLE //default off state
-        POSE //pose control
+        DISABLE, //default off state
+        POSE, //pose control
         VEL //velocity control
     };
     
@@ -71,7 +70,7 @@ protected:
     double maxVel_;
     State state_; //top level state of the quad 
     EmergencyMode eMode_; //emergency sub state 
-    ros::Time eTime: //time of last emergency call
+    ros::Time eTime_; //time of last emergency call
 
     ros::NodeHandle nh_;
     geometry_msgs::PoseStamped curPose_; // current pose of quad from px4
@@ -107,7 +106,7 @@ private:
     ros::Subscriber px4PoseSub_; // px4 pose sub
     ros::Subscriber px4VelSub_; // px4 velocity sub
     ros::Subscriber visionPoseSub_; // subscribe to mocap
-    ros::ServiceServer emergencyLandSrv_; // service for emergency landing 
+    ros::ServiceServer emergencySrv_; // service for emergency landing 
 
     ros::Timer controlTimer_; // for fast loop
     ros::Timer slowTimer_;  // for slow loop
