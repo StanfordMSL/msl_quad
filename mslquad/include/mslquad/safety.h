@@ -16,7 +16,7 @@
 #include "ros/ros.h"
 #include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/TwistStamped.h"
-#include "mslquad/EmergencyLand.h"
+#include "mslquad/Emergency.h"
 #include <string>
 #include <vector>
 #include <memory>

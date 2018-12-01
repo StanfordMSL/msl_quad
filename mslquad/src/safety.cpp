@@ -106,7 +106,7 @@ maxY_(2.7) {
         srvName += "/emergency_land";
         ros::service::waitForService(srvName, -1);
         landClis_.push_back(
-            nh_.serviceClient<mslquad::EmergencyLand>(srvName)
+            nh_.serviceClient<mslquad::Emergency>(srvName)
         );
     }
 
@@ -173,10 +173,11 @@ void Safety::mainTimerCB(const ros::TimerEvent& event) {
     }
     if(requestLand) {
         for(int i=0; i<poseTrackers_.size(); ++i) {
-            mslquad::EmergencyLand srv;
-            srv.request.landpos = landPosAll[i];
+            mslquad::Emergency srv;
+            srv.request.pose = landPosAll[i];
+            srv.request.usePose = true;
             if(landClis_[i].call(srv)) {
-                ROS_INFO("Emergency landing called");
+                ROS_INFO("Emergency service called");
             } else {
                 ROS_ERROR("Failed to call emergency landing");
             }

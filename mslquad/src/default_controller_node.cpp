@@ -4,6 +4,8 @@
                  Multi-Robot Systems Lab (MSL), Stanford University
   Contact      : zjwang@stanford.edu
   Create Time  : Oct 27, 2018.
+  Description  : main ROS node file to instantiate different types of 
+                 controllers, according to launch file.
 **************************************************************************/
 
 #include<ros/ros.h>

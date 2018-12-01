@@ -59,7 +59,7 @@ find_package(Eigen3 REQUIRED)
 ## Generate services in the 'srv' folder
 add_service_files(
    FILES
-   EmergencyLand.srv
+   Emergency.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -152,12 +152,15 @@ add_library(controller_lib
   src/px4_base_controller.cpp
   src/yaw_track_controller.cpp
   src/se3_controller.cpp)
+add_dependencies(controller_lib ${PROJECT_NAME}_generate_messages_cpp)
+
 add_executable(default_controller 
   src/default_controller_node.cpp)
 target_link_libraries(default_controller ${catkin_LIBRARIES} controller_lib)
 
 add_executable(safety src/safety.cpp)
 target_link_libraries(safety ${catkin_LIBRARIES})
+add_dependencies(safety ${PROJECT_NAME}_generate_messages_cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
