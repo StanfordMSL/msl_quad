@@ -1,3 +1,4 @@
+
 /**************************************************************************
   File Name    : px4_base_controller.cpp
   Author       : Zijian Wang
@@ -110,16 +111,26 @@ private:
 
     ros::Timer controlTimer_; // for fast loop
     ros::Timer slowTimer_;  // for slow loop
+    ros::Timer emergencyTimer_; // for emergency loop
 
     double controlLoopFreq_; // frequency for fast control loop
     double slowLoopFreq_; // frequency for slower loop
+    double emergencyLoopFreq_= 10; // frequency for slower loop
 
+    void emergencyOverride(void); //override for the main control loop in the case of emergency
+    void emergencyLoop(void); //emergency loop (10Hz) for internal checks for incoming telementry
+    //topic call backs
     void pathCB(const trajectory_msgs::MultiDOFJointTrajectory::ConstPtr& traj);
     void poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg); // pose callback on PX4 local position
     void velSubCB(const geometry_msgs::TwistStamped::ConstPtr& msg);
     void visionPoseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg);
+
+    //timer call backs
     void controlTimerCB(const ros::TimerEvent& event);
     void slowTimerCB(const ros::TimerEvent& event);
+    void emergencyTimerCB(const ros::TimerEvent& event);
+
+    //serivce handlers
     bool emergencyHandle(
         mslquad::Emergency::Request &req,
         mslquad::Emergency::Response &res);

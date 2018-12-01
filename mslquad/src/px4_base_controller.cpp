@@ -89,6 +89,11 @@ PX4BaseController::PX4BaseController() :
         ros::Duration(1.0/slowLoopFreq_),
         &PX4BaseController::slowTimerCB, this);
 
+    //start emergency timer
+    emergencyTimer_ = nh_.createTimer(
+        ros::Duration(1.0/emergencyLoopFreq_),
+        &PX4BaseController::emergencyTimerCB, this);
+
     takeoffPose_ = curPose_; // record takeoff postion before takeoff
     // take off first at the current location
     bool isAutoTakeOff = false;
@@ -137,8 +142,7 @@ void PX4BaseController::takeoff(const double desx, const double desy, const doub
     }
 }
 
-double PX4BaseController::calcVelCmd(
-        Eigen::Vector3d& desVel, 
+double PX4BaseController::calcVelCmd(Eigen::Vector3d& desVel, 
         const Eigen::Vector3d& desPos, 
         const double vmax, const double kp) const {
     // 3d velocity < vmax
@@ -178,6 +182,8 @@ double PX4BaseController::calcVelCmd2D(
     return errPos.norm();
 }
 
+
+//topic callbacks
 void PX4BaseController::pathCB(const trajectory_msgs::MultiDOFJointTrajectory::ConstPtr& traj) {
     desTraj_ = *traj;
 }
@@ -195,35 +201,11 @@ void PX4BaseController::visionPoseSubCB(const geometry_msgs::PoseStamped::ConstP
     curVisionPose_ = *msg;
 }
 
+
+//timer callbacks
 void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {
     if(state_ == State::EMERGENCY) {
-        try{
-            if (eMode_ == EmergencyMode::POSE){
-                geometry_msgs::PoseStamped ps;
-                ps.header.stamp = ros::Time::now();
-                ps.pose = emergencyPose_;
-                px4SetPosPub_.publish(ps);
-            }else if(eMode_ == EmergencyMode::VEL){
-                geometry_msgs::Twist tw;
-                if((ros::Time::now()- eTime_).toSec() < 0.5){ //within half a second{
-                    tw = emergencyVel_;
-                }else {
-                    tw.linear.x=0;
-                    tw.linear.y=0;
-                    tw.linear.z=0;
-                }
-                px4SetVelPub_.publish(tw);
-            }
-        }catch (...){
-            ROS_INFO("Exception occured during emergency service call: Holding Position ");
-            geometry_msgs::Twist tw;
-
-            //hard stop
-            tw.linear.x=0;
-            tw.linear.y=0;
-            tw.linear.z=0;
-            px4SetVelPub_.publish(tw);
-        }
+        this->emergencyOverride();
     } else {         
         this->controlLoop();
     }
@@ -233,6 +215,12 @@ void PX4BaseController::slowTimerCB(const ros::TimerEvent& event) {
     this->slowLoop();
 }
 
+void PX4BaseController::emergencyTimerCB(const ros::TimerEvent& event) {
+    this->emergencyLoop();
+}
+
+
+//control loops
 void PX4BaseController::controlLoop(void) {
     // default control loop
     if(0 == desTraj_.points.size()) {
@@ -271,6 +259,42 @@ void PX4BaseController::slowLoop(void) {
     odomPub_.publish(odom);
 }
 
+void PX4BaseController::emergencyLoop(void) {
+
+
+}
+
+void PX4BaseController::emergencyOverride(void){
+    try{
+        if (eMode_ == EmergencyMode::POSE){
+            geometry_msgs::PoseStamped ps;
+            ps.header.stamp = ros::Time::now();
+            ps.pose = emergencyPose_;
+            px4SetPosPub_.publish(ps);
+        }else if(eMode_ == EmergencyMode::VEL){
+            geometry_msgs::Twist tw;
+            if((ros::Time::now()- eTime_).toSec() < 0.5){ //within half a second{
+                tw = emergencyVel_;
+            }else {
+                tw.linear.x=0;
+                tw.linear.y=0;
+                tw.linear.z=0;
+            }
+            px4SetVelPub_.publish(tw);
+        }
+    }catch (...){
+        ROS_INFO("Exception occured during emergency service call: Holding Position ");
+        geometry_msgs::Twist tw;
+        //hard stop
+        tw.linear.x=0;
+        tw.linear.y=0;
+        tw.linear.z=0;
+        px4SetVelPub_.publish(tw);
+    }
+}
+
+
+//helper functions
 double PX4BaseController::getYawRad(void) const {
     double q0 = curPose_.pose.orientation.w;
     double q1 = curPose_.pose.orientation.x;
@@ -305,6 +329,8 @@ double PX4BaseController::getDist(
         pow(ps1.pose.position.z-ps2.pose.position.z, 2));
 }
 
+
+//service handlers
 bool PX4BaseController::emergencyHandle(
         mslquad::Emergency::Request &req,
         mslquad::Emergency::Response &res) {
