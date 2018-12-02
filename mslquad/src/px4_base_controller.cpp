@@ -259,11 +259,11 @@ void PX4BaseController::slowLoop(void) {
 void PX4BaseController::emergencyLoop(void) {
 
     //pose time delay check
-    if(poseTimeDiff_.toSec() > 0.2) {
-        ROS_WARN("pose delay");
-    }else if(poseTimeDiff_.toSec() > 0.5) {
+    if(poseTimeDiff_.toSec() > 0.5) {
         ROS_ERROR("pose delay critical");
         std::cout <<"BEEP BEEP BEEP" <<std::endl; //beeps for Zijian
+    }else if(poseTimeDiff_.toSec() > 0.2) {
+        ROS_WARN("pose delay");
     }
 
     //pose consistency check
