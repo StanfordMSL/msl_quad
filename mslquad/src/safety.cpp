@@ -103,7 +103,7 @@ maxY_(2.7) {
         // create landing client
         std::string srvName = "/";
         srvName += name;
-        srvName += "/emergency_land";
+        srvName += "/emergency";
         ros::service::waitForService(srvName, -1);
         landClis_.push_back(
             nh_.serviceClient<mslquad::Emergency>(srvName)
