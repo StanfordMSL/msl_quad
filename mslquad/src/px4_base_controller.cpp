@@ -265,7 +265,7 @@ void PX4BaseController::emergencyLoop(void) {
         ROS_ERROR("pose delay critical");
         std::cout <<"BEEP BEEP BEEP" <<std::endl; //beeps for Zijian
     }
-    
+
     //pose consistency check
     if(getDist(curPose_, curVisionPose_) > 0.2) {
         ROS_WARN("pose inconsistent");
@@ -273,6 +273,7 @@ void PX4BaseController::emergencyLoop(void) {
 }
 
 void PX4BaseController::emergencyOverride(void){
+    ROS_WARN("Emergency Override Enabled");
     try{
         if (eMode_ == EmergencyMode::POSE){
             geometry_msgs::PoseStamped ps;
