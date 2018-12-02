@@ -30,6 +30,9 @@ PX4BaseController::PX4BaseController() :
     ros::param::get("~control_freq", controlLoopFreq_);
     ros::param::get("~slow_freq", slowLoopFreq_);
 
+    //initial time keeping
+    poseTime_= ros::Time::now();
+
     // pub and subs
     // mavros related, namespace under quadNS_
     px4PoseSub_ = nh_.subscribe<geometry_msgs::PoseStamped>(
@@ -82,17 +85,12 @@ PX4BaseController::PX4BaseController() :
             ros::Duration(0.2).sleep();
         }
     }
-    visionPoseSub_.shutdown(); // shutdown subscriber after sanity check
+    //visionPoseSub_.shutdown(); // shutdown subscriber after sanity check
 
     // start slow timer
     slowTimer_ = nh_.createTimer(
         ros::Duration(1.0/slowLoopFreq_),
         &PX4BaseController::slowTimerCB, this);
-
-    //start emergency timer
-    emergencyTimer_ = nh_.createTimer(
-        ros::Duration(1.0/emergencyLoopFreq_),
-        &PX4BaseController::emergencyTimerCB, this);
 
     takeoffPose_ = curPose_; // record takeoff postion before takeoff
     // take off first at the current location
@@ -190,6 +188,8 @@ void PX4BaseController::pathCB(const trajectory_msgs::MultiDOFJointTrajectory::C
 
 void PX4BaseController::poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
     // store the currect pose
+    poseTimeDiff_ = (*msg).header.stamp - poseTime_;
+    poseTime_ = (*msg).header.stamp;
     curPose_ = *msg;
 }
 
@@ -212,11 +212,8 @@ void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {
 }
 
 void PX4BaseController::slowTimerCB(const ros::TimerEvent& event) {
-    this->slowLoop();
-}
-
-void PX4BaseController::emergencyTimerCB(const ros::TimerEvent& event) {
     this->emergencyLoop();
+    this->slowLoop();
 }
 
 
@@ -261,7 +258,18 @@ void PX4BaseController::slowLoop(void) {
 
 void PX4BaseController::emergencyLoop(void) {
 
-
+    //pose time delay check
+    if(poseTimeDiff_.toSec() > 0.2) {
+        ROS_WARN("pose delay");
+    }else if(poseTimeDiff_.toSec() > 0.5) {
+        ROS_ERROR("pose delay critical");
+        std::cout <<"BEEP BEEP BEEP" <<std::endl; //beeps for Zijian
+    }
+    
+    //pose consistency check
+    if(getDist(curPose_, curVisionPose_) > 0.2) {
+        ROS_WARN("pose inconsistent");
+    }
 }
 
 void PX4BaseController::emergencyOverride(void){

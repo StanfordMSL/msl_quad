@@ -70,8 +70,6 @@ protected:
     double fixedHeight_; // the fixed height that the quad will be flying at
     double maxVel_;
     State state_; //top level state of the quad 
-    EmergencyMode eMode_; //emergency sub state 
-    ros::Time eTime_; //time of last emergency call
 
     ros::NodeHandle nh_;
     geometry_msgs::PoseStamped curPose_; // current pose of quad from px4
@@ -103,7 +101,12 @@ protected:
     virtual void slowLoop(void); // slow loop (<= 10Hz), good for publishing visualization data, etc 
 
 private:
+    EmergencyMode eMode_; //emergency sub state 
+    ros::Time eTime_; //time of last emergency call
+
     ros::Subscriber cmdTrajSub_; // game planner command traj sub
+    ros::Time poseTime_; //current pose time
+    ros::Duration poseTimeDiff_; //difference between current time and last time
     ros::Subscriber px4PoseSub_; // px4 pose sub
     ros::Subscriber px4VelSub_; // px4 velocity sub
     ros::Subscriber visionPoseSub_; // subscribe to mocap
@@ -111,14 +114,13 @@ private:
 
     ros::Timer controlTimer_; // for fast loop
     ros::Timer slowTimer_;  // for slow loop
-    ros::Timer emergencyTimer_; // for emergency loop
 
     double controlLoopFreq_; // frequency for fast control loop
     double slowLoopFreq_; // frequency for slower loop
-    double emergencyLoopFreq_= 10; // frequency for slower loop
 
     void emergencyOverride(void); //override for the main control loop in the case of emergency
-    void emergencyLoop(void); //emergency loop (10Hz) for internal checks for incoming telementry
+    void emergencyLoop(void); //emergency loop in the slow loop cb 
+
     //topic call backs
     void pathCB(const trajectory_msgs::MultiDOFJointTrajectory::ConstPtr& traj);
     void poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg); // pose callback on PX4 local position
@@ -128,7 +130,6 @@ private:
     //timer call backs
     void controlTimerCB(const ros::TimerEvent& event);
     void slowTimerCB(const ros::TimerEvent& event);
-    void emergencyTimerCB(const ros::TimerEvent& event);
 
     //serivce handlers
     bool emergencyHandle(
