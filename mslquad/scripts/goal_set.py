@@ -11,13 +11,11 @@ import numpy as np
 class Captian:
 
     def __init__(self):
-        rospy.init_node('Captian', anonymous=True)
+        rospy.init_node('poseCaptain', anonymous=True)
 
         #goal topic
-        self.goalPub = rospy.Publisher('command/goal', PoseStamped, queue_size=10)
-        
-        #test goal
-        self.goal=None
+        self.goalPub = rospy.Publisher('command/pose', Pose, queue_size=10)
+        #wait for connect
         rospy.sleep(2)
 
 
@@ -26,20 +24,12 @@ class Captian:
         while not rospy.is_shutdown():
 
             x, y, z = [float(val) for val in raw_input("Enter goal position: ").split()]
-            
-            self.goal=[[x, y, z],
-                    [0.0, 0.0, 0],
-                    [0.0, 0.0, 0.0]]
 
-            goalMsg=PoseStamped()
+            goalMsg=Pose()
             #lazy unpack
-            goalMsg.pose.position.x=self.goal[0][0]
-            goalMsg.pose.position.y=self.goal[0][1]
-            goalMsg.pose.position.z=self.goal[0][2]
-
-            #fill header
-            goalMsg.header.stamp = rospy.Time.now()
-            goalMsg.header.frame_id = "1"
+            goalMsg.position.x=x
+            goalMsg.position.y=y
+            goalMsg.position.z=z
             #publish
             self.goalPub.publish(goalMsg)
             rospy.sleep(.5)

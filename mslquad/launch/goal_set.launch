@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- launches goal set under / namespace-->
+  <group ns="quad0">
+      <node pkg="mslquad" type="goal_set.py" name="poseCaptain" output="screen">
+      </node> 
+  </group>
+</launch>
