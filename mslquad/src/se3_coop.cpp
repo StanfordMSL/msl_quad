@@ -20,6 +20,7 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
     ros::param::get("~KW", KW_);
     ros::param::get("~M", M_);
     ros::param::get("~quadFrame", quadFrame_);
+    ros::param::get("~quad_addr", quad_addr);
 
     if (quadFrame_ == "mslquad")
     {
@@ -54,19 +55,22 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
     std::cout << "KW = " << KW_ << std::endl;
     std::cout << "M = " << M_ << std::endl;
     std::cout << "QuadFrame: " << quadFrame_ << std::endl;
+    std::cout << "quad_addr: " << quad_addr << std::endl;
+    
+    ros::Duration(3).sleep();
 
     // =================================================================================
     // Setup the coop configuration (quad and motor positions).
-    quad_count = 4;
-    arm_length = 1.0;
+    quad_count = 2;
+    arm_length = 0.35;
 
     float base_angle = 2 * M_PI / quad_count;
 
     for (int i = 0; i < quad_count; i++)
     {
         quad.push_back(profile_struct());
-        quad[i].x_offset = arm_length * cos(base_angle * i);
-        quad[i].y_offset = arm_length * sin(base_angle * i);
+        quad[i].x_offset = arm_length * cos(base_angle * i + (M_PI / 2));
+        quad[i].y_offset = arm_length * sin(base_angle * i + (M_PI / 2));
 
         quad[i].rot_offset = 0;
         quad[i].arm_length = 0.2;
@@ -80,7 +84,7 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
         {
             float angle;
 
-            angle = (base_angle * i) - (M_PI / 4) + (j * M_PI / 2);
+            angle = (base_angle * i + (M_PI / 2)) - (M_PI / 4) + (j * M_PI / 2);
 
             quad[i].motor_pos[2 * j][0] = quad[i].x_offset + (quad[i].arm_length * cos(angle));
             quad[i].motor_pos[2 * j][1] = quad[i].y_offset + (quad[i].arm_length * sin(angle));
@@ -92,7 +96,7 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
     }
 
     // Setup this quad's specific address.
-    quad_addr = 0;
+    //quad_addr = 0;
     //quad_addr = stoi(this->quadNS_);
 
     // Setup the variables for the math we'll be doing.
@@ -105,20 +109,23 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
         for (int j = 0; j < 4; j++)
         {
 
-            feeder(0, 0) = 1;
-            feeder(1, 0) = quad[i].motor_pos[j][1];
-            feeder(2, 0) = -quad[i].motor_pos[j][0];
+            feeder(0) = 1;
+            feeder(1) = quad[i].motor_pos[j][1];
+            feeder(2) = -quad[i].motor_pos[j][0];
             if (j <= 1)
             {
-                feeder(3, 0) = -quad[i].motor_prof[3];
+                feeder(3) = -quad[i].motor_prof[3];
             }
             else
             {
-                feeder(3, 0) = quad[i].motor_prof[3];
+                feeder(3) = quad[i].motor_prof[3];
             }
             A.col(4 * i + j) = feeder;
         }
     }
+  //  std::string sep = "\n----------------------------------------\n";
+  //  std::cout << A << sep;
+
     // =================================================================================
 }
 
@@ -131,7 +138,7 @@ void SE3Coop::controlLoop(void)
     // TODO: do something more interesting than hovering (e.g., traj following)
     Eigen::Vector3d r_euler(0, 0, 0);
     Eigen::Vector3d r_wb(0, 0, 0);
-    Eigen::Vector3d r_pos(0, 0, 1.0);
+    Eigen::Vector3d r_pos(0, 0, 0.5);
     Eigen::Vector3d r_vel(0, 0, 0);
     Eigen::Vector3d r_acc(0, 0, 0);
     se3control(r_euler, r_wb, r_pos, r_vel, r_acc);
@@ -184,11 +191,11 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
 
     // =================================================================================
     // Solve for individual motor thrust
-    y(0, 0) = fzCmd;
-    y(1, 0) = tauCmd(0);
-    y(2, 0) = tauCmd(1);
-    y(3, 0) = tauCmd(2);
-
+    y(0) = fzCmd;
+    y(1) = tauCmd(0);
+    y(2) = tauCmd(1);
+    y(3) = tauCmd(2);
+/*
     int motor_count = quad_count * 4;
     int row_count = (motor_count) + 4;
     int column_count = (motor_count) + 4;
@@ -207,12 +214,9 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
 
     x_tilde = A_tilde.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y_tilde);
     x_ls = x_tilde.head(motor_count);
-
+*/
     // Basic Least Square
-    //x_ls = A.transpose() * (A * A.transpose()).inverse() * y;
-
-    std::string sep = "\n----------------------------------------\n";
-    std::cout << A * x_ls << sep;
+    x_ls = A.transpose() * ((A * A.transpose()).inverse()) * y;
 
     // solve for PWM command using motor calibration data
     // TODO: these numbers are only good for mslquad
@@ -240,7 +244,17 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
         }
     }
     // =================================================================================
+/*
+    Eigen::Vector4f y_fwd = A * x_ls;
 
+    std::string sep = "\n----------------------------------------\n";
+    for (int i = 0; i < 4; i++)
+    {
+        std::cout << y[i] << "  " << y_fwd[i] << std::endl;
+    }
+
+    std::cout << sep;
+*/
     // publish commands
     mavros_msgs::ActuatorControl cmd;
     cmd.header.stamp = ros::Time::now();
