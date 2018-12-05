@@ -186,7 +186,7 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
 
     // =================================================================================
     // Solve for individual motor thrust
-    
+
     /*
     // Static Test
     y(0) = 23.0;
@@ -199,7 +199,7 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
     y(1) = tauCmd(0);
     y(2) = tauCmd(1);
     y(3) = tauCmd(2);
-    
+
     //std::string sep = "\n----------------------------------------\n";
     //std::cout << y << sep;
 
@@ -210,20 +210,16 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
     {
         float force = x_ls((quad_addr * 4) + i);
 
-        motorCmd[i] = (-c_deg1 + sqrt((c_deg1 * c_deg1) - (4 * c_deg2 * (c_deg0 - force)))) / (2 * c_deg2);
+        float inner = (c_deg1 * c_deg1) - (4 * c_deg2 * (c_deg0 - force));
 
-        if (motorCmd[i] < 0)
+        // Check for values under range of motor model capabilities
+        if (inner < 0)
         {
-            motorCmd[i] = 0;
+            inner = 0;
         }
-        else if (motorCmd[i] > 0.8)
-        {
-            motorCmd[i] = 0.8;
-        }
-        else
-        {
-            // Carry On
-        }
+
+        motorCmd[i] = (-c_deg1 + sqrt(inner)) / (2 * c_deg2);
+
     }
 
     // =================================================================================
@@ -244,7 +240,7 @@ void SE3Coop::visualise(void)
 {
     std::string sep = "\n----------------------------------------\n";
     std::cout << sep << A << sep;
-    
+
     if (solver_type == 0)
     {
         std::cout << "Solver Type: Basic Least Square Solver" << sep;
