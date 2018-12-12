@@ -12,11 +12,12 @@
 
 PX4BaseController::PX4BaseController() : 
         quadNS_("/"), 
-        fixedHeight_(0), 
+        takeoffHeight_(0), 
         maxVel_(0),
         controlLoopFreq_(20),
         slowLoopFreq_(10),
-        state_(State::AUTO) {
+        state_(State::AUTO),
+        flagOnly2D_(true) {
     // retrieve parameters
     std::string strtmp;
     ros::param::get("~quad_ns", strtmp);
@@ -24,10 +25,11 @@ PX4BaseController::PX4BaseController() :
         quadNS_ += strtmp;
         quadNS_ += "/";
     }
-    ros::param::get("~fixed_height", fixedHeight_);
+    ros::param::get("~takeoff_height", takeoffHeight_);
     ros::param::get("~max_vel", maxVel_);
     ros::param::get("~control_freq", controlLoopFreq_);
     ros::param::get("~slow_freq", slowLoopFreq_);
+    ros::param::get("~only_2d", flagOnly2D_);
 
     // pub and subs
     // mavros related, namespace under quadNS_
@@ -63,7 +65,7 @@ PX4BaseController::PX4BaseController() :
     }
 
     // wait for initial position of the quad
-    while (ros::ok() && curPose_.header.seq < 1000) {
+    while (ros::ok() && curPose_.header.seq < 200) {
         std::cout << quadNS_ << ": waiting for initial pose." << std::endl;
         ros::spinOnce();
         ros::Duration(1.0).sleep();
@@ -93,7 +95,7 @@ PX4BaseController::PX4BaseController() :
     bool isAutoTakeOff = false;
     ros::param::get("~auto_takeoff", isAutoTakeOff);
     if(isAutoTakeOff)
-        takeoff(curPose_.pose.position.x, curPose_.pose.position.y, fixedHeight_);
+        takeoff(curPose_.pose.position.x, curPose_.pose.position.y, takeoffHeight_);
 
     // start faster timer for main control loop
     controlTimer_ = nh_.createTimer(
@@ -213,7 +215,7 @@ void PX4BaseController::controlLoop(void) {
     // default control loop
     if(0 == desTraj_.points.size()) {
         geometry_msgs::PoseStamped hoverPose = takeoffPose_;
-        hoverPose.pose.position.z = fixedHeight_;
+        hoverPose.pose.position.z = takeoffHeight_;
         px4SetPosPub_.publish(hoverPose);
     } else {
         // std::cout << "Traj #: " << desTraj.header.seq << std::endl; // print the seq # of traj
@@ -221,8 +223,13 @@ void PX4BaseController::controlLoop(void) {
         Eigen::Vector3d desPos;
         desPos(0) = desTraj_.points[1].transforms[0].translation.x;
         desPos(1) = desTraj_.points[1].transforms[0].translation.y;
-        desPos(2) = fixedHeight_;
-        calcVelCmd2D(desVel, desPos, maxVel_, 4.0);
+        if(flagOnly2D_) {
+            desPos(2) = takeoffHeight_;
+            calcVelCmd2D(desVel, desPos, maxVel_, 4.0);
+        } else {
+            desPos(2) = desTraj_.points[1].transforms[0].translation.z;
+            calcVelCmd(desVel, desPos, maxVel_, 4.0);
+        }
         geometry_msgs::Twist twist;
         twist.linear.x = desVel(0);
         twist.linear.y = desVel(1);
