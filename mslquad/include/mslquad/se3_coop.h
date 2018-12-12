@@ -17,23 +17,24 @@
 
 using std::vector;
 
-#include<mslquad/px4_base_controller.h>
+#include <mslquad/px4_base_controller.h>
 
-class SE3Coop : public PX4BaseController {
-public:
+class SE3Coop : public PX4BaseController
+{
+  public:
     SE3Coop();
     ~SE3Coop();
 
-protected:
+  protected:
     void controlLoop(void) override;
     void se3control(
-        const Eigen::Vector3d &r_euler, 
-        const Eigen::Vector3d &r_wb, 
+        const Eigen::Vector3d &r_euler,
+        const Eigen::Vector3d &r_wb,
         const Eigen::Vector3d &r_pos,
-        const Eigen::Vector3d &r_vel, 
+        const Eigen::Vector3d &r_vel,
         const Eigen::Vector3d &r_acc);
 
-private:
+  private:
     double KP_;
     double KV_;
     double KR_;
@@ -50,17 +51,17 @@ private:
 
     struct profile_struct
     {
-        float rot_offset;      // Rotate offset, 0 at y collinear to bar
-        float x_offset;        // x-axis arm offset from CoM to CoQ
-        float y_offset;        // y-axis arm offset from CoM to CoQ
-        float arm_radius;      // x and y offset of motors (assume symmetrical frame)
-        float motor_pos[4][2]; // Individual Motor Positions (relative to global), numbered in PX4 convention
+        double rot_offset;      // Rotate offset, 0 at y collinear to bar
+        double x_offset;        // x-axis arm offset from CoM to CoQ
+        double y_offset;        // y-axis arm offset from CoM to CoQ
+        double arm_radius;      // x and y offset of motors (assume symmetrical frame)
+        double motor_pos[4][2]; // Individual Motor Positions (relative to global), numbered in PX4 convention
     };
 
     vector<profile_struct> quad;
-    Eigen::MatrixXf A;
-    Eigen::VectorXf x_ls;
-    Eigen::Vector4f y;
+    Eigen::MatrixXd A;
+    Eigen::VectorXd x_ls;
+    Eigen::Vector4d y;
 
     double bar_radius;
     double arm_radius;
@@ -69,11 +70,16 @@ private:
     double c_deg0;
     double c_ft_lin;
     int solver_type;
+    double kr_roll;
+    double kr_pitch;
+    double kr_yaw;
+    double kw_roll;
+    double kw_pitch;
+    double kw_yaw;
 
     void visualise(void);
     void linear_solver(int type = 0);
     // =================================================================================
-
 };
 
 #endif

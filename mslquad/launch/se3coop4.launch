@@ -23,15 +23,21 @@
       <param name="KW" value="0.1" />
       <param name="M" value="2.635" />
       <param name="quadFrame" value="mslquad"/>
-			<param name="quad_addr" value="1"/>    
+			<param name="quad_addr" value="0"/>    
 			<param name="quad_count" value="2"/>  
 			<param name="bar_radius" value="0.35"/>
 			<param name="arm_radius" value="0.169"/> 
 			<param name="c_deg2" value="4.67636"/>
 			<param name="c_deg1" value="1.68915"/> 
 			<param name="c_deg0" value="-0.05628"/>
-			<param name="c_ft_lin"   value="0.016666"/>  
-			<param name="solver_type" value="1"/>   
+			<param name="c_ft_lin"   value="0.01666"/>  
+			<param name="solver_type" value="3"/>   
+			<param name="kr_roll" value="1.9"/>
+			<param name="kr_pitch" value="3.25"/>
+			<param name="kr_yaw" value="0.5"/>
+			<param name="kw_roll" value="0.22"/>
+			<param name="kw_pitch" value="0.7"/>
+			<param name="kw_yaw" value="0.001"/>
 		</node>
 
 	</group>

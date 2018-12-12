@@ -2,7 +2,7 @@
 <launch>
 
 	<arg name="mav_name" default="quad"/>
-	<arg name="id" default="2"/>
+	<arg name="id" default="4"/>
 	<arg name="quad_ns"  default="$(arg mav_name)$(arg id)"/>
 	<arg name="fixed_height" default="1.5"/>
 	<arg name="max_vel" default="0.5"/>
@@ -30,7 +30,7 @@
 			<param name="c_deg2" value="4.67636"/>
 			<param name="c_deg1" value="1.68915"/> 
 			<param name="c_deg0" value="-0.05628"/>
-			<param name="c_ft_lin"   value="0.016666"/>
+			<param name="c_ft_lin"   value="0.06"/>
 			<param name="solver_type" value="1"/>   
          
 		</node>

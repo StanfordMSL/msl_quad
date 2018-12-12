@@ -11,7 +11,8 @@
 
 SE3Coop::SE3Coop() : quadFrame_("mslquad"),
                      KP_(6.0), KV_(4.0), KR_(0.8), KW_(0.1),
-                     M_(1.04), g_(9.8)
+                     M_(1.04), g_(9.8), kr_roll(2.5), kr_pitch(2), kr_yaw(0.7),
+                     kw_roll(0.125), kw_pitch(0.1), kw_yaw(0.03)
 {
     // handle ros parameters
     ros::param::get("~KP", KP_);
@@ -29,6 +30,12 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
     ros::param::get("~c_deg0", c_deg0);
     ros::param::get("~c_ft_lin", c_ft_lin);
     ros::param::get("~solver_type", solver_type);
+    ros::param::get("~kr_roll", kr_roll);
+    ros::param::get("~kr_pitch", kr_pitch);
+    ros::param::get("~kr_yaw", kr_yaw);
+    ros::param::get("~kw_roll", kw_roll);
+    ros::param::get("~kw_pitch", kw_pitch);
+    ros::param::get("~kw_yaw", kw_yaw);
 
     if (quadFrame_ == "mslquad")
     {
@@ -83,7 +90,6 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
 
         for (int j = 0; j < 2; j++)
         {
-            // TODO: Check if this new version carries over to n number of quads.
             double angle = (base_angle * i + (M_PI / 2)) - (M_PI / 4) + (j * M_PI / 2);
 
             quad[i].motor_pos[2 * j][0] = quad[i].x_offset + (quad[i].arm_radius * cos(angle));
@@ -93,13 +99,36 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
             quad[i].motor_pos[(2 * j) + 1][0] = quad[i].x_offset + (quad[i].arm_radius * cos(angle));
             quad[i].motor_pos[(2 * j) + 1][1] = quad[i].y_offset + (quad[i].arm_radius * sin(angle));
         }
+        // TEMPORARY HACK FOR GETTING IT SYNCED WITH PX4
+        if (i == 1)
+        {
+            double sw_0x = quad[i].motor_pos[0][0];
+            double sw_1x = quad[i].motor_pos[1][0];
+            double sw_2x = quad[i].motor_pos[2][0];
+            double sw_3x = quad[i].motor_pos[3][0];
+
+            double sw_0y = quad[i].motor_pos[0][1];
+            double sw_1y = quad[i].motor_pos[1][1];
+            double sw_2y = quad[i].motor_pos[2][1];
+            double sw_3y = quad[i].motor_pos[3][1];
+
+            quad[i].motor_pos[0][0] = sw_1x;
+            quad[i].motor_pos[1][0] = sw_0x;
+            quad[i].motor_pos[2][0] = sw_3x;
+            quad[i].motor_pos[3][0] = sw_2x;
+
+            quad[i].motor_pos[0][1] = sw_1y;
+            quad[i].motor_pos[1][1] = sw_0y;
+            quad[i].motor_pos[2][1] = sw_3y;
+            quad[i].motor_pos[3][1] = sw_2y;
+        }
     }
 
     // Setup the variables for the math we'll be doing.
     A.resize(4, quad_count * 4);
-    x_ls.resize(quad_count, 1);
+    x_ls.resize(quad_count * 4, 1);
 
-    Eigen::Vector4f feeder;
+    Eigen::Vector4d feeder;
     for (int i = 0; i < quad_count; i++)
     {
         for (int j = 0; j < 4; j++)
@@ -133,7 +162,7 @@ void SE3Coop::controlLoop(void)
     // TODO: do something more interesting than hovering (e.g., traj following)
     Eigen::Vector3d r_euler(0, 0, 0);
     Eigen::Vector3d r_wb(0, 0, 0);
-    Eigen::Vector3d r_pos(0, 0, 0.5);
+    Eigen::Vector3d r_pos(0, 0, 0.3);
     Eigen::Vector3d r_vel(0, 0, 0);
     Eigen::Vector3d r_acc(0, 0, 0);
     se3control(r_euler, r_wb, r_pos, r_vel, r_acc);
@@ -177,20 +206,19 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
     Eigen::Vector3d eR(temp(2, 1), temp(0, 2), temp(1, 0));
     eR = 0.5 * eR;
     Eigen::Vector3d ew = mea_wb - r_wb;
-    eR(2) /= 3.0; // Note: reduce gain on yaw. TODO: make gains a 3d vector
-    ew(2) /= 3.0;
-    tauCmd = -KR_ * eR - KW_ * ew;
+    eR(0) *= kr_roll;
+    eR(1) *= kr_pitch;
+    eR(2) *= kr_yaw;
+    ew(0) *= kw_roll;
+    ew(1) *= kw_pitch;
+    ew(2) *= kw_yaw;
+    tauCmd = -eR - ew;
 
     //std::cout << "fzCmd = " << fzCmd << std::endl;
     //std::cout << "tauCmd = " << tauCmd << std::endl;
 
     // =================================================================================
     // Solve for individual motor thrust
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> 3984fbc3c18099691d0b6ef18a552f19a9c2fa7c
     /*
     // Static Test
     y(0) = 23.0;
@@ -203,7 +231,9 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
     y(1) = tauCmd(0);
     y(2) = tauCmd(1);
     y(3) = tauCmd(2);
-    
+
+    //std::cout << y << std::endl;
+
     //std::string sep = "\n----------------------------------------\n";
     //std::cout << y << sep;
 
@@ -212,18 +242,26 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
     // solve for PWM command using motor calibration data
     for (int i = 0; i < 4; i++)
     {
-        float force = x_ls((quad_addr * 4) + i);
+        double force = x_ls((quad_addr * 4) + i);
 
-        float inner = (c_deg1 * c_deg1) - (4 * c_deg2 * (c_deg0 - force));
-
-        // Check for values under range of motor model capabilities
-        if (inner < 0)
-        {
-            inner = 0;
-        }
+        double inner = (c_deg1 * c_deg1) - (4 * c_deg2 * (c_deg0 - force));
 
         motorCmd[i] = (-c_deg1 + sqrt(inner)) / (2 * c_deg2);
 
+        // Check for values under range of motor model capabilities
+        if (motorCmd[i] < 0)
+        {
+            motorCmd[i] = 0;
+        }
+        else if (motorCmd[i] > 0.8)
+        {
+            motorCmd[i] = 0.8;
+        }
+
+        if (inner < 0)
+        {
+            motorCmd[i] = 0;
+        }
     }
 
     // =================================================================================
@@ -250,9 +288,13 @@ void SE3Coop::visualise(void)
     }
     else if (solver_type == 1)
     {
-        std::cout << "Solver Type: QR Factorization with Pivot and <TODO: Insert ObjFunc Option>" << sep;
+        std::cout << "Solver Type: QR Factorization with Pivot" << sep;
     }
     else if (solver_type == 2)
+    {
+        std::cout << "Solver Type: Jacobi with ObjFunc Options" << sep;
+    }
+    else if (solver_type == 3)
     {
         std::cout << "Solver Type: Jacobi with ObjFunc Options" << sep;
     }
@@ -277,54 +319,52 @@ void SE3Coop::visualise(void)
 
 void SE3Coop::linear_solver(int type)
 {
-    float relative_error;
+    double relative_error;
+
+    int motor_count = quad_count * 4;
+    int row_count = (motor_count) + 4;
+    int column_count = (motor_count) + 4;
+
+    Eigen::MatrixXd A_tilde(row_count, column_count);
+    Eigen::VectorXd y_tilde(row_count);
+    Eigen::VectorXd x_tilde(row_count);
+
     if (type == 0)
     { // Default. Basic Least Squares.
         x_ls = A.transpose() * ((A * A.transpose()).inverse()) * y;
     }
-    else if (type == 1) // QR with column pivoting (fast,accurate). TODO: Finish ability to switch objective functions.
+    else if (type == 1) // QR with column pivoting (fast,accurate).
     {
-        int motor_count = quad_count * 4;
-        int row_count = (motor_count) + 4;
-        int column_count = (motor_count) + 4;
+        x_ls = A.colPivHouseholderQr().solve(y);
+    }
 
-        Eigen::MatrixXf A_tilde(row_count, column_count);
-        Eigen::VectorXf y_tilde(row_count);
-        Eigen::VectorXf x_tilde(row_count);
-
-        A_tilde.topLeftCorner(motor_count, motor_count) = Eigen::MatrixXf::Identity(motor_count, motor_count);
+    else if (type == 2) // Jacobi (slow, accurate).
+    {
+        A_tilde.topLeftCorner(motor_count, motor_count) = Eigen::MatrixXd::Identity(motor_count, motor_count);
         A_tilde.topRightCorner(motor_count, 4) = A.transpose();
         A_tilde.bottomLeftCorner(4, motor_count) = A;
-        A_tilde.bottomRightCorner(4, 4) = Eigen::MatrixXf::Zero(4, 4);
+        A_tilde.bottomRightCorner(4, 4) = Eigen::MatrixXd::Zero(4, 4);
 
-        y_tilde.head(motor_count) = Eigen::VectorXf::Zero(motor_count);
+        y_tilde.head(motor_count) = Eigen::VectorXd::Zero(motor_count);
+        y_tilde.tail(4) = y;
+
+        x_tilde = A_tilde.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y_tilde);
+        x_ls = x_tilde.head(motor_count);
+    }
+    else if (type == 3) // QR with column pivoting (fast,accurate). TODO: Finish ability to switch objective functions.
+    {
+        A_tilde.topLeftCorner(motor_count, motor_count) = Eigen::MatrixXd::Identity(motor_count, motor_count);
+        A_tilde.topRightCorner(motor_count, 4) = A.transpose();
+        A_tilde.bottomLeftCorner(4, motor_count) = A;
+        A_tilde.bottomRightCorner(4, 4) = Eigen::MatrixXd::Zero(4, 4);
+
+        y_tilde.head(motor_count) = Eigen::VectorXd::Zero(motor_count);
         y_tilde.tail(4) = y;
 
         x_tilde = A_tilde.colPivHouseholderQr().solve(y_tilde);
         x_ls = x_tilde.head(motor_count);
     }
 
-    else if (type == 2) // Jacobi (slow, accurate).
-    {
-        int motor_count = quad_count * 4;
-        int row_count = (motor_count) + 4;
-        int column_count = (motor_count) + 4;
-
-        Eigen::MatrixXf A_tilde(row_count, column_count);
-        Eigen::VectorXf y_tilde(row_count);
-        Eigen::VectorXf x_tilde(row_count);
-
-        A_tilde.topLeftCorner(motor_count, motor_count) = Eigen::MatrixXf::Identity(motor_count, motor_count);
-        A_tilde.topRightCorner(motor_count, 4) = A.transpose();
-        A_tilde.bottomLeftCorner(4, motor_count) = A;
-        A_tilde.bottomRightCorner(4, 4) = Eigen::MatrixXf::Zero(4, 4);
-
-        y_tilde.head(motor_count) = Eigen::VectorXf::Zero(motor_count);
-        y_tilde.tail(4) = y;
-
-        x_tilde = A_tilde.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV).solve(y_tilde);
-        x_ls = x_tilde.head(motor_count);
-    }
     else
     {
         // Shouldn't ever be here!
