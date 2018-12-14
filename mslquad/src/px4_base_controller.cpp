@@ -49,7 +49,11 @@ PX4BaseController::PX4BaseController() :
     odomPub_ = nh_.advertise<nav_msgs::Odometry>("ground_truth/odometry", 1);
     cmdTrajSub_ = nh_.subscribe(
         "command/trajectory", 
-        1, &PX4BaseController::pathCB, this);    
+        1, &PX4BaseController::pathCB, this);
+    joySub_ = nh_.subscribe<sensor_msgs::Joy>(
+        "/joy",
+        1, &PX4BaseController::joySubCB, this);
+        
 
     // wait for mocap pose
     while (ros::ok() && curVisionPose_.header.seq < 200) {
@@ -188,6 +192,10 @@ void PX4BaseController::velSubCB(const geometry_msgs::TwistStamped::ConstPtr& ms
 
 void PX4BaseController::visionPoseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
     curVisionPose_ = *msg;
+}
+
+void PX4BaseController::joySubCB(const sensor_msgs::Joy::ConstPtr& msg) {
+    joyCmds_ = *msg;
 }
 
 void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {

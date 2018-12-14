@@ -159,10 +159,25 @@ SE3Coop::~SE3Coop()
 
 void SE3Coop::controlLoop(void)
 {
+    double altitude;
+    // double altitude = joyCmds_.axes[3];
+
+    if (joyCmds_.axes.size() == 0) // This is because the msg is empty if joystick is untouched.
+    {
+        altitude = -1;
+    }
+    else
+    {
+        altitude = joyCmds_.axes[3];
+    }
+    //std::cout << altitude << std::endl;
     // TODO: do something more interesting than hovering (e.g., traj following)
     Eigen::Vector3d r_euler(0, 0, 0);
     Eigen::Vector3d r_wb(0, 0, 0);
-    Eigen::Vector3d r_pos(0, 0, 0.3);
+    Eigen::Vector3d r_pos(0, 0, altitude);
+
+    //std::cout << r_pos << std::endl;
+
     Eigen::Vector3d r_vel(0, 0, 0);
     Eigen::Vector3d r_acc(0, 0, 0);
     se3control(r_euler, r_wb, r_pos, r_vel, r_acc);
@@ -296,7 +311,7 @@ void SE3Coop::visualise(void)
     }
     else if (solver_type == 3)
     {
-        std::cout << "Solver Type: Jacobi with ObjFunc Options" << sep;
+        std::cout << "Solver Type: QR Factorization with ObjFunc Options" << sep;
     }
     else
     {

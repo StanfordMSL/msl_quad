@@ -31,9 +31,12 @@
 			<param name="c_deg1" value="1.68915"/> 
 			<param name="c_deg0" value="-0.05628"/>
 			<param name="c_ft_lin"   value="0.06"/>
-			<param name="solver_type" value="1"/>   
-         
+			<param name="solver_type" value="1"/>            
 		</node>
-
 	</group>
+
+	<node pkg="joy" type="joy_node" name="joy" required="True">
+    <param name="autorepeat_rate" value="10" /> <!-- Minimal update rate, Hz -->
+    <param name="dev" type="string" value="/dev/input/js1" />
+  </node>
 </launch>
