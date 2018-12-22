@@ -75,13 +75,16 @@ PX4BaseController::PX4BaseController() :
         mocapCheck = true;
         for(int i=0; i<10; ++i) { // must be consistent for 10 checks
             if(getDist(curPose_, curVisionPose_) > 0.08) {
+                //std::cout << curPose_.pose.position.x << "," << curVisionPose_.pose.position.x << std::endl;
+                //std::cout << curPose_.pose.position.y << "," << curVisionPose_.pose.position.y << std::endl;
+                ros::spinOnce();
                 mocapCheck = false;
                 std::cout << quadNS_ << ": mocap inconsistent." << std::endl;
             }
             ros::Duration(0.2).sleep();
         }
     }
-    visionPoseSub_.shutdown(); // shutdown subscriber after sanity check
+    //visionPoseSub_.shutdown(); // shutdown subscriber after sanity check
 
     // start slow timer
     slowTimer_ = nh_.createTimer(
@@ -184,6 +187,11 @@ void PX4BaseController::pathCB(const trajectory_msgs::MultiDOFJointTrajectory::C
 void PX4BaseController::poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
     // store the currect pose
     curPose_ = *msg;
+
+   curPose_.pose.position.x = curVisionPose_.pose.position.x;
+   curPose_.pose.position.y = curVisionPose_.pose.position.y;
+   curPose_.pose.position.z = curVisionPose_.pose.position.z;
+
 }
 
 void PX4BaseController::velSubCB(const geometry_msgs::TwistStamped::ConstPtr& msg) {

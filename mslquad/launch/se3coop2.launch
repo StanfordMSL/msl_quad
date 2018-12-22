@@ -16,11 +16,11 @@
                         <param name="control_freq" value="250"/>
                         <param name="slow_freq" value="10"/>
       <param name="auto_takeoff" value="$(arg auto_takeoff)"/>
-      <param name="KP" value="6.0" />
-      <param name="KV" value="6.0" />
+      <param name="KP" value="10.0" />
+      <param name="KV" value="2.0" />
       <param name="KR" value="2.0" />
       <param name="KW" value="0.1" />
-      <param name="M" value="2.635" />
+      <param name="M" value="2.4" />
       <param name="quadFrame" value="mslquad"/>
                         <param name="quad_addr" value="1"/>
                         <param name="quad_count" value="2"/>
@@ -33,7 +33,7 @@
                         <param name="solver_type" value="3"/>
                         <param name="kr_roll" value="1.9"/>
                         <param name="kr_pitch" value="8.0"/>
-                        <param name="kr_yaw" value="0.5"/>
+                        <param name="kr_yaw" value="0.6"/>
                         <param name="kw_roll" value="0.22"/>
                         <param name="kw_pitch" value="0.7"/>
                         <param name="kw_yaw" value="0.001"/>
