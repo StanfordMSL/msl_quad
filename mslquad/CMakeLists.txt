@@ -118,8 +118,12 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
   include
+  cvxgen
   ${catkin_INCLUDE_DIRS}
 )
+
+add_subdirectory( cvxgen/cvxgen_se3 ) # build for cvxgen
+add_subdirectory( cvxgen/cvxgen_se3_comp )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -162,6 +166,12 @@ add_library(controller_lib
 add_executable(default_controller 
   src/default_controller_node.cpp)
 target_link_libraries(default_controller ${catkin_LIBRARIES} controller_lib)
+
+
+add_executable(test_icra18
+  src/test_icra18.cpp
+)
+target_link_libraries(test_icra18 cvxgen_se3 ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

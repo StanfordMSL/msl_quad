@@ -1,0 +1,34 @@
+# Produced by CVXGEN, 2017-09-04 14:14:14 -0400.
+# CVXGEN is Copyright (C) 2006-2017 Jacob Mattingley, jem@cvxgen.com.
+# The code in this file is Copyright (C) 2006-2017 Jacob Mattingley.
+# CVXGEN, or solvers produced by CVXGEN, cannot be used for commercial
+# applications without prior written permission from Jacob Mattingley.
+
+# Filename: description.cvxgen.
+# Description: A description of the CVXGEN problem.
+
+dimensions
+  n = 4
+end
+
+parameters
+  W_row2 (n)
+  W_row3 (n)
+  W_row4 (n)
+  wdes (n)
+  FMAX
+  FMIN
+end
+
+variables
+  f(n)
+end
+
+minimize
+  norm_1( W_row3' * f - wdes[3])
+subject to
+  sum(f) == wdes[1]
+  W_row2' * f == wdes[2]
+  W_row4' * f == wdes[4]
+  FMIN <= f <= FMAX
+end
