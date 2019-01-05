@@ -3,11 +3,61 @@
 #include <string>
 #include <Eigen/Dense>
 #include <ctime> // calculate delta time when solving optimization
+#include <cmath>
 
 #include "cvxgen_se3.h"
 #include "cvxgen_se3_comp.h"
 
 using namespace std;
+
+// fres: 4d vector, solution force to 4 motors
+// W: wrench matrix in the special control frame
+// wdes: desired wrench in special control frame, ordered as (fz, tx, ty, tz)
+// f_min: minimal motor thrust (N)
+// f_max: maximal motor thrust (N)
+// D: offset from COM of quadrotor to COM of object
+void icra18_ctrl(Eigen::Vector4d &fres,
+                 Eigen::Matrix4d W,
+                 Eigen::Vector4d wdes,
+                 const double f_min,
+                 const double f_max,
+                 const double D) {
+    // assume cvxgen_setup has been called
+    Eigen::Vector4d fopt_temp;
+    Eigen::Vector4d v4d;
+    double pmin, pmax, pstar;
+    const double ty_bias = 100.0;
+    Eigen::Vector4d wdes_temp(wdes);
+    wdes_temp(2) = ty_bias;
+    
+    // solve pmin
+    se3::cvxgen_solve(fopt_temp, W, wdes_temp, f_min, f_max);
+    v4d = W * fopt_temp;
+    pmin = v4d(2) + D*wdes(0);
+
+    // solve pmax
+    for(int i=0; i<4; ++i) { // in order to solve pmax
+        W(2, i) = -W(2, i); 
+    }
+    se3::cvxgen_solve(fopt_temp, W, wdes_temp, f_min, f_max);
+    for(int i=0; i<4; ++i) { // revert back the temp change
+        W(2, i) = -W(2, i); 
+    }
+    v4d = W * fopt_temp;
+    pmax = v4d(2) + D*wdes(0);
+
+    // compute pstar
+    pstar = fmin( fabs(pmin), fabs(pmax) );
+
+    // compensation optimization
+    double t_comp;
+    if(wdes(2) > 0) 
+        t_comp = 2.0*wdes(2) - D*wdes(0) - pstar;
+    else 
+        t_comp = wdes(2);
+    wdes(2) = t_comp;
+    se3comp::cvxgen_solve(fres, W, wdes, f_min, f_max, -D*wdes(0)-pstar, -D*wdes(0)+pstar);
+}
 
 int main(int argc, char **argv)
 {
@@ -25,8 +75,8 @@ int main(int argc, char **argv)
     Eigen::Vector4d f;
     Eigen::Matrix4d W;
     Eigen::Vector4d wdes;
-    double fmin = -0.9;
-    double fmax = 0;
+    double f_min = -0.9;
+    double f_max = 0;
     W << 
         1.        ,  1.        ,  1.        ,  1.        ,
         0.14427404,  0.13850993, -0.14427404, -0.13850993,
@@ -40,7 +90,7 @@ int main(int argc, char **argv)
         -1.74337901e-07;
 
     tStart = clock();
-    se3::cvxgen_solve(f, W, wdes, fmin, fmax);
+    se3::cvxgen_solve(f, W, wdes, f_min, f_max);
     tEnd = clock();
     cout << "time elapsed: " << (double)(clock() - tStart)*1000/CLOCKS_PER_SEC << "ms" << endl;
 
@@ -55,8 +105,8 @@ int main(int argc, char **argv)
     cout << "Testing cvxgen_se3_comp..." << endl; 
 
     se3comp::cvxgen_setup();
-    fmin = -0.9;
-    fmax = 0;
+    f_min = -0.9;
+    f_max = 0;
     double wy_lb = 1.3880837730700393;
     double wy_ub = 1.6949999404120033;
 
@@ -73,7 +123,7 @@ int main(int argc, char **argv)
         -8.10975028e-06;
 
     tStart = clock();
-    se3comp::cvxgen_solve(f, W, wdes, fmin, fmax, wy_lb, wy_ub);
+    se3comp::cvxgen_solve(f, W, wdes, f_min, f_max, wy_lb, wy_ub);
     tEnd = clock();
     cout << "time elapsed: " << (double)(clock() - tStart)*1000/CLOCKS_PER_SEC << "ms" << endl;
 
@@ -81,6 +131,36 @@ int main(int argc, char **argv)
         << -0.355555 << endl << -0.346322 << endl << -0.889007 << endl << -0.897835 << endl;
 
     cout << "actual result: " << endl << f << endl;   
+
+    // test entire optimization pipeline in ICRA18
+    cout << endl;
+    cout << "==================================" << endl;
+    cout << "Testing entire icra18 controller..." << endl;
+
+    W << 
+        1.        ,  1.        ,  1.        ,  1.        ,
+        0.01191424, -0.19964481, -0.01191424,  0.19964481,
+        -0.31662265, -0.50435321, -0.71591227, -0.5281817 ,
+        0.02      , -0.02      ,  0.02      , -0.02      ;
+
+    wdes <<
+        -2.4500880932845672,
+        1.36481376e-02,
+        2.69207734e-02,
+        9.35221127e-09;
+    f_min = -0.9;
+    f_max = 0;
+    double D = 0.516267457279;
+
+    tStart = clock();
+    icra18_ctrl(f, W, wdes, f_min, f_max, D);
+    tEnd = clock();
+    cout << "time elapsed: " << (double)(clock() - tStart)*1000/CLOCKS_PER_SEC << "ms" << endl;
+
+    cout << "expected result: " << endl
+        << -0.761566 << endl << -0.655598 << endl << -0.463478 << endl << -0.569447 << endl;
+
+    cout << "actual result: " << endl << f << endl;
 
     return 0;
 }

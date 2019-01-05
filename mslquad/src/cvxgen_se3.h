@@ -21,7 +21,7 @@ Settings settings;
 void cvxgen_setup(void) {
     set_defaults();
     setup_indexing();
-    settings.verbose = 1;
+    settings.verbose = 0;
     return;
 }
 
@@ -29,8 +29,8 @@ void cvxgen_solve(
         Eigen::Vector4d& f, 
         const Eigen::Matrix4d& W, 
         const Eigen::Vector4d& wdes, 
-        const double fmin, 
-        const double fmax) {
+        const double f_min, 
+        const double f_max) {
     params.W_row2[0] = W(1,0);
     params.W_row2[1] = W(1,1);
     params.W_row2[2] = W(1,2);
@@ -51,8 +51,8 @@ void cvxgen_solve(
     params.wdes[2] = wdes(2);
     params.wdes[3] = wdes(3);
     
-    params.FMIN[0] = fmin;
-    params.FMAX[0] = fmax;
+    params.FMIN[0] = f_min;
+    params.FMAX[0] = f_max;
 
     solve();
 
