@@ -8,6 +8,7 @@
 /* Description: Basic test harness for solver.c. */
 #include "solver.h"
 /* Be sure to place ldl_solve first, so storage schemes are defined by it. */
+namespace se3comp{
 void ldl_solve(double *target, double *var) {
   int i;
   /* Find var = (L*diag(work.d)*L') \ target, then unpermute. */
@@ -743,3 +744,4 @@ void fill_KKT(void) {
   work.KKT[72] = params.W_row4[2];
   work.KKT[73] = params.W_row4[3];
 }
+} // namespace se3comp

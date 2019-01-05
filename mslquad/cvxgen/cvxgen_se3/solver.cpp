@@ -7,6 +7,7 @@
 /* Filename: solver.c. */
 /* Description: Main solver file. */
 #include "solver.h"
+namespace se3 {
 double eval_gap(void) {
   int i;
   double gap;
@@ -370,3 +371,4 @@ long solve(void) {
   }
   return iter;
 }
+} // namespace se3

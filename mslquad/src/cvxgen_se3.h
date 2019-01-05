@@ -4,10 +4,12 @@
 
 #include <iostream>
 #include <Eigen/Dense>
-extern "C" {
+//extern "C" {
     #include "cvxgen_se3/solver.h"
-}
+//}
 
+// ---------------------------------------------------- 
+namespace se3 {
 // ---------------------------------------------------- 
 // These variables must be declared as global variables
 // see the comments in solver.h
@@ -16,16 +18,14 @@ Params params;
 Workspace work;
 Settings settings;
 
-// ---------------------------------------------------- 
-
-void cvxgen_se3_setup(void) {
+void cvxgen_setup(void) {
     set_defaults();
     setup_indexing();
     settings.verbose = 1;
     return;
 }
 
-void cvxgen_se3_solve(
+void cvxgen_solve(
         Eigen::Vector4d& f, 
         const Eigen::Matrix4d& W, 
         const Eigen::Vector4d& wdes, 
@@ -63,5 +63,5 @@ void cvxgen_se3_solve(
     f(2) = vars.f[2];
     f(3) = vars.f[3];
 }
-
+} // namespace se3
 #endif

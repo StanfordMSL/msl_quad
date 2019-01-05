@@ -6,8 +6,8 @@
 
 /* Filename: solver.h. */
 /* Description: Header file with relevant definitions. */
-#ifndef SOLVER_H
-#define SOLVER_H
+#ifndef SOLVER_SE3_COMP_H
+#define SOLVER_SE3_COMP_H
 /* Uncomment the next line to remove all library dependencies. */
 /*#define ZERO_LIBRARY_MODE */
 #ifdef MATLAB_MEX_FILE
@@ -27,6 +27,7 @@
 #include <math.h>
 #define pm(A, m, n) printmatrix(#A, A, m, n, 1)
 #endif
+namespace se3comp{
 typedef struct Params_t {
   double W_row3[4];
   double wdes[4];
@@ -138,5 +139,5 @@ float ran1(long*idum, int reset);
 float randn_internal(long *idum, int reset);
 double randn(void);
 void reset_rand(void);
-
+} // namespace se3comp
 #endif

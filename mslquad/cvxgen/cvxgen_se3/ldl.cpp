@@ -7,6 +7,7 @@
 /* Filename: ldl.c. */
 /* Description: Basic test harness for solver.c. */
 #include "solver.h"
+namespace se3 {
 /* Be sure to place ldl_solve first, so storage schemes are defined by it. */
 void ldl_solve(double *target, double *var) {
   int i;
@@ -637,3 +638,4 @@ void fill_KKT(void) {
   work.KKT[58] = params.W_row4[2];
   work.KKT[59] = params.W_row4[3];
 }
+} // namespace se3
