@@ -16,12 +16,14 @@ using namespace std;
 // f_min: minimal motor thrust (N)
 // f_max: maximal motor thrust (N)
 // D: offset from COM of quadrotor to COM of object
+// isNED: whether it's in NED frame or ENU
 void icra18_ctrl(Eigen::Vector4d &fres,
                  Eigen::Matrix4d W,
                  Eigen::Vector4d wdes,
                  const double f_min,
                  const double f_max,
-                 const double D) {
+                 const double D,
+                 bool isNED = false) {
     // assume cvxgen_setup has been called
     Eigen::Vector4d fopt_temp;
     Eigen::Vector4d v4d;
@@ -51,10 +53,17 @@ void icra18_ctrl(Eigen::Vector4d &fres,
 
     // compensation optimization
     double t_comp;
-    if(wdes(2) > 0) 
-        t_comp = 2.0*wdes(2) - D*wdes(0) - pstar;
-    else 
-        t_comp = wdes(2);
+    if(isNED) { // NED, i.e., wdes(0) or fz is negative
+        if(wdes(2) > 0) 
+            t_comp = 2.0*wdes(2) - D*wdes(0) - pstar;
+        else 
+            t_comp = wdes(2);
+    } else { // ENU
+        if(wdes(2) > 0)
+            t_comp = wdes(2);
+        else 
+            t_comp = 2.0*wdes(2) - D*wdes(0) + pstar;
+    }
     wdes(2) = t_comp;
     se3comp::cvxgen_solve(fres, W, wdes, f_min, f_max, -D*wdes(0)-pstar, -D*wdes(0)+pstar);
 }
@@ -153,7 +162,7 @@ int main(int argc, char **argv)
     double D = 0.516267457279;
 
     tStart = clock();
-    icra18_ctrl(f, W, wdes, f_min, f_max, D);
+    icra18_ctrl(f, W, wdes, f_min, f_max, D, true);
     tEnd = clock();
     cout << "time elapsed: " << (double)(clock() - tStart)*1000/CLOCKS_PER_SEC << "ms" << endl;
 
@@ -161,6 +170,61 @@ int main(int argc, char **argv)
         << -0.761566 << endl << -0.655598 << endl << -0.463478 << endl << -0.569447 << endl;
 
     cout << "actual result: " << endl << f << endl;
+
+    // test integration with se3 controller
+    cout << endl;
+    cout << "==================================" << endl;
+    cout << "Testing integration with se3 controller..." << endl;
+    
+    const double barRadius = 0.35;
+    wdes << 28.52, 0.0665586, -0.280075, -0.000368148;
+    Eigen::Matrix4d Wb;
+    Wb <<  1, 1, 1, 1,
+          -0.119501, 0.119501, 0.119501, -0.119501,
+          -0.119501, 0.119501, -0.119501, 0.119501,
+          -0.01666, -0.01666, 0.01666, 0.01666;
+    Eigen::Matrix4d m1, m2;
+    double alpha = 0;
+    m1 << 1, 0, 0, 0,
+          barRadius*sin(alpha), 1, 0, 0,
+          -barRadius*cos(alpha), 0, 1, 0,
+          0, 0, 0, 1;
+    alpha = 3.1415926;
+    m2 << 1, 0, 0, 0,
+          barRadius*sin(alpha), 1, 0, 0,
+          -barRadius*cos(alpha), 0, 1, 0,
+          0, 0, 0, 1;
+
+    Eigen::Matrix4d Wobj1, Wobj2;
+    Wobj1 = m1 * Wb;
+    Wobj2 = m2 * Wb;
+
+    Eigen::Vector4d thrust1, thrust2;
+    thrust1 << 3.61831, 3.69638, 3.75203, 3.55161; // correct solution
+    thrust2 << 3.43914, 3.51721, 3.57286, 3.37245;
+    Eigen::Vector4d wverify = Wobj1*thrust1 + Wobj2*thrust2;
+
+    cout << "Verify wrench matrices. Residue check (smaller better): " << (wverify-wdes).norm() << endl;
+
+    Eigen::Matrix4d Rco1, Rco2;
+    alpha = 0;
+    Rco1 << 1, 0, 0, 0,
+            0, cos(alpha), sin(alpha), 0,
+            0, -sin(alpha), cos(alpha), 0,
+            0, 0, 0, 1;
+    icra18_ctrl(thrust1, Rco1*Wobj1, Rco1*(0.5*wdes), 0, 4.3, barRadius); // 4.3N ~ 80% PWM
+    alpha = 3.1415926;
+    Rco2 << 1, 0, 0, 0,
+            0, cos(alpha), sin(alpha), 0,
+            0, -sin(alpha), cos(alpha), 0,
+            0, 0, 0, 1;
+    icra18_ctrl(thrust2, Rco2*Wobj2, Rco2*(0.5*wdes), 0, 4.3, barRadius);
+
+    cout << "-- thrust1: " << endl << thrust1 << endl;
+    cout << "-- thrust2: " << endl << thrust2 << endl;
+    wverify = Wobj1*thrust1 + Wobj2*thrust2;
+    cout << "wverify: " << endl << wverify << endl;
+
 
     return 0;
 }
