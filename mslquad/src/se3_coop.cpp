@@ -7,12 +7,13 @@
   Description  : SE(3) controller
 **************************************************************************/
 #include "mslquad/se3_coop.h"
+#include "mslquad/icra18_ctrl.h"
 #include <cmath>
 
 SE3Coop::SE3Coop() : quadFrame_("mslquad"),
                      KP_(6.0), KV_(4.0), KR_(0.8), KW_(0.1),
                      M_(1.04), g_(9.8), kr_roll(2.5), kr_pitch(2), kr_yaw(0.7),
-                     kw_roll(0.125), kw_pitch(0.1), kw_yaw(0.03)
+                     kw_roll(0.125), kw_pitch(0.1), kw_yaw(0.03), manipType("icra18")
 {
     // handle ros parameters
     ros::param::get("~KP", KP_);
@@ -36,6 +37,7 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
     ros::param::get("~kw_roll", kw_roll);
     ros::param::get("~kw_pitch", kw_pitch);
     ros::param::get("~kw_yaw", kw_yaw);
+    ros::param::get("~manip_type", manipType);
 
     if (quadFrame_ == "mslquad")
     {
@@ -75,6 +77,7 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
     std::cout << "arm_radius: " << arm_radius << std::endl;
     std::cout << "Motor Profile: " << c_deg2 << "x^2 +" << c_deg1 << "x +" << c_deg0 << std::endl;
     std::cout << "Motor Force -> Torque Linear Approx: " << c_ft_lin << std::endl;
+    std::cout << "Manipulation type: " << manipType << std::endl;
 
     // Setup the coop configuration (quad and motor positions).
     double base_angle = 2 * M_PI / quad_count; // angle between each quad (radians)
@@ -146,6 +149,35 @@ SE3Coop::SE3Coop() : quadFrame_("mslquad"),
             }
             A.col(4 * i + j) = feeder;
         }
+    }
+
+    // stuff related to icra18 controller
+    if(manipType == "icra18") {
+        icra18_setup(); // set up cvxgen stuff
+
+        Eigen::Matrix4d Wb; // Wrench matrix in quad's body frame
+        Eigen::Matrix4d Wobj; // Wrench matrix in object's frame
+        Eigen::Matrix4d mtemp;
+        Wb <<  1, 1, 1, 1,
+        -0.119501, 0.119501, 0.119501, -0.119501, // TODO: parameterize
+        -0.119501, 0.119501, -0.119501, 0.119501,
+        -c_ft_lin, -c_ft_lin, c_ft_lin, c_ft_lin; 
+        double alpha; // angle from +x axis of object to quadrotor
+        if(quad_addr == 0) {
+            alpha = 0;
+        } else if(quad_addr == 1) {
+            alpha = 3.1415926;
+        }
+        Rco << 1, 0, 0, 0,
+               0, cos(alpha), sin(alpha), 0,
+               0, -sin(alpha), cos(alpha), 0,
+               0, 0, 0, 1;
+        mtemp << 1, 0, 0, 0,
+                 bar_radius*sin(alpha), 1, 0, 0,
+                -bar_radius*cos(alpha), 0, 1, 0,
+                 0, 0, 0, 1;
+        Wobj = mtemp * Wb;
+        Wc = Rco * Wobj;
     }
 
     visualise();
@@ -252,12 +284,21 @@ void SE3Coop::se3control(const Eigen::Vector3d &r_euler,
     //std::string sep = "\n----------------------------------------\n";
     //std::cout << y << sep;
 
-    linear_solver(solver_type);
-
+    if(manipType == "ls") { // least square solution
+        linear_solver(solver_type);
+    } else if(manipType == "icra18") {
+        icra18_ctrl(resThrust, Wc, Rco*(y/(double)quad_count), 0, 4.3, bar_radius); // 4.3N ~ 80% PWM. TODO: parameterize
+        //std::cout << "resThurst: " << resThrust << std::endl;
+    }
     // solve for PWM command using motor calibration data
     for (int i = 0; i < 4; i++)
     {
-        double force = x_ls((quad_addr * 4) + i);
+        double force;
+        if(manipType == "ls") {
+            force = x_ls((quad_addr * 4) + i);
+        } else if(manipType == "icra18") {
+            force = resThrust(i);
+        }
 
         double inner = (c_deg1 * c_deg1) - (4 * c_deg2 * (c_deg0 - force));
 

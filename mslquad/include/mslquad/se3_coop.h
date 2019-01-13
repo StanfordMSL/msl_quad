@@ -76,6 +76,10 @@ class SE3Coop : public PX4BaseController
     double kw_roll;
     double kw_pitch;
     double kw_yaw;
+    std::string manipType; // either "ls" (least square) or "icra18"
+    Eigen::Matrix4d Rco; // rotation matrix to transform things in object frame to "control frame"
+    Eigen::Matrix4d Wc; // wrench matrix, compute wrench in "control frame"
+    Eigen::Vector4d resThrust; // result thrust from the icra18 controller
 
     void visualise(void);
     void linear_solver(int type = 0);

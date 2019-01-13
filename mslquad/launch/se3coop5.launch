@@ -37,6 +37,7 @@
 			<param name="kw_roll" value="0.22"/>
 			<param name="kw_pitch" value="0.7"/>
 			<param name="kw_yaw" value="0.001"/>
+			<param name="manip_type" value="icra18"/>
 
  
 		</node>
