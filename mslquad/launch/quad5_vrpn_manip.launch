@@ -1,0 +1,34 @@
+<launch>
+	<!-- vim: set ft=xml noet : -->
+	<!-- example launch script for PX4 based FCU's -->
+	<!-- launches quad with local VRPN client -->
+
+   	<arg name="robot_type" default="quad"/>
+   	<arg name="id" default="5"/> <!-- This determines the ROS namespace MUST MATCH MOTIVE -->
+	<arg name="fcu_url" default="/dev/ttySAC0:921600" />
+	<arg name="gcs_url" default="" />
+	<arg name="tgt_system" default="1" />
+	<arg name="tgt_component" default="1" />
+	<arg name="log_output" default="screen" />
+	<arg name="fcu_protocol" default="v2.0" />
+
+	<group ns="$(arg robot_type)$(arg id)">
+		<include file="$(find mavros)/launch/node.launch">
+			<arg name="pluginlists_yaml" value="$(find mslquad)/launch/px4_pluginlists.yaml" />
+			<arg name="config_yaml" value="$(find mslquad)/launch/px4_config.yaml" />
+
+			<arg name="fcu_url" value="$(arg fcu_url)" />
+			<arg name="gcs_url" value="$(arg gcs_url)" />
+			<arg name="tgt_system" value="$(arg tgt_system)" />
+			<arg name="tgt_component" value="$(arg tgt_component)" />
+			<arg name="log_output" value="$(arg log_output)" />
+			<arg name="fcu_protocol" value="$(arg fcu_protocol)" />
+		</include>
+	</group>
+
+	<include file="$(find mslquad)/launch/vrpn.launch">
+		<arg name="robot_ns" value="$(arg robot_type)$(arg id)" />
+		<arg name="vrpn_name" value="quadassm"/>
+	</include>
+
+</launch>

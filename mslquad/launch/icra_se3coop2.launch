@@ -1,0 +1,44 @@
+<launch>
+
+  <arg name="mav_name" default="quad"/>
+  <arg name="id" default="2"/>
+  <arg name="quad_ns"  default="$(arg mav_name)$(arg id)"/>
+  <arg name="fixed_height" default="1.5"/>
+  <arg name="max_vel" default="0.5"/>
+  <arg name="auto_takeoff" default="false"/>
+
+  <group ns="$(arg mav_name)$(arg id)">
+    <node pkg="mslquad" type="default_controller" name="default_controller" output="screen">
+      <param name="controller_type" value="se3coop"/>
+      <param name="quad_ns" value="$(arg quad_ns)"/>
+      <param name="fixed_height" value="$(arg fixed_height)" />
+      <param name="max_vel" value="$(arg max_vel)" />
+      <param name="control_freq" value="250"/>
+      <param name="slow_freq" value="10"/>
+      <param name="auto_takeoff" value="$(arg auto_takeoff)"/>
+      <param name="KP" value="9.0" />
+      <param name="KV" value="2.0" />
+      <param name="KR" value="2.0" />
+      <param name="KW" value="0.1" />
+      <param name="M" value="2.4" />
+      <param name="quadFrame" value="mslquad"/>
+      <param name="quad_addr" value="1"/>
+      <param name="quad_count" value="2"/>
+      <param name="bar_radius" value="0.35"/>
+      <param name="arm_radius" value="0.169"/>
+      <param name="c_deg2" value="4.67636"/>
+      <param name="c_deg1" value="1.68915"/>
+      <param name="c_deg0" value="-0.05628"/>
+      <param name="c_ft_lin"   value="0.01666"/>
+      <param name="solver_type" value="3"/>
+      <param name="kr_roll" value="1.9"/>
+      <param name="kr_pitch" value="16.0"/>
+      <param name="kr_yaw" value="0.9"/>
+      <param name="kw_roll" value="0.22"/>
+      <param name="kw_pitch" value="1.2"/>
+      <param name="kw_yaw" value="0.01"/>
+      <param name="manip_type" value="icra18"/>
+    </node>
+  </group>
+</launch>
+

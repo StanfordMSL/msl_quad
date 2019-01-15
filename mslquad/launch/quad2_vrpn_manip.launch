@@ -4,7 +4,7 @@
 	<!-- launches quad with local VRPN client -->
 
    	<arg name="robot_type" default="quad"/>
-   	<arg name="id" default="0"/> <!-- This determines the ROS namespace MUST MATCH MOTIVE -->
+   	<arg name="id" default="2"/> <!-- This determines the ROS namespace MUST MATCH MOTIVE -->
 	<arg name="fcu_url" default="/dev/ttyUSB0:921600" />
 	<arg name="gcs_url" default="" />
 	<arg name="tgt_system" default="1" />
@@ -28,7 +28,8 @@
 
 	<include file="$(find mslquad)/launch/vrpn.launch">
 		<arg name="robot_ns" value="$(arg robot_type)$(arg id)" />
-		<arg name="vrpn_name" value="$(arg robot_type)$(arg id)"/>
+		<arg name="vrpn_name" value="quadassm"/>
 	</include>
 
 </launch>
+

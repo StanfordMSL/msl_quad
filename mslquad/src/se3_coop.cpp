@@ -192,21 +192,25 @@ SE3Coop::~SE3Coop()
 void SE3Coop::controlLoop(void)
 {
     double altitude;
+    double roll_cmd;
     // double altitude = joyCmds_.axes[3];
 
     if (joyCmds_.axes.size() == 0) // This is because the msg is empty if joystick is untouched.
     {
         altitude = -1;
+        roll_cmd = 0;
+
     }
     else
     {
-        altitude = joyCmds_.axes[3];
+        altitude = 1.5 * joyCmds_.axes[3];
+        roll_cmd = 0.5 * joyCmds_.axes[0];
     }
     //std::cout << altitude << std::endl;
     // TODO: do something more interesting than hovering (e.g., traj following)
     Eigen::Vector3d r_euler(0, 0, 0);
     Eigen::Vector3d r_wb(0, 0, 0);
-    Eigen::Vector3d r_pos(0, 0, altitude);
+    Eigen::Vector3d r_pos(0, roll_cmd, altitude);
 
     //std::cout << r_pos << std::endl;
 
