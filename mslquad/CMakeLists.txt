@@ -118,8 +118,12 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
   include
+  cvxgen
   ${catkin_INCLUDE_DIRS}
 )
+
+add_subdirectory( cvxgen/cvxgen_se3 ) # build for cvxgen
+add_subdirectory( cvxgen/cvxgen_se3_comp )
 
 ## Declare a C++ library
 # add_library(${PROJECT_NAME}
@@ -154,14 +158,26 @@ target_link_libraries(follower ${catkin_LIBRARIES})
 #target_link_libraries(ctrl_alloc ${catkin_LIBRARIES})
 #add_dependencies(ctrl_alloc msl_quad_messages_cpp)
 
+
+add_library(icra18_lib
+  src/icra18_ctrl.cpp
+)
+target_link_libraries(icra18_lib cvxgen_se3 cvxgen_se3_comp)
+
 add_library(controller_lib
   src/px4_base_controller.cpp
   src/yaw_track_controller.cpp
   src/se3_controller.cpp
-  src/se3_coop.cpp)
+  src/se3_coop.cpp
+)
 add_executable(default_controller 
   src/default_controller_node.cpp)
-target_link_libraries(default_controller ${catkin_LIBRARIES} controller_lib)
+target_link_libraries(default_controller controller_lib icra18_lib ${catkin_LIBRARIES})
+
+add_executable(test_icra18
+  src/tests/test_icra18.cpp
+)
+target_link_libraries(test_icra18 icra18_lib ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

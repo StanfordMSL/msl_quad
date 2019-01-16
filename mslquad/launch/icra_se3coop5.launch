@@ -16,7 +16,7 @@
 			<param name="control_freq" value="250"/>
 			<param name="slow_freq" value="10"/>
       <param name="auto_takeoff" value="$(arg auto_takeoff)"/>
-      <param name="KP" value="10.0" />
+      <param name="KP" value="9.0" />
       <param name="KV" value="2.0" />
       <param name="KR" value="2.0" />
       <param name="KW" value="0.1" />
@@ -32,14 +32,12 @@
 			<param name="c_ft_lin"   value="0.01666"/> 
 			<param name="solver_type" value="3"/>   
 			<param name="kr_roll" value="1.9"/>
-			<param name="kr_pitch" value="8.0"/>
-			<param name="kr_yaw" value="0.6"/>
+			<param name="kr_pitch" value="16.0"/>
+			<param name="kr_yaw" value="0.9"/>
 			<param name="kw_roll" value="0.22"/>
-			<param name="kw_pitch" value="0.7"/>
-			<param name="kw_yaw" value="0.001"/>
-
- 
+			<param name="kw_pitch" value="1.2"/>
+			<param name="kw_yaw" value="0.01"/>
+			<param name="manip_type" value="icra18"/>
 		</node>
-
 	</group>
 </launch>
