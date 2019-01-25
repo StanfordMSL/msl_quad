@@ -21,7 +21,7 @@ PoseTrackController::PoseTrackController(){
     //inital pose is pose after takeoff
     targetPoseSp_.pose.position.x= takeoffPose_.pose.position.x;
     targetPoseSp_.pose.position.y= takeoffPose_.pose.position.y;
-    targetPoseSp_.pose.position.z= fixedHeight_;
+    targetPoseSp_.pose.position.z= takeoffHeight_;
 
 }
 
