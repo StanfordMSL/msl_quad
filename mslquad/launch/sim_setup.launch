@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- ob1 -->
+    <group ns="quad0">
+        
+        <node pkg="mslquad" type="vrnp_sim.py" name="vrnp_sim" output="screen">
+            <param name="modelname" value="iris_2"/>
+        </node>    
+        
+        <node pkg="mslquad" type="clearance.py" name="clearance" output="screen">
+            <param name="offset/x" value="5" />
+            <param name="offset/y" value="5" />
+        </node>   
+    
+    </group>
+</launch>
