@@ -17,7 +17,10 @@ class Clearance:
     def __init__(self):
         rospy.init_node('clearance', anonymous=True)
         #set home position 
-        delay=rospy.get_param('~delay')
+        try:
+            delay=rospy.get_param('~delay')
+        except:
+            delay = 1
         self.state=None
 
         state_sub=rospy.Subscriber('mavros/state',State ,self.stateCB)

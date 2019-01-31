@@ -4,7 +4,7 @@
     <group ns="quad0">
         
         <node pkg="mslquad" type="vrnp_sim.py" name="vrnp_sim" output="screen">
-            <param name="modelname" value="iris_2"/>
+            <param name="modelname" value="iris_1"/>
         </node>    
         
         <node pkg="mslquad" type="clearance.py" name="clearance" output="screen">
