@@ -19,6 +19,8 @@
         <arg name="verbose" value="$(arg verbose)"/>
         <arg name="paused" value="$(arg paused)"/>
     </include>
+    <!-- Global ROS Param to set the px4 controller into "sim" mode.-->
+    <param name="simulation" value="true"/>
     <!-- UAV1 -->
     <group ns="quad0">
         <!-- MAVROS and vehicle configs -->        
@@ -43,5 +45,8 @@
             <arg name="tgt_system" value="$(eval 1 + arg('ID'))"/>
             <arg name="tgt_component" value="1"/>
 		</include>
+        <node pkg="mslquad" type="vrnp_sim.py" name="vrnp_sim" output="screen">
+            <param name="modelname" value="$(arg vehicle)_$(arg ID)"/>
+        </node>
     </group>
 </launch>

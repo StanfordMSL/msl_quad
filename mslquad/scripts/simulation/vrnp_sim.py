@@ -22,17 +22,17 @@ class VRNP_sim:
         self.visionTwist = TwistStamped()
         
         rospy.loginfo("Vision: Publishing pose and odom of gazebo model"+self.modelName)
-
+        rospy.sleep(5)
         rospy.Subscriber('/gazebo/model_states', ModelStates, self.modeStates_CB)
 
         while self.visionPose==None:
             rospy.sleep(.5)
             #sleep till pose is found
 
-        self.visionPose_pub=rospy.Publisher('esimate/pose',
+        self.visionPose_pub=rospy.Publisher('estimate/pose',
             PoseStamped, queue_size=10)
 
-        self.visionTwist_pub=rospy.Publisher('esimate/veloctiy',
+        self.visionTwist_pub=rospy.Publisher('estimate/veloctiy',
             TwistStamped, queue_size=10)
 
     def run(self):
