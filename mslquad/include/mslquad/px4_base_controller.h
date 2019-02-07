@@ -52,9 +52,10 @@ public:
 
 protected:
     std::string quadNS_; // ROS name space
-    double fixedHeight_; // the fixed height that the quad will be flying at
+    double takeoffHeight_; // in 2D mode, this is the constant height the quad will be flying at
     double maxVel_;
     State state_;
+    bool flagOnly2D_; // if enabled, quadrotor only operates at a fixed height (takeoffHeight_)
 
     ros::NodeHandle nh_;
     geometry_msgs::PoseStamped curPose_; // current pose of quad from px4

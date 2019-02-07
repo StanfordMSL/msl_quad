@@ -6,6 +6,15 @@ This repository contains <a href="https://github.com/StanfordMSL/msl_quad/tree/m
 
 For high-level trajectory planning and generation, please refer to our <a href="https://github.com/StanfordMSL/QuadsManip" target="_blank">QuadsManip</a> repository.
 
+## Table of Contents
+  * [Demo Videos](#demo-videos)
+  * [Related Papers](#related-papers)
+  * [Software Versions](#software-versions)
+  * [Dependencies](#dependencies)
+  * [Pixhawk Configuration](#pixhawk-configuration)
+  * [Usage](#usage)
+  * [Contributing](#contributing)
+
 ## Demo Videos
 
 <a href="https://youtu.be/yH0KMWm9cNU" target="_blank"><img src="https://img.youtube.com/vi/yH0KMWm9cNU/0.jpg" 
@@ -14,7 +23,7 @@ alt="cla" width="240" height="180" border="10" /></a>
 ## Related Papers
 If you find our work useful in your research, please consider citing:
 
-#### Hardware & Experiments
+#### Hardware and Experiments
 - Z. Wang, R. Spica and M. Schwager, “Game Theoretic Motion Planning for Multi-Robot Racing,” In Proc. of the International Symposium on Distributed Autonomous Robotics Systems (DARS 18), October, 2018. <a href="https://msl.stanford.edu/sites/default/files/wang-etal-dars18-mlt-rbt-racing.pdf" target="_blank">[ PDF ]</a>
 
 #### Trajectory Generation
@@ -36,6 +45,30 @@ If you find our work useful in your research, please consider citing:
 - glog: https://github.com/ethz-asl/glog_catkin
 - ros_vrpn_client: https://github.com/StanfordMSL/ros_vrpn_client
 - Eigen3
+
+## Pixhawk Configuration
+
+We use Pixhawk autopilot as the low level flight controller board. In order to use the motion capture for state estimation on Pixhawk, the following parameters must be modified through QGoundControl:
+
+- SYS_MC_EST_GROUP = ekf2
+- EKF2_AID_MASK = 24
+- EKF2_BARO_GATE = 0
+- EKF2_EVP_NOISE = 0.01
+- EKF2_EV_GATE = 500
+- EKF2_HGT_MODE = vision
+
+The motion capture data should be streamed to Pixhawk through the `mavros/vision_pose/pose` ROS topic, which is configured in our launch file `launch/quad_vrpn.launch` by default.
+
+>*Note*: Under the PX4 version we use (v1.7.3), once these parameters are changed, you can no longer manually fly the quadrotor without streaming motion capture data to Pixhawk.
+
+We need to configure baud rate to be 921600 (default is 57600) for serial communication between Pixhawk and the companion computer (Odroid XU4). If you use a Pixhawk variant with more than 1 serial port (e.g., Pixhawk 1, Pixracer), set `SYS_COMPANION = 921600` and use TELEM 2 to connect to Odoird. If the Pixhawk only has 1 serial port (e.g., Pixfalcon, which is we are currently using), create a file `etc/extras.txt` on Pixhawk's SD card with the following two lines
+
+mavlink stop-all  
+mavlink start -d /dev/ttyS1 -b 921600 -r 20000 -m onboard
+
+which will change the baud rate of the only serial port (TELEM 1) upon boot up.
+
+> *Note*: If you use the SD card to change the baud rate, you need to temporarily unplug the SD card if you want to connect to QGroundControl via USB.
 
 ## Usage
 

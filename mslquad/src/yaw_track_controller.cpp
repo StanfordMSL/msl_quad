@@ -52,13 +52,19 @@ void YawTrackController::controlLoop(void) {
     if(0 == desTraj_.points.size()) { // not receiving desired trajectory
         desPos(0) = takeoffPose_.pose.position.x;
         desPos(1) = takeoffPose_.pose.position.y;
-        desPos(2) = fixedHeight_;
+        desPos(2) = takeoffHeight_;
     } else {
         desPos(0) = desTraj_.points[1].transforms[0].translation.x;
         desPos(1) = desTraj_.points[1].transforms[0].translation.y;
-        desPos(2) = fixedHeight_;
+        if(flagOnly2D_) {
+            desPos(2) = takeoffHeight_;
+            calcVelCmd2D(desVel, desPos, maxVel_, 4.0);
+        } else {
+            desPos(2) = desTraj_.points[1].transforms[0].translation.z;
+            calcVelCmd(desVel, desPos, maxVel_, 4.0);
+        }
     }
-    calcVelCmd2D(desVel, desPos, maxVel_, 4.0);
+    calcVelCmd(desVel, desPos, maxVel_, 4.0);
     twist.linear.x = desVel(0);
     twist.linear.y = desVel(1);
     twist.linear.z = desVel(2);
