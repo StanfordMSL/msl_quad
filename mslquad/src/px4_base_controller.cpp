@@ -57,33 +57,39 @@ PX4BaseController::PX4BaseController() :
         "command/trajectory", 
         1, &PX4BaseController::pathCB, this);    
 
-    // wait for mocap pose
-    while (ros::ok() && curVisionPose_.header.seq < 200) {
-        std::cout << quadNS_ << ": waiting for mocap pose." << std::endl;
-        ros::spinOnce();
-        ros::Duration(1.0).sleep();
-    }
-
-    // wait for initial position of the quad
-    while (ros::ok() && curPose_.header.seq < 200) {
-        std::cout << quadNS_ << ": waiting for initial pose." << std::endl;
-        ros::spinOnce();
-        ros::Duration(1.0).sleep();
-    }
-
-    // check if vision_pose and local_position are consistent, for safety
-    bool mocapCheck = false;
-    while(ros::ok() && !mocapCheck) {
-        mocapCheck = true;
-        for(int i=0; i<10; ++i) { // must be consistent for 10 checks
-            if(getDist(curPose_, curVisionPose_) > 0.08) {
-                mocapCheck = false;
-                std::cout << quadNS_ << ": mocap inconsistent." << std::endl;
-            }
-            ros::Duration(0.2).sleep();
+    // wait for mocap pose (skipped in Gazebo simulation)
+    bool simulation = false;
+    ros::param::get("/simulation", simulation); // nothing happens if this param does not exist.
+    if (!simulation) {
+        while (ros::ok() && curVisionPose_.header.seq < 200) {
+            std::cout << quadNS_ << ": waiting for mocap pose." << std::endl;
+            ros::spinOnce();
+            ros::Duration(1.0).sleep();
         }
+
+
+        // wait for initial position of the quad
+        while (ros::ok() && curPose_.header.seq < 1000) {
+            std::cout << quadNS_ << ": waiting for initial pose." << std::endl;
+            ros::spinOnce();
+            ros::Duration(1.0).sleep();
+        }
+
+
+        // check if vision_pose and local_position are consistent, for safety
+        bool mocapCheck = false;
+        while (ros::ok() && !mocapCheck) {
+            mocapCheck = true;
+            for (int i = 0; i < 10; ++i) { // must be consistent for 10 checks
+                if (getDist(curPose_, curVisionPose_) > 0.08) {
+                    mocapCheck = false;
+                    std::cout << quadNS_ << ": mocap inconsistent." << std::endl;
+                }
+                ros::Duration(0.2).sleep();
+            }
+        }
+        visionPoseSub_.shutdown(); // shutdown subscriber after sanity check
     }
-    visionPoseSub_.shutdown(); // shutdown subscriber after sanity check
 
     // start slow timer
     slowTimer_ = nh_.createTimer(
@@ -118,7 +124,7 @@ void PX4BaseController::takeoff(const double desx, const double desy, const doub
     geometry_msgs::Twist twist;
     std::cout << "Taking off..." << std::endl;
     while(ros::ok() && posErr>0.1 ) {
-        posErr = calcVelCmd(desVel, desPos, 1.0, 4.0);
+        posErr = calcVelCmd(desVel, desPos, maxVel_, 4.0);
         twist.linear.x = desVel(0);
         twist.linear.y = desVel(1);
         twist.linear.z = desVel(2);
