@@ -19,7 +19,7 @@
 			<param name="control_freq" value="30"/>
 			<param name="slow_freq" value="10"/>
 			<param name="auto_takeoff" value="$(arg auto_takeoff)"/>
-			<param name="pose_target_topic" value="/$(arg mav_name)$(arg id)/$(arg pose_target_topic)"/>
+			<param name="pose_target_topic" value="$(arg pose_target_topic)"/>
 		</node>
 
 	</group>
