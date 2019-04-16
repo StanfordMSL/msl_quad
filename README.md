@@ -42,8 +42,7 @@ If you find our work useful in your research, please consider citing:
 - mavlink: 2018.2.2 or later
 
 ## Dependencies
-- glog: https://github.com/ethz-asl/glog_catkin
-- ros_vrpn_client: https://github.com/StanfordMSL/ros_vrpn_client
+- vrpn_client_ros: install with sudo apt-get install ros-<VERSION>-vrpn-client_ros
 - Eigen3
 
 ## Pixhawk Configuration
