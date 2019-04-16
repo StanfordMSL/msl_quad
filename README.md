@@ -7,10 +7,10 @@ This repository contains <a href="https://github.com/StanfordMSL/msl_quad/tree/m
 For high-level trajectory planning and generation, please refer to our <a href="https://github.com/StanfordMSL/QuadsManip" target="_blank">QuadsManip</a> repository.
 
 ## Table of Contents
+  * [Dependencies](#dependencies)
   * [Demo Videos](#demo-videos)
   * [Related Papers](#related-papers)
   * [Software Versions](#software-versions)
-  * [Dependencies](#dependencies)
   * [Pixhawk Configuration](#pixhawk-configuration)
   * [Usage](#usage)
   * [Contributing](#contributing)
@@ -20,7 +20,6 @@ For high-level trajectory planning and generation, please refer to our <a href="
 - Eigen3
 
 ## Demo Videos
-
 <a href="https://youtu.be/yH0KMWm9cNU" target="_blank"><img src="https://img.youtube.com/vi/yH0KMWm9cNU/0.jpg" 
 alt="cla" width="240" height="180" border="10" /></a>
 
