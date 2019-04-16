@@ -29,7 +29,7 @@
 	<include file="$(find mslquad)/launch/vrpn_tracker.launch">
 		<arg name="namespace" value="$(arg robot_type)$(arg id)" />
 		<arg name="asset" value="$(arg robot_type)$(arg id)"/>
-		<arg name="pose_topic" default="/mavros/vision_pose/pose" />"
+		<arg name="pose_topic" default="mavros/vision_pose/pose" />"
 	</include>
 
 </launch>
