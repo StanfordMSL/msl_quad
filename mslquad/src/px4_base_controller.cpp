@@ -10,9 +10,9 @@
 #include<mslquad/px4_base_controller.h>
 #include<cmath>
 
-PX4BaseController::PX4BaseController() : 
-        quadNS_("/"), 
-        takeoffHeight_(0), 
+PX4BaseController::PX4BaseController():
+        quadNS_("/"),
+        takeoffHeight_(0),
         maxVel_(0),
         controlLoopFreq_(20),
         slowLoopFreq_(10),
@@ -21,7 +21,7 @@ PX4BaseController::PX4BaseController() :
     // retrieve parameters
     std::string strtmp;
     ros::param::get("~quad_ns", strtmp);
-    if(strtmp.size()!=0) {
+    if (strtmp.empty()) {
         quadNS_ += strtmp;
         quadNS_ += "/";
     }
@@ -34,7 +34,7 @@ PX4BaseController::PX4BaseController() :
     // pub and subs
     // mavros related, namespace under quadNS_
     px4PoseSub_ = nh_.subscribe<geometry_msgs::PoseStamped>(
-        quadNS_+"mavros/local_position/pose", 
+        quadNS_+"mavros/local_position/pose",
         1, &PX4BaseController::poseSubCB, this);
     px4VelSub_ = nh_.subscribe<geometry_msgs::TwistStamped>(
         quadNS_+"mavros/local_position/velocity",
@@ -49,20 +49,20 @@ PX4BaseController::PX4BaseController() :
     actuatorPub_ = nh_.advertise<mavros_msgs::ActuatorControl>(
         quadNS_+"mavros/actuator_control", 1);
     emergencyLandSrv_ = nh_.advertiseService(
-        quadNS_+"emergency_land", 
+        quadNS_+"emergency_land",
         &PX4BaseController::emergencyLandHandle, this);
-    // non-mavros related, namespace depending on the group ns in the launch file
+    // non-mavros related, namespace depending on the group ns in launch
     odomPub_ = nh_.advertise<nav_msgs::Odometry>("ground_truth/odometry", 1);
     cmdTrajSub_ = nh_.subscribe(
-        "command/trajectory", 
-        1, &PX4BaseController::pathCB, this);    
+        "command/trajectory",
+        1, &PX4BaseController::pathCB, this);
 
     // wait for mocap pose (skipped in Gazebo simulation)
     bool simulation = false;
-    ros::param::get("/simulation", simulation); // nothing happens if this param does not exist.
+    ros::param::get("/simulation", simulation);  // nothing if param dne
     if (!simulation) {
         while (ros::ok() && curVisionPose_.header.seq < 200) {
-            std::cout << quadNS_ << ": waiting for mocap pose." << std::endl;
+            std::cout << quadNS_ << ": Waiting for VRPN pose" << std::endl;
             ros::spinOnce();
             ros::Duration(1.0).sleep();
         }
@@ -70,7 +70,7 @@ PX4BaseController::PX4BaseController() :
 
         // wait for initial position of the quad
         while (ros::ok() && curPose_.header.seq < 1000) {
-            std::cout << quadNS_ << ": waiting for initial pose." << std::endl;
+            std::cout << quadNS_ << ": Waiting for internal pose." << std::endl;
             ros::spinOnce();
             ros::Duration(1.0).sleep();
         }
@@ -80,15 +80,15 @@ PX4BaseController::PX4BaseController() :
         bool mocapCheck = false;
         while (ros::ok() && !mocapCheck) {
             mocapCheck = true;
-            for (int i = 0; i < 10; ++i) { // must be consistent for 10 checks
+            for (int i = 0; i < 10; ++i) {  // must be consistent for 10 checks
                 if (getDist(curPose_, curVisionPose_) > 0.08) {
                     mocapCheck = false;
-                    std::cout << quadNS_ << ": mocap inconsistent." << std::endl;
+                    std::cout << quadNS_ << ": Pose mismatch." << std::endl;
                 }
                 ros::Duration(0.2).sleep();
             }
         }
-        visionPoseSub_.shutdown(); // shutdown subscriber after sanity check
+        visionPoseSub_.shutdown();  // shutdown subscriber after sanity check
     }
 
     // start slow timer
@@ -96,33 +96,36 @@ PX4BaseController::PX4BaseController() :
         ros::Duration(1.0/slowLoopFreq_),
         &PX4BaseController::slowTimerCB, this);
 
-    takeoffPose_ = curPose_; // record takeoff postion before takeoff
+    takeoffPose_ = curPose_;  // record takeoff postion before takeoff
     // take off first at the current location
     bool isAutoTakeOff = false;
     ros::param::get("~auto_takeoff", isAutoTakeOff);
-    if(isAutoTakeOff)
-        takeoff(curPose_.pose.position.x, curPose_.pose.position.y, takeoffHeight_);
+    if (isAutoTakeOff)
+        takeoff(curPose_.pose.position.x,
+                curPose_.pose.position.y,
+                takeoffHeight_);
 
     // start faster timer for main control loop
     controlTimer_ = nh_.createTimer(
-        ros::Duration(1.0/controlLoopFreq_), 
-        &PX4BaseController::controlTimerCB, this); // TODO: make the control freq changeable
+        ros::Duration(1.0/controlLoopFreq_),
+        &PX4BaseController::controlTimerCB, this);
 }
 
 
 PX4BaseController::~PX4BaseController() {
-
 }
 
 
-void PX4BaseController::takeoff(const double desx, const double desy, const double desz) {
+void PX4BaseController::takeoff(const double desx,
+                                const double desy,
+                                const double desz) {
     Eigen::Vector3d desPos(desx, desy, desz);
     Eigen::Vector3d curPos;
     Eigen::Vector3d desVel;
     double posErr = 1000;
     ros::Rate rate(10);
     geometry_msgs::Twist twist;
-    std::cout << "Taking off..." << std::endl;
+    std::cout << "Cleared for Takeoff" << std::endl;
     while(ros::ok() && posErr>0.1 ) {
         posErr = calcVelCmd(desVel, desPos, maxVel_, 4.0);
         twist.linear.x = desVel(0);
@@ -132,7 +135,7 @@ void PX4BaseController::takeoff(const double desx, const double desy, const doub
         rate.sleep();
         ros::spinOnce();
     }
-    std::cout << "Finished taking off. Hovering..." << std::endl;
+    std::cout << "Hovering" << std::endl;
     // reset vel to zero after the takeoff procedure
     for(int i=0; i<10; i++) {
         twist.linear.x = 0;
@@ -144,13 +147,11 @@ void PX4BaseController::takeoff(const double desx, const double desy, const doub
     }
 }
 
-double PX4BaseController::calcVelCmd(
-        Eigen::Vector3d& desVel, 
-        const Eigen::Vector3d& desPos, 
-        const double vmax, const double kp) const {
+double PX4BaseController::calcVelCmd(Eigen::Vector3d& desVel,
+                                    const Eigen::Vector3d& desPos,
+                                    const double vmax, const double kp) const {
     // 3d velocity < vmax
-    Eigen::Vector3d curPos(
-        curPose_.pose.position.x, curPose_.pose.position.y, curPose_.pose.position.z);
+    Eigen::Vector3d curPos= getPosition();
     Eigen::Vector3d errPos = desPos-curPos;
     desVel = kp*errPos;
     if(desVel.norm() > vmax) {
