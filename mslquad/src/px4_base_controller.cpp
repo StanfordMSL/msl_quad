@@ -151,13 +151,13 @@ double PX4BaseController::calcVelCmd(Eigen::Vector3d& desVel,
                                     const Eigen::Vector3d& desPos,
                                     const double vmax, const double kp) const {
     // 3d velocity < vmax
-    Eigen::Vector3d curPos= getPosition();
+    Eigen::Vector3d curPos = getPosition();
     Eigen::Vector3d errPos = desPos-curPos;
     desVel = kp*errPos;
-    if(desVel.norm() > vmax) {
+    if (desVel.norm() > vmax) {
         desVel = vmax * desVel / desVel.norm();
     }
-    return errPos.norm();    
+    return errPos.norm();
 }
 
 double PX4BaseController::calcVelCmd2D(
