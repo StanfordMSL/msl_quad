@@ -1,4 +1,5 @@
-/**************************************************************************
+/* copyright[2019] <msl>
+**************************************************************************
   File Name    : px4_base_controller.cpp
   Author       : Zijian Wang
                  Multi-Robot Systems Lab (MSL), Stanford University
@@ -34,14 +35,14 @@ PX4BaseController::PX4BaseController():
     // pub and subs
     // mavros related, namespace under quadNS_
     px4PoseSub_ = nh_.subscribe<geometry_msgs::PoseStamped>(
-        quadNS_+"mavros/local_position/pose",
-        1, &PX4BaseController::poseSubCB, this);
+                                quadNS_+"mavros/local_position/pose",
+                                1, &PX4BaseController::poseSubCB, this);
     px4VelSub_ = nh_.subscribe<geometry_msgs::TwistStamped>(
-        quadNS_+"mavros/local_position/velocity",
-        1, &PX4BaseController::velSubCB, this);
-    visionPoseSub_ = nh_.subscribe<geometry_msgs::PoseStamped>(
-        quadNS_+"mavros/vision_pose/pose",
-        1, &PX4BaseController::visionPoseSubCB, this);
+                                quadNS_+"mavros/local_position/velocity",
+                                1, &PX4BaseController::velSubCB, this);
+    vrpnSub_ = nh_.subscribe<geometry_msgs::PoseStamped>(
+                                   quadNS_+"mavros/vision_pose/pose",
+                                   1, &PX4BaseController::vrpnSubCB, this);
     px4SetVelPub_ = nh_.advertise<geometry_msgs::Twist>(
         quadNS_+"mavros/setpoint_velocity/cmd_vel_unstamped", 1);
     px4SetPosPub_ = nh_.advertise<geometry_msgs::PoseStamped>(
@@ -61,12 +62,11 @@ PX4BaseController::PX4BaseController():
     bool simulation = false;
     ros::param::get("/simulation", simulation);  // nothing if param dne
     if (!simulation) {
-        while (ros::ok() && curVisionPose_.header.seq < 200) {
+        while (ros::ok() && curVrpnPose_.header.seq < 200) {
             std::cout << quadNS_ << ": Waiting for VRPN pose" << std::endl;
             ros::spinOnce();
             ros::Duration(1.0).sleep();
         }
-
 
         // wait for initial position of the quad
         while (ros::ok() && curPose_.header.seq < 1000) {
@@ -75,23 +75,26 @@ PX4BaseController::PX4BaseController():
             ros::Duration(1.0).sleep();
         }
 
-
         // check if vision_pose and local_position are consistent, for safety
         bool mocapCheck = false;
         while (ros::ok() && !mocapCheck) {
             mocapCheck = true;
             for (int i = 0; i < 10; ++i) {  // must be consistent for 10 checks
-                if (getDist(curPose_, curVisionPose_) > 0.08) {
+                if (getDist(curPose_, curVrpnPose_) > 0.08) {
                     mocapCheck = false;
                     std::cout << quadNS_ << ": Pose mismatch." << std::endl;
                 }
                 ros::Duration(0.2).sleep();
             }
         }
-        visionPoseSub_.shutdown();  // shutdown subscriber after sanity check
+        vrpnSub_.shutdown();  // shutdown subscriber after sanity check
     }
 
     // start slow timer
+    slowTimer_ = nh_.createTimer(
+        ros::Duration(1.0/slowLoopFreq_),
+        &PX4BaseController::slowTimerCB, this);
+    // start failsafe timer
     slowTimer_ = nh_.createTimer(
         ros::Duration(1.0/slowLoopFreq_),
         &PX4BaseController::slowTimerCB, this);
@@ -126,7 +129,7 @@ void PX4BaseController::takeoff(const double desx,
     ros::Rate rate(10);
     geometry_msgs::Twist twist;
     std::cout << "Cleared for Takeoff" << std::endl;
-    while(ros::ok() && posErr>0.1 ) {
+    while (ros::ok() && posErr > 0.1) {
         posErr = calcVelCmd(desVel, desPos, maxVel_, 4.0);
         twist.linear.x = desVel(0);
         twist.linear.y = desVel(1);
@@ -137,7 +140,7 @@ void PX4BaseController::takeoff(const double desx,
     }
     std::cout << "Hovering" << std::endl;
     // reset vel to zero after the takeoff procedure
-    for(int i=0; i<10; i++) {
+    for (int i = 0; i < 10; i++) {
         twist.linear.x = 0;
         twist.linear.y = 0;
         twist.linear.z = 0;
@@ -149,7 +152,8 @@ void PX4BaseController::takeoff(const double desx,
 
 double PX4BaseController::calcVelCmd(Eigen::Vector3d& desVel,
                                     const Eigen::Vector3d& desPos,
-                                    const double vmax, const double kp) const {
+                                    const double vmax,
+                                    const double kp) const {
     // 3d velocity < vmax
     Eigen::Vector3d curPos = getPosition();
     Eigen::Vector3d errPos = desPos-curPos;
@@ -160,23 +164,23 @@ double PX4BaseController::calcVelCmd(Eigen::Vector3d& desVel,
     return errPos.norm();
 }
 
-double PX4BaseController::calcVelCmd2D(
-        Eigen::Vector3d& desVel, 
-        const Eigen::Vector3d& desPos, 
-        const double vmax, const double kp) const {
+double PX4BaseController::calcVelCmd2D(Eigen::Vector3d& desVel,
+                                       const Eigen::Vector3d& desPos,
+                                       const double vmax,
+                                       const double kp) const {
     // 2d velocity < vmax
     // XY
     Eigen::Vector2d curPos(curPose_.pose.position.x, curPose_.pose.position.y);
     Eigen::Vector2d desPos2D(desPos(0), desPos(1));
     Eigen::Vector2d errPos = desPos2D-curPos;
     Eigen::Vector2d desVelXY = kp*errPos;
-    if(desVelXY.norm() > vmax) {
+    if (desVelXY.norm() > vmax) {
         desVelXY = vmax * desVelXY / desVelXY.norm();
     }
     // Z
     double errZ = desPos(2)-curPose_.pose.position.z;
-    double desVelZ = 1.5*errZ; // TODO: make it a parameter
-    if(std::fabs(desVelZ) > 1.0) { // TODO: make it a parameter
+    double desVelZ = 1.5*errZ;   //  make it a parameter
+    if (std::fabs(desVelZ) > 1.0) {  // make it a parameter
         desVelZ = 1.0 * desVelZ / std::fabs(desVelZ);
     }
     desVel(0) = desVelXY(0);
@@ -186,29 +190,30 @@ double PX4BaseController::calcVelCmd2D(
     return errPos.norm();
 }
 
-void PX4BaseController::pathCB(const trajectory_msgs::MultiDOFJointTrajectory::ConstPtr& traj) {
+void PX4BaseController::pathCB(
+        const trajectory_msgs::MultiDOFJointTrajectory::ConstPtr& traj) {
     desTraj_ = *traj;
 }
 
-void PX4BaseController::poseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
+void PX4BaseController::poseSubCB(
+        const geometry_msgs::PoseStamped::ConstPtr& msg) {
     // store the currect pose
     curPose_ = *msg;
 }
 
-void PX4BaseController::velSubCB(const geometry_msgs::TwistStamped::ConstPtr& msg) {
+void PX4BaseController::velSubCB(
+        const geometry_msgs::TwistStamped::ConstPtr& msg) {
     curVel_ = *msg;
 }
 
-void PX4BaseController::visionPoseSubCB(const geometry_msgs::PoseStamped::ConstPtr& msg) {
-    curVisionPose_ = *msg;
+void PX4BaseController::vrpnSubCB(
+        const geometry_msgs::PoseStamped::ConstPtr& msg) {
+    curVrpnPose_ = *msg;
 }
 
 void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {
-    if(state_ == State::EMERGENCY_LAND) {
-        geometry_msgs::PoseStamped ps;
-        ps.header.stamp = ros::Time::now();
-        ps.pose = emergencyLandPose_;
-        px4SetPosPub_.publish(ps);
+    if (state_ == State::EMERGENCY_LAND) {
+        this->emergencyFailsafe();
     } else {
         this->controlLoop();
     }
@@ -216,21 +221,31 @@ void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {
 
 void PX4BaseController::slowTimerCB(const ros::TimerEvent& event) {
     this->slowLoop();
+    this->statusLoop();
 }
+
+void PX4BaseController::emergencyFailsafe(void) {
+    ROS_WARN("Emergency Override Enabled");
+        geometry_msgs::PoseStamped ps;
+        ps.header.stamp = ros::Time::now();
+        ps.pose = emergencyPose_;
+        px4SetPosPub_.publish(ps);
+    }
 
 void PX4BaseController::controlLoop(void) {
     // default control loop
-    if(0 == desTraj_.points.size()) {
+    if (0 == desTraj_.points.size()) {
         geometry_msgs::PoseStamped hoverPose = takeoffPose_;
         hoverPose.pose.position.z = takeoffHeight_;
         px4SetPosPub_.publish(hoverPose);
     } else {
-        // std::cout << "Traj #: " << desTraj.header.seq << std::endl; // print the seq # of traj
+        // print the seq # of traj
+        // std::cout << "Traj #: " << desTraj.header.seq << std::endl;
         Eigen::Vector3d desVel;
         Eigen::Vector3d desPos;
         desPos(0) = desTraj_.points[1].transforms[0].translation.x;
         desPos(1) = desTraj_.points[1].transforms[0].translation.y;
-        if(flagOnly2D_) {
+        if (flagOnly2D_) {
             desPos(2) = takeoffHeight_;
             calcVelCmd2D(desVel, desPos, maxVel_, 4.0);
         } else {
@@ -250,14 +265,14 @@ void PX4BaseController::slowLoop(void) {
     nav_msgs::Odometry odom;
     odom.header.stamp = ros::Time::now();
     odom.header.frame_id = "world";
-    odom.child_frame_id = "base_link"; // TODO: change this
-    odom.pose.pose.position.x = curPose_.pose.position.x;
-    odom.pose.pose.position.y = curPose_.pose.position.y;
-    odom.pose.pose.position.z = curPose_.pose.position.z;
-    odom.pose.pose.orientation.w = curPose_.pose.orientation.w;
-    odom.pose.pose.orientation.x = curPose_.pose.orientation.x;
-    odom.pose.pose.orientation.y = curPose_.pose.orientation.y;
-    odom.pose.pose.orientation.z = curPose_.pose.orientation.z;
+    odom.child_frame_id = "base_link";
+    odom.pose.pose = curPose_.pose;
+    // odom.pose.pose.position.y = curPose_.pose.position.y;
+    // odom.pose.pose.position.z = curPose_.pose.position.z;
+    // odom.pose.pose.orientation .w = curPose_.pose.orientation.w;
+    // odom.pose.pose.orientation.x = curPose_.pose.orientation.x;
+    // odom.pose.pose.orientation.y = curPose_.pose.orientation.y;
+    // odom.pose.pose.orientation.z = curPose_.pose.orientation.z;
     odomPub_.publish(odom);
 }
 
@@ -279,20 +294,29 @@ Eigen::Matrix3d PX4BaseController::getRotMat(void) const {
     double q3s = q3*q3;
     double q4s = q4*q4;
     Eigen::Matrix3d R;
-    R <<
-        q1s+q2s-q3s-q4s, 2.0*(q2*q3-q1*q4) ,2.0*(q2*q4+q1*q3),
-        2.0*(q2*q3+q1*q4), q1s-q2s+q3s-q4s, 2.0*(q3*q4-q1*q2),
-        2.0*(q2*q4-q1*q3), 2.0*(q3*q4+q1*q2), q1s-q2s-q3s+q4s;
+    R << q1s+q2s-q3s-q4s, 2.0*(q2*q3-q1*q4), 2.0*(q2*q4+q1*q3),
+         2.0*(q2*q3+q1*q4), q1s-q2s+q3s-q4s, 2.0*(q3*q4-q1*q2),
+         2.0*(q2*q4-q1*q3), 2.0*(q3*q4+q1*q2), q1s-q2s-q3s+q4s;
     return R;
 }
 
-double PX4BaseController::getDist(
-        const geometry_msgs::PoseStamped &ps1,
-        const geometry_msgs::PoseStamped &ps2) {
-    return sqrt(
-        pow(ps1.pose.position.x-ps2.pose.position.x, 2) +
-        pow(ps1.pose.position.y-ps2.pose.position.y, 2) +
-        pow(ps1.pose.position.z-ps2.pose.position.z, 2));
+double PX4BaseController::getDist(const geometry_msgs::PoseStamped &ps1,
+                                  const geometry_msgs::PoseStamped &ps2) {
+    return sqrt(pow(ps1.pose.position.x-ps2.pose.position.x, 2) +
+                pow(ps1.pose.position.y-ps2.pose.position.y, 2) +
+                pow(ps1.pose.position.z-ps2.pose.position.z, 2));
+}
+
+void PX4BaseController::statusLoop(void) {
+    // pose time delay check
+    if (poseTimeDiff_.toSec() > 0.5) {
+        ROS_ERROR("Pose Delay Critical. Landing");
+        emergencyLandPose_ = curPose_.pose;
+        emergencyLandPose_.position.z = takeoffPose_.pose.position.z;
+        state_ = State::EMERGENCY_LAND;
+    } else if (poseTimeDiff_.toSec() > 0.1) {
+        ROS_WARN("Pose Delay Detected");
+    }
 }
 
 bool PX4BaseController::emergencyLandHandle(
