@@ -130,4 +130,3 @@ class PX4BaseController {
 };
 
 #endif  // MSLQUAD_PX4_BASE_CONTROLLER_H_
- 

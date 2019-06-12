@@ -58,6 +58,15 @@ PX4BaseController::PX4BaseController():
         "command/trajectory",
         1, &PX4BaseController::pathCB, this);
 
+
+
+    // wait for initial position of the quad
+    while (ros::ok() && curPose_.header.seq < 100) {
+        std::cout << quadNS_ << ": Waiting for internal pose." << std::endl;
+        ros::spinOnce();
+        ros::Duration(1.0).sleep();
+    }
+
     // wait for mocap pose (skipped in Gazebo simulation)
     bool simulation = false;
     ros::param::get("/simulation", simulation);  // nothing if param dne
@@ -68,12 +77,6 @@ PX4BaseController::PX4BaseController():
             ros::Duration(1.0).sleep();
         }
 
-        // wait for initial position of the quad
-        while (ros::ok() && curPose_.header.seq < 1000) {
-            std::cout << quadNS_ << ": Waiting for internal pose." << std::endl;
-            ros::spinOnce();
-            ros::Duration(1.0).sleep();
-        }
 
         // check if vision_pose and local_position are consistent, for safety
         bool mocapCheck = false;
@@ -91,13 +94,11 @@ PX4BaseController::PX4BaseController():
     }
 
     // start slow timer
-    slowTimer_ = nh_.createTimer(
-        ros::Duration(1.0/slowLoopFreq_),
-        &PX4BaseController::slowTimerCB, this);
+    slowTimer_ = nh_.createTimer(ros::Duration(1.0/slowLoopFreq_),
+                                 &PX4BaseController::slowTimerCB, this);
     // start failsafe timer
-    slowTimer_ = nh_.createTimer(
-        ros::Duration(1.0/slowLoopFreq_),
-        &PX4BaseController::slowTimerCB, this);
+    slowTimer_ = nh_.createTimer(ros::Duration(1.0/slowLoopFreq_),
+                                 &PX4BaseController::slowTimerCB, this);
 
     takeoffPose_ = curPose_;  // record takeoff postion before takeoff
     // take off first at the current location

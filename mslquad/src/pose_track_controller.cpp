@@ -1,4 +1,5 @@
-/**************************************************************************
+/* copyright[2019] <msl>
+**************************************************************************
   File Name    : pose_track_controller.cpp
   Author       : Kunal Shah
                  Multi-Robot Systems Lab (MSL), Stanford University
@@ -10,31 +11,32 @@
 #include<mslquad/pose_track_controller.h>
 #include<iostream>
 
-PoseTrackController::PoseTrackController(){
+PoseTrackController::PoseTrackController() {
     // retrieve ROS parameter
     std::string poseTargetTopic;
-    ros::param::get("~pose_target_topic", poseTargetTopic);
+    nh_.param<std::string>("~pose_target_topic",
+                           poseTargetTopic,
+                           "command/pose");
     // ROS subs and pub
     poseTargetSub_ = nh_.subscribe<geometry_msgs::Pose>(
         poseTargetTopic, 1, &PoseTrackController::poseTargetCB, this);
 
-    //inital pose is pose after takeoff
-    targetPoseSp_.pose.position.x= takeoffPose_.pose.position.x;
-    targetPoseSp_.pose.position.y= takeoffPose_.pose.position.y;
-    targetPoseSp_.pose.position.z= takeoffHeight_;
-
+    // inital pose is pose after takeoff
+    targetPoseSp_.pose.position.x = takeoffPose_.pose.position.x;
+    targetPoseSp_.pose.position.y = takeoffPose_.pose.position.y;
+    targetPoseSp_.pose.position.z = takeoffHeight_;
 }
 
 PoseTrackController::~PoseTrackController() {
-
 }
 
-void PoseTrackController::poseTargetCB(const geometry_msgs::Pose::ConstPtr& msg) {
+void PoseTrackController::poseTargetCB(
+        const geometry_msgs::Pose::ConstPtr& msg) {
     targetPoseSp_.pose = *msg;
 }
 
 void PoseTrackController::controlLoop(void) {
-    //this is the world's easiest controller
+    // this is the world's easiest controller
     targetPoseSp_.header.stamp = ros::Time::now();
     px4SetPosPub_.publish(targetPoseSp_);
 }

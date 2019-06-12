@@ -1,4 +1,5 @@
-/**************************************************************************
+/* copyright[2019] <msl>
+**************************************************************************
   File Name    : pose_track_controller.h
   Author       : Kunal Shah
                  Multi-Robot Systems Lab (MSL), Stanford University
@@ -13,18 +14,16 @@
 #include<mslquad/px4_base_controller.h>
 
 class PoseTrackController : public PX4BaseController {
-public:
+ public:
     PoseTrackController();
     ~PoseTrackController();
 
-protected:
+ protected:
     geometry_msgs::PoseStamped targetPoseSp_;
-
     void controlLoop(void) override;
 
-private:
-    ros::Subscriber poseTargetSub_; // px4 pose sub
-
+ private:
+    ros::Subscriber poseTargetSub_;  // px4 pose sub
     void poseTargetCB(const geometry_msgs::Pose::ConstPtr& msg);
 };
 
