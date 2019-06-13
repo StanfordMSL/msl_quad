@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<launch>
+
+    <arg name="mav_name" default="quad"/>
+    <arg name="id" default="0"/>
+    <arg name="quad_ns"  default="$(arg mav_name)$(arg id)"/>
+    <group ns="$(arg quad_ns)">
+        <node pkg="mslquad" type="clearance.py" name="clearance" output="screen">
+        </node>
+    </group>
+</launch>

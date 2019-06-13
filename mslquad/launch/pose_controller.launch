@@ -9,7 +9,7 @@
 	<arg name="max_vel" default="2"/>
 	<arg name="auto_takeoff" default="true"/>
 	<arg name="pose_target_topic" default="command/pose"/>
-	<group ns="$(mav_name)$(id)">
+	<group ns="$(arg quad_ns)">
 		<node pkg="mslquad" type="default_controller" name="default_controller" output="screen">
 			<param name="controller_type" value="pose_track"/>
 			<param name="quad_ns" value="$(arg quad_ns)"/>

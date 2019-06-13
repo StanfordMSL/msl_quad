@@ -23,9 +23,11 @@ PX4BaseController::PX4BaseController():
     std::string strtmp;
     ros::param::get("~quad_ns", strtmp);
     if (strtmp.empty()) {
-        quadNS_ += strtmp;
-        quadNS_ += "/";
+        ROS_WARN("no namespace passed");
     }
+    quadNS_ += strtmp;
+    quadNS_ += "/";
+    ROS_INFO_STREAM("namespace set as" << quadNS_);
     ros::param::get("~takeoff_height", takeoffHeight_);
     ros::param::get("~max_vel", maxVel_);
     ros::param::get("~control_freq", controlLoopFreq_);
@@ -91,6 +93,8 @@ PX4BaseController::PX4BaseController():
             }
         }
         vrpnSub_.shutdown();  // shutdown subscriber after sanity check
+    } else {
+        ROS_INFO("Simulation Mode");
     }
 
     // start slow timer
@@ -117,6 +121,7 @@ PX4BaseController::PX4BaseController():
 
 
 PX4BaseController::~PX4BaseController() {
+    ROS_INFO("Terminating Controller");
 }
 
 
@@ -129,7 +134,7 @@ void PX4BaseController::takeoff(const double desx,
     double posErr = 1000;
     ros::Rate rate(10);
     geometry_msgs::Twist twist;
-    std::cout << "Cleared for Takeoff" << std::endl;
+    std::cout << "Takeoff" << std::endl;
     while (ros::ok() && posErr > 0.1) {
         posErr = calcVelCmd(desVel, desPos, maxVel_, 4.0);
         twist.linear.x = desVel(0);

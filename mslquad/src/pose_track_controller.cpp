@@ -14,12 +14,13 @@
 PoseTrackController::PoseTrackController() {
     // retrieve ROS parameter
     std::string poseTargetTopic;
-    nh_.param<std::string>("~pose_target_topic",
+    ros::param::param<std::string>("pose_target_topic",
                            poseTargetTopic,
                            "command/pose");
     // ROS subs and pub
     poseTargetSub_ = nh_.subscribe<geometry_msgs::Pose>(
         poseTargetTopic, 1, &PoseTrackController::poseTargetCB, this);
+    ROS_INFO_STREAM("Subscribed: "<< poseTargetTopic);
 
     // inital pose is pose after takeoff
     targetPoseSp_.pose.position.x = takeoffPose_.pose.position.x;
