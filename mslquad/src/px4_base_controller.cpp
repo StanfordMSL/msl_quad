@@ -315,6 +315,8 @@ double PX4BaseController::getDist(const geometry_msgs::PoseStamped &ps1,
 
 void PX4BaseController::statusLoop(void) {
     // pose time delay check
+    // calculare poseTIme Difference
+    poseTimeDiff_ = ros::Time::now() - curPose_.header.stamp;
     if (poseTimeDiff_.toSec() > 0.5) {
         ROS_ERROR("Pose Delay Critical. Landing");
         emergencyLandPose_ = curPose_.pose;
