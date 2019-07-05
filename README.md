@@ -7,16 +7,19 @@ This repository contains <a href="https://github.com/StanfordMSL/msl_quad/tree/m
 For high-level trajectory planning and generation, please refer to our <a href="https://github.com/StanfordMSL/QuadsManip" target="_blank">QuadsManip</a> repository.
 
 ## Table of Contents
+  * [Dependencies](#dependencies)
   * [Demo Videos](#demo-videos)
   * [Related Papers](#related-papers)
   * [Software Versions](#software-versions)
-  * [Dependencies](#dependencies)
   * [Pixhawk Configuration](#pixhawk-configuration)
   * [Usage](#usage)
   * [Contributing](#contributing)
 
-## Demo Videos
+## Dependencies
+- vrpn_client_ros: install with `sudo apt-get install ros-<VERSION>-vrpn-client_ros`
+- Eigen3
 
+## Demo Videos
 <a href="https://youtu.be/yH0KMWm9cNU" target="_blank"><img src="https://img.youtube.com/vi/yH0KMWm9cNU/0.jpg" 
 alt="cla" width="240" height="180" border="10" /></a>
 
@@ -41,10 +44,6 @@ If you find our work useful in your research, please consider citing:
 - mavros: 0.23 or later
 - mavlink: 2018.2.2 or later
 
-## Dependencies
-- glog: https://github.com/ethz-asl/glog_catkin
-- ros_vrpn_client: https://github.com/StanfordMSL/ros_vrpn_client
-- Eigen3
 
 ## Pixhawk Configuration
 
@@ -86,7 +85,7 @@ which will change the baud rate of the only serial port (TELEM 1) upon boot up.
 #### Common
 - Start mavros and VRPN for mocap: ```roslaunch mslquad quad_vrpn.launch```
 
-- May need to change ```vrpn_server_ip``` in ```launch/vrpn.launch``` to the ip address of the mocap machine.
+- May need to change ```vrpn_server_ip``` in ```launch/vrpn_track.launch``` to the ip address of the mocap machine.
 
 #### Trajectory Following
 - A basic trajectory following controller is implemented in **src/px4_base_controller.cpp**.

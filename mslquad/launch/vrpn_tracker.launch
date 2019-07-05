@@ -1,0 +1,19 @@
+<launch>
+
+  <arg name="namespace" default="robot" /> <!--namespace of asset -->
+  <arg name="asset" default="robot"/> <!-- name of vrpn asset -->
+  <arg name="server" default="mocap.local"/>  <!-- vrpn server on local network  -->
+  <arg name="pose_topic" default="ground_truth/pose" /> <!-- output pose stamped on local namespace  -->
+
+  <node  ns="$(arg namespace)" pkg="vrpn_client_ros" type="vrpn_tracker_node" name="vrpn_tracker_node" output="screen">
+    <param name="tracker_name" value="$(arg asset)"/>
+    <param name="server" value="$(arg server)"/>
+    <param name="port" value="3883"/> <!-- should be 3883 -->
+    <param name="update_frequency" value="100"/> <!-- maybe vrpn poll rate?, msg rate is set by mocal stream hz  -->
+    <param name="use_server_time" value="false"/> <!-- set false for local robot clock stamp  -->
+    <param name="broadcast_tf" value="false"/> <!-- enable tf-->
+    <param name="frame_id" value="world"/> <!-- base link for tf -->
+    <remap from="$(arg asset)/pose" to="$(arg pose_topic)" />
+  </node>
+
+</launch>
