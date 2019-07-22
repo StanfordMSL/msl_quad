@@ -69,6 +69,17 @@ which will change the baud rate of the only serial port (TELEM 1) upon boot up.
 
 > *Note*: If you use the SD card to change the baud rate, you need to temporarily unplug the SD card if you want to connect to QGroundControl via USB.
 
+## Simulation
+- requires frimware v1.9
+
+- add ```export PX4_FIRMWARE_PATH="{path_to_firmware}"
+      source ${PX4_FIRMWARE_PATH}/Tools/setup_gazebo.bash ${PX4_FIRMWARE_PATH} ${PX4_FIRMWARE_PATH}/build/px4_sitl_default
+      export ROS_PACKAGE_PATH=$ROS_PACKAGE_PATH:${PX4_FIRMWARE_PATH}:${PX4_FIRMWARE_PATH}/Tools/sitl_gazebo```
+  to your bash rc
+- run ```make px4_sitl_default gazebo ```
+- delete cached parameters ```.ros/eeprom/parameters```
+- run ```roslaunch mslquad quad_sim.launch```
+
 ## Usage
 
 #### Common

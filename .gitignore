@@ -27,7 +27,7 @@ msg/_*.py
 
 #visual studio
 .vscode
-
+*.code-workspace
 
 # qcreator stuff
 CMakeLists.txt.user
@@ -35,6 +35,7 @@ CMakeLists.txt.user
 srv/_*.py
 *.pcd
 *.pyc
+*.sublime*
 qtcreator-*
 *.user
 
