@@ -152,6 +152,7 @@ add_library(controller_lib
   src/px4_base_controller.cpp
   src/yaw_track_controller.cpp
   src/pose_track_controller.cpp
+  src/traj_track_controller.cpp
   src/se3_controller.cpp)
 add_dependencies(controller_lib ${PROJECT_NAME}_generate_messages_cpp)
 

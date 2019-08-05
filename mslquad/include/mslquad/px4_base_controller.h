@@ -16,6 +16,7 @@
 #include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/TwistStamped.h"
 #include "nav_msgs/Odometry.h"
+#include "geometry_msgs/Transform.h"
 #include "geometry_msgs/Twist.h"
 #include "mavros_msgs/ActuatorControl.h"
 #include <Eigen/Dense>
