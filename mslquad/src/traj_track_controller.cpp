@@ -92,7 +92,7 @@ void TrajTrackController::takeoff(const double desx,
     ros::Rate rate(10);  // change to meet the control loop?
     geometry_msgs::Twist twist;
     std::cout << "Takeoff" << std::endl;
-    while (ros::ok()) {
+    while (ros::ok() && posErr >0.1) {
         // take off to starting position
         posErr = calcVelCmd(desVel, desPos, maxVel_, 4.0);
         twist.linear.x = desVel(0);
@@ -101,14 +101,38 @@ void TrajTrackController::takeoff(const double desx,
         px4SetVelPub_.publish(twist);
         rate.sleep();
         ros::spinOnce();
-        // check for "go" signal
-        if (scramble) break;
     }
+    ROS_INFO_STREAM("Takeoff Complete");
 }
 void TrajTrackController::controlLoop(void) {
     // follow the trajectory
-    ROS_ERROR("Pose Delay Critical. Landing");
+    ROS_INFO_STREAM("Standby: Hovering");
+    while (!scramble) {
+        geometry_msgs::PoseStamped hoverPose = takeoffPose_;
+        hoverPose.pose.position.z = takeoffHeight_;
+        px4SetPosPub_.publish(hoverPose);
+    }
+    ROS_INFO_STREAM("Executing Command");
+    ROS_ERROR("HARD LAND BOYES");
     emergencyLandPose_ = curPose_.pose;
     emergencyLandPose_.position.z = takeoffPose_.pose.position.z;
     state_ = State::EMERGENCY_LAND;
+    //     // print the seq # of traj
+    //     // std::cout << "Traj #: " << desTraj.header.seq << std::endl;
+    //     Eigen::Vector3d desVel;
+    //     Eigen::Vector3d desPos;
+    //     desPos(0) = desTraj_.points[1].transforms[0].translation.x;
+    //     desPos(1) = desTraj_.points[1].transforms[0].translation.y;
+    //     if (flagOnly2D_) {
+    //         desPos(2) = takeoffHeight_;
+    //         calcVelCmd2D(desVel, desPos, maxVel_, 4.0);
+    //     } else {
+    //         desPos(2) = desTraj_.points[1].transforms[0].translation.z;
+    //         calcVelCmd(desVel, desPos, maxVel_, 4.0);
+    //     }
+    //     geometry_msgs::Twist twist;
+    //     twist.linear.x = desVel(0);
+    //     twist.linear.y = desVel(1);
+    //     twist.linear.z = desVel(2);
+    //     px4SetVelPub_.publish(twist);
 }
