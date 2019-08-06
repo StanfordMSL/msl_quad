@@ -1,8 +1,12 @@
 <?xml version="1.0"?>
 <launch>
-  <!-- launches goal set under / namespace-->
-  <group ns="quad0">
+  <!-- launches path_test under / namespace-->
+  <group ns="quad3">
       <node pkg="mslquad" type="path_test.py" name="posePilot" output="screen">
+          <param name="length" type="double" value="2.0" />
+          <param name="width" type="double" value="2.0" />
+          <param name="height" type="double" value="1.5" />
+          <param name="tolerance" type="double" value="0.5" />
       </node> 
   </group>
 </launch>

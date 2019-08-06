@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- launches trajecotry path under / namespace-->
+  <group ns="quad0">
+      <node pkg="mslquad" type="trajectory_path.py" name="poseConducter" output="screen">
+          <param name = "file_path" type = "string" value = "/home/msl/catkin_ws/src/msl_quad/mslquad/scripts/follow_path.csv" />
+          <param name="tolerance" type="double" value="0.5" />
+      </node> 
+  </group>
+</launch>
