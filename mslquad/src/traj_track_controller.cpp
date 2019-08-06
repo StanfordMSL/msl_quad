@@ -11,25 +11,34 @@
 #include<mslquad/traj_track_controller.h>
 #include<iostream>
 #include <fstream>
-
 TrajTrackController::TrajTrackController() {
     // retrieve ROS parameter
+    ros::V_string params;
+    std::string namesp;
+    namesp = nh_.getNamespace();
+    std::cout << namesp << std::endl;
+    nh_.getParamNames(params);
+    for (auto & element : params) {
+        std::cout << element << std::endl;
+    }
     // load traj from topic or file
-    ros::param::param<bool>("load_traj_file", loadTrajFile, false);
+    ros::param::get("~load_traj_file", loadTrajFile);
+    std::cout << loadTrajFile << std::endl;
 
     if (loadTrajFile) {
+        ROS_INFO_STREAM("Loading Trajectory File");
         std::string trajFile;
-        ros::param::param<std::string>("traj_file", trajFile, "traj.txt");
+        ros::param::get("~traj_file", trajFile);
+        ROS_INFO("Got param: %s", trajFile.c_str());
         parseTrajFile(&trajFile);
     } else {
+        cmdTrajSub_.shutdown();  // close other trajectory topics
         std::string trajTargetTopic;
-        ros::param::param<std::string>("traj_target_topic",
-                                        trajTargetTopic,
-                                        "command/trajectory");
+        ros::param::get("~traj_target_topic", trajTargetTopic);
+        ROS_INFO_STREAM("Subscribing to: "<< trajTargetTopic);
         trajTargetSub_ =
             nh_.subscribe<trajectory_msgs::MultiDOFJointTrajectoryPoint>(
             trajTargetTopic, 1, &TrajTrackController::trajTargetCB, this);
-        ROS_INFO_STREAM("Subscribed: "<< trajTargetTopic);
     }
     // ROS subs and pub
     scambleSub_ = nh_.subscribe<std_msgs::Bool>(

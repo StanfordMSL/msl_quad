@@ -11,7 +11,7 @@
     <arg name="traj_file" default="$(find mslquad)/params/trajectories/traj.txt"/>
 	<group ns="$(arg quad_ns)">
 		<node pkg="mslquad" type="default_controller" name="default_controller" output="screen">
-			<param name="controller_type" value="pose_track"/>
+			<param name="controller_type" value="traj_track"/>
 			<param name="quad_ns" value="$(arg quad_ns)"/>
 			<param name="takeoff_height" value="$(arg takeoff_height)" />
 			<param name="max_vel" value="$(arg max_vel)" />

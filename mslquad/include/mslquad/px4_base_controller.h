@@ -72,6 +72,7 @@ class PX4BaseController {
     ros::Publisher px4SetPosPub_;  // px4 setpoint_position command
     ros::Publisher odomPub_;  // publish pose of px4 agent to the planner
     ros::Publisher actuatorPub_;  // px4 actuator_control topic
+    ros::Subscriber cmdTrajSub_;  // command traj sub
 
     // calculate desired velocity vector given desired position
     // vmax is the maximum velocity. return the norm of the position error
@@ -95,10 +96,9 @@ class PX4BaseController {
     virtual void slowLoop(void);
 
  private:
-    ros::Subscriber cmdTrajSub_;  // game planner command traj sub
     ros::Subscriber px4PoseSub_;  // px4 pose sub
-    ros::Duration poseTimeDiff_;  // difference btwn current time and last time
     ros::Subscriber px4VelSub_;  // px4 velocity sub
+    ros::Duration poseTimeDiff_;  // difference btwn current time and last time
     ros::Subscriber vrpnSub_;  // subscribe to vrpn
     geometry_msgs::PoseStamped curVrpnPose_;  // current mocap pose,
     ros::ServiceServer emergencyLandSrv_;  // service for emergency landing
