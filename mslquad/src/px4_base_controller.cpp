@@ -322,7 +322,7 @@ void PX4BaseController::statusLoop(void) {
         emergencyLandPose_ = curPose_.pose;
         emergencyLandPose_.position.z = takeoffPose_.pose.position.z;
         state_ = State::EMERGENCY_LAND;
-    } else if (poseTimeDiff_.toSec() > 0.1) {
+    } else if (poseTimeDiff_.toSec() > 0.15) {
         ROS_WARN("Pose Delay Detected");
     }
 }

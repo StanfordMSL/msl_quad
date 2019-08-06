@@ -29,7 +29,6 @@ TrajTrackController::TrajTrackController() {
         ROS_INFO_STREAM("Loading Trajectory File");
         std::string trajFile;
         ros::param::get("~traj_file", trajFile);
-        ROS_INFO("Got param: %s", trajFile.c_str());
         parseTrajFile(&trajFile);
     } else {
         cmdTrajSub_.shutdown();  // close other trajectory topics
@@ -55,7 +54,9 @@ void TrajTrackController::trajTargetCB(
 }
 void TrajTrackController::scrambleSubCB(
         const std_msgs::Bool::ConstPtr& msg) {
-    scramble = msg-> data;
+    std::cout << "got data" << msg->data << std::endl;
+
+    scramble = true;
 }
 void TrajTrackController::parseTrajFile(std::string* trajFilePtr) {
         std::ifstream f;
@@ -70,23 +71,24 @@ void TrajTrackController::parseTrajFile(std::string* trajFilePtr) {
         float px, py, pz;
         float vx, vy, vz;
         // parse the ines
-        f >> px >> py >> pz >> vx >> vy >> vz;
-        printf("%2.4f, %2.4f, %2.4f: %2.4f, %2.4f, %2.4f", px, py, pz,
-                                                           vx, vy, vz);
-        // fill traj
-        geometry_msgs::Transform tf;
-        geometry_msgs::Twist tw;
-        // pos
-        tf.translation.x = px;
-        tf.translation.y = py;
-        tf.translation.z = pz;
-        // vel
-        tw.linear.x = vx;
-        tw.linear.y = vy;
-        tw.linear.z = vz;
-        // push back
-        traj.transforms.push_back(tf);
-        traj.velocities.push_back(tw);
+        while (f >> px >> py >> pz >> vx >> vy >> vz) {
+            printf("%2.4f, %2.4f, %2.4f: %2.4f, %2.4f, %2.4f", px, py, pz,
+                                                              vx, vy, vz);
+            // fill traj
+            geometry_msgs::Transform tf;
+            geometry_msgs::Twist tw;
+            // pos
+            tf.translation.x = px;
+            tf.translation.y = py;
+            tf.translation.z = pz;
+            // vel
+            tw.linear.x = vx;
+            tw.linear.y = vy;
+            tw.linear.z = vz;
+            // push back
+            traj.transforms.push_back(tf);
+            traj.velocities.push_back(tw);
+        }
     }
     // I don't think we can leave this blank
     traj.time_from_start = ros::Duration(1);
@@ -120,6 +122,7 @@ void TrajTrackController::controlLoop(void) {
         geometry_msgs::PoseStamped hoverPose = takeoffPose_;
         hoverPose.pose.position.z = takeoffHeight_;
         px4SetPosPub_.publish(hoverPose);
+        ros::spinOnce();
     }
     ROS_INFO_STREAM("Executing Command");
     ROS_ERROR("HARD LAND BOYES");

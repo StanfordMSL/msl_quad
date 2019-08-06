@@ -37,7 +37,7 @@ class TrajTrackController : public PX4BaseController {
     bool loadTrajFile;
     void parseTrajFile(std::string* trajFilePtr);
     // go and stop signals
-    bool scramble;
+    bool scramble = false;
     ros::Subscriber scambleSub_;
     void scrambleSubCB(const std_msgs::Bool::ConstPtr& msg);
 };
