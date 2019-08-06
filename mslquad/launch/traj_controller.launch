@@ -3,8 +3,8 @@
 	<arg name="mav_name" default="quad"/>
 	<arg name="id" default="0"/>
 	<arg name="quad_ns"  default="$(arg mav_name)$(arg id)"/>
-	<arg name="takeoff_height" default="1.5"/>
-	<arg name="max_vel" default="2"/>
+	<arg name="takeoff_height" default="3.5"/>
+	<arg name="max_vel" default="1.5"/>
 	<arg name="auto_takeoff" default="true"/>
 	<arg name="traj_target_topic" default="command/trajectory"/>
     <arg name="load_traj_file" default="true"/>

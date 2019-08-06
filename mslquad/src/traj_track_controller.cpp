@@ -79,9 +79,9 @@ void TrajTrackController::parseTrajFile(std::string* trajFilePtr) {
             geometry_msgs::Transform tf;
             geometry_msgs::Twist tw;
             // pos
-            tf.translation.x = px;
-            tf.translation.y = py;
-            tf.translation.z = pz;
+            tf.translation.x = px + takeoffPose_.pose.position.x;
+            tf.translation.y = py + takeoffPose_.pose.position.y;
+            tf.translation.z = pz + takeoffPose_.pose.position.z + takeoffHeight_;
             // vel
             tw.linear.x = vx;
             tw.linear.y = vy;
@@ -98,13 +98,10 @@ bool TrajTrackController::updateTarget() {
     // calculate aboslute target pos from relative value in trajectory
     if (traj.transforms.size() > 0 &&
         trajIdx < traj.transforms.size()) {
-        desPos(0) = traj.transforms[trajIdx].translation.x
-                            + takeoffPose_.pose.position.x;
-        desPos(1) = traj.transforms[trajIdx].translation.y
-                            + takeoffPose_.pose.position.y;
+        desPos(0) = traj.transforms[trajIdx].translation.x;
+        desPos(1) = traj.transforms[trajIdx].translation.y;
         desPos(2) = traj.transforms[trajIdx].translation.z;
-                            + takeoffPose_.pose.position.z
-                            + takeoffHeight_;
+        std::cout << "next waypoint " << std::endl;
         std::cout << desPos << std::endl;
         return true;
     }
