@@ -26,7 +26,7 @@ class TrajTrackController : public PX4BaseController {
     int trajIdx = 0;
     void controlLoop(void) override;
     void slowLoop(void) override;
-    void takeoff() override;
+    void takeoff(void) override; 
     // traj topic
     ros::Subscriber trajTargetSub_;  // px4 pose sub
     void trajTargetCB(

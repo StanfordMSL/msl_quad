@@ -15,14 +15,6 @@
 
 TrajTrackController::TrajTrackController() {
     // retrieve ROS parameter
-    ros::V_string params;
-    std::string namesp;
-    namesp = nh_.getNamespace();
-    std::cout << namesp << std::endl;
-    nh_.getParamNames(params);
-    for (auto & element : params) {
-        std::cout << element << std::endl;
-    }
     // load traj from topic or file
     ros::param::get("~load_traj_file", loadTrajFile);
     std::cout << loadTrajFile << std::endl;
@@ -119,7 +111,9 @@ bool TrajTrackController::updateTarget() {
     return false;  // return false if there's no trajectory
 }
 void TrajTrackController::takeoff() {
-    Eigen::Vector3d desPos(desx, desy, desz);
+    Eigen::Vector3d desPos(takeoffPose_.pose.position.x,
+                           takeoffPose_.pose.position.y,
+                           takeoffHeight_);
     Eigen::Vector3d curPos;
     Eigen::Vector3d desVel;
     double posErr = 1000;
