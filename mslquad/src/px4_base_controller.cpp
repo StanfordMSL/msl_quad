@@ -109,9 +109,7 @@ PX4BaseController::PX4BaseController():
     bool isAutoTakeOff = false;
     ros::param::get("~auto_takeoff", isAutoTakeOff);
     if (isAutoTakeOff)
-        takeoff(curPose_.pose.position.x,
-                curPose_.pose.position.y,
-                takeoffHeight_);
+        takeoff();
 
     // start faster timer for main control loop
     controlTimer_ = nh_.createTimer(
@@ -125,10 +123,10 @@ PX4BaseController::~PX4BaseController() {
 }
 
 
-void PX4BaseController::takeoff(const double desx,
-                                const double desy,
-                                const double desz) {
-    Eigen::Vector3d desPos(desx, desy, desz);
+void PX4BaseController::takeoff() {
+    Eigen::Vector3d desPos(takeoffPose_.pose.position.x,
+                           takeoffPose_.pose.position.y,
+                           takeoffHeight_);
     Eigen::Vector3d curPos;
     Eigen::Vector3d desVel;
     double posErr = 1000;
@@ -154,6 +152,8 @@ void PX4BaseController::takeoff(const double desx,
         rate.sleep();
         ros::spinOnce();
     }
+    hoverPose_ = takeoffPose_;
+    hoverPose_.pose.position.z = takeoffHeight_;
 }
 
 double PX4BaseController::calcVelCmd(Eigen::Vector3d& desVel,
@@ -241,9 +241,7 @@ void PX4BaseController::emergencyFailsafe(void) {
 void PX4BaseController::controlLoop(void) {
     // default control loop
     if (0 == desTraj_.points.size()) {
-        geometry_msgs::PoseStamped hoverPose = takeoffPose_;
-        hoverPose.pose.position.z = takeoffHeight_;
-        px4SetPosPub_.publish(hoverPose);
+        px4SetPosPub_.publish(hoverPose_);
     } else {
         // print the seq # of traj
         // std::cout << "Traj #: " << desTraj.header.seq << std::endl;

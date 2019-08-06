@@ -65,6 +65,7 @@ class PX4BaseController {
     geometry_msgs::PoseStamped curPose_;  // current pose of quad from px4
     geometry_msgs::TwistStamped curVel_;  // current velocity from px4
     geometry_msgs::PoseStamped takeoffPose_;  // record the position at takeoff
+    geometry_msgs::PoseStamped hoverPose_;  // pose to hover
     geometry_msgs::Pose emergencyLandPose_;
     trajectory_msgs::MultiDOFJointTrajectory desTraj_;  // traj from planner
 
@@ -87,9 +88,7 @@ class PX4BaseController {
                         const double vmax,
                         const double kp) const;
 
-    virtual void takeoff(const double desx,
-                         const double desy,
-                         const double desz);
+    virtual void takeoff(void);
     // main controller loop (fast, up to >200 Hz), overload in derived class
     virtual void controlLoop(void);
     // slow loop (<= 10Hz), good for publishing visualization data, etc

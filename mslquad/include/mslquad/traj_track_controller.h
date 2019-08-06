@@ -23,12 +23,10 @@ class TrajTrackController : public PX4BaseController {
 
  protected:
     trajectory_msgs::MultiDOFJointTrajectoryPoint traj;
-    
+    int trajIdx = 0;
     void controlLoop(void) override;
-    void takeoff(const double desx,
-                 const double desy,
-                 const double desz) override;
- private:
+    void slowLoop(void) override;
+    void takeoff() override;
     // traj topic
     ros::Subscriber trajTargetSub_;  // px4 pose sub
     void trajTargetCB(
@@ -36,6 +34,13 @@ class TrajTrackController : public PX4BaseController {
     // traj file
     bool loadTrajFile;
     void parseTrajFile(std::string* trajFilePtr);
+    // reverse the trajectory for speed up
+    void trajReverse();
+    // internals
+    Eigen::Vector3d desPos;  // desired position
+    Eigen::Vector3d desVel;  // desired velocity
+    float posError = 100;  // distance to target pos
+    bool updateTarget();
     // go and stop signals
     bool scramble = false;
     ros::Subscriber scambleSub_;
