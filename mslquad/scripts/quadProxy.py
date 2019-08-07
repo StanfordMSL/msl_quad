@@ -27,7 +27,7 @@ class QuadProxy(object):
             envoke go and land commands"""
     def __init__(self, namespace)
         # Tell ROS this is a node
-        rospy.init_node('posePilot', anonymous=True)
+        rospy.init_node('quadProxy', anonymous=True)
         self.pose = None
         self.poseSub = rospy.Subscriber('mavros/local_position/pose', PoseStamped, self.PoseCB) 
 
