@@ -24,14 +24,13 @@ class TrajTrackController : public PX4BaseController {
  protected:
     int trajIdx = 0;
     int trajNPoints = 0;
-    float trajTimeStep = 0; 
+    float trajTimeStep = 0;
     float trajKp = 0;
     ros::Time trajStartTime;
     trajectory_msgs::MultiDOFJointTrajectoryPoint traj;
-    
     void controlLoop(void) override;
     void slowLoop(void) override;
-    void takeoff(void) override; 
+    void takeoff(void) override;
     // traj topic
     ros::Subscriber trajTargetSub_;  // px4 pose sub
     void trajTargetCB(
@@ -45,7 +44,7 @@ class TrajTrackController : public PX4BaseController {
     Eigen::Vector3d desPos;  // desired position
     Eigen::Vector3d desVel;  // desired velocity
     float posError = 100;  // distance to target pos
-    bool updateTarget();
+    bool updateTarget(void);
     // go and stop signals
     bool scramble = false;
     ros::Subscriber scambleSub_;

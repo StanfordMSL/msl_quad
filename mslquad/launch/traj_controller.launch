@@ -9,8 +9,8 @@
     <arg name="takeoff_height" default="1.5"/>
     <arg name="max_vel" default="1.5"/>
     <!-- trajectory params -->
-    <arg name="trajTimeStep" value="0.2"/>
-    <arg name="traj_kp" value="2"/>
+    <arg name="traj_timestep" value="0.2"/>
+    <arg name="traj_Kp" value="2"/>
         <!-- topic -->
         <arg name="traj_target_topic" default="command/trajectory"/>
         <!-- file -->
@@ -33,8 +33,8 @@
             <param name="control_freq" value="60"/>
             <param name="slow_freq" value="10"/>
             <!-- trajectory params -->
-            <param name="trajTimeStep" value="0.2"/>
-            <param name="traj_kp" value="2"/>
+            <param name="traj_timestep" value="0.2"/>
+            <param name="traj_Kp" value="2"/>
                 <!-- topic -->
                 <param name="traj_target_topic" value="$(arg traj_target_topic)"/>
                 <!-- file -->

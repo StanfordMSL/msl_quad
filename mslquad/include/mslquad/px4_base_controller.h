@@ -66,7 +66,6 @@ class PX4BaseController {
     geometry_msgs::TwistStamped curVel_;  // current velocity from px4
     geometry_msgs::PoseStamped takeoffPose_;  // record the position at takeoff
     geometry_msgs::PoseStamped hoverPose_;  // pose to hover
-    geometry_msgs::Pose emergencyLandPose_;
     trajectory_msgs::MultiDOFJointTrajectory desTraj_;  // traj from planner
 
     ros::Publisher px4SetVelPub_;  // px4 setpoint_velocity command

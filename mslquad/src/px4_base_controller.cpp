@@ -231,7 +231,6 @@ void PX4BaseController::slowTimerCB(const ros::TimerEvent& event) {
 }
 
 void PX4BaseController::emergencyFailsafe(void) {
-    ROS_WARN("Emergency Override Enabled");
         geometry_msgs::PoseStamped ps;
         ps.header.stamp = ros::Time::now();
         ps.pose = emergencyPose_;
@@ -317,8 +316,8 @@ void PX4BaseController::statusLoop(void) {
     poseTimeDiff_ = ros::Time::now() - curPose_.header.stamp;
     if (poseTimeDiff_.toSec() > 0.5) {
         ROS_ERROR("Pose Delay Critical. Landing");
-        emergencyLandPose_ = curPose_.pose;
-        emergencyLandPose_.position.z = takeoffPose_.pose.position.z;
+        emergencyPose_ = curPose_.pose;
+        emergencyPose_.position.z = takeoffPose_.pose.position.z;
         state_ = State::EMERGENCY_LAND;
     } else if (poseTimeDiff_.toSec() > 0.15) {
         ROS_WARN("Pose Delay Detected");
@@ -328,7 +327,12 @@ void PX4BaseController::statusLoop(void) {
 bool PX4BaseController::emergencyLandHandle(
         mslquad::EmergencyLand::Request &req,
         mslquad::EmergencyLand::Response &res) {
-    emergencyLandPose_ = req.landpos;
+    emergencyPose_ = req.landpos;
+    ROS_WARN("Emergency Override Enabled");
+    ROS_INFO("Pose: (%f, %f, %f)",
+            emergencyPose_.position.x,
+            emergencyPose_.position.y,
+            emergencyPose_.position.z);
     state_ = State::EMERGENCY_LAND;
     res.success = true;
     return true;

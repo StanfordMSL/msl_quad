@@ -22,8 +22,9 @@ TrajTrackController::TrajTrackController() {
     std::string trajTargetTopic;
     ros::param::get("~traj_target_topic", trajTargetTopic);
     ROS_INFO_STREAM("Subscribing to: "<< trajTargetTopic);
-    trajTargetSub_ = nh_.subscribe<trajectory_msgs::MultiDOFJointTrajectoryPoint>(
-                     trajTargetTopic, 1, 
+    trajTargetSub_ =
+                nh_.subscribe<trajectory_msgs::MultiDOFJointTrajectoryPoint>(
+                     trajTargetTopic, 1,
                      &TrajTrackController::trajTargetCB, this);
     // check for traj file
     ros::param::get("~load_traj_file", loadTrajFile);
@@ -83,7 +84,7 @@ void TrajTrackController::parseTrajFile(std::string* trajFilePtr) {
             // pos
             tf.translation.x = px + takeoffPose_.pose.position.x;
             tf.translation.y = py + takeoffPose_.pose.position.y;
-            tf.translation.z = pz + takeoffPose_.pose.position.z + takeoffHeight_;
+            tf.translation.z = pz + takeoffPose_.pose.position.z;
             // vel
             tw.linear.x = vx;
             tw.linear.y = vy;
@@ -98,7 +99,7 @@ void TrajTrackController::parseTrajFile(std::string* trajFilePtr) {
     // I don't think we can leave this blank
     traj.time_from_start = ros::Duration(1);
 }
-bool TrajTrackController::updateTarget() {
+bool TrajTrackController::updateTarget(void) {
     // calculate aboslute target pos from relative value in trajectory
     if (traj.transforms.size() > 0 &&
         trajIdx < traj.transforms.size()) {
@@ -111,7 +112,7 @@ bool TrajTrackController::updateTarget() {
     }
     return false;  // return false if there's no trajectory
 }
-void TrajTrackController::takeoff() {
+void TrajTrackController::takeoff(void) {
     Eigen::Vector3d desPos(takeoffPose_.pose.position.x,
                            takeoffPose_.pose.position.y,
                            takeoffHeight_);
@@ -148,8 +149,7 @@ void TrajTrackController::controlLoop(void) {
     }
     float timeIdx;
     timeIdx = ((ros::Time::now() - trajStartTime).toSec())/trajTimeStep;
-    std::cout << timeIdx << std::endl;
-    if (timeIdx > trajIdx) {  // proceed to next
+    if (static_cast<int>(timeIdx) > trajIdx) {  // proceed to next
         trajIdx++;
         updateTarget();
     }
@@ -165,8 +165,8 @@ void TrajTrackController::controlLoop(void) {
     } else {
         // p control on velocity to target
         calcVelCmd(desVel, desPos, maxVel_, trajKp);
-        // velocity to publish 
-        geometry_msgs::Twist twist;  
+        // velocity to publish
+        geometry_msgs::Twist twist;
         twist.linear.x = desVel(0);
         twist.linear.y = desVel(1);
         twist.linear.z = desVel(2);
