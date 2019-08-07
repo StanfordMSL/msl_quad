@@ -23,8 +23,8 @@ class Tower(object):
     """docstring for Tower
     this class impliments a start and stop/land signals for general quad experiemnts"""
     def __init__(self):
-        self.manifest = ["quad3", 
-                         "quad4"]
+        self.manifest = ["quad0"]
+        print(self.manifest)
 
         # make proxy objects
         self.proxies = [QuadProxy(quad) for quad in self.manifest]
@@ -34,12 +34,12 @@ class Tower(object):
     
     def scramble(self):
         # BUT I LIKE TO SCRAMBLE THE FARIES
-        scramblePub.publish(True)
+        self.scramblePub.publish(True)
         rospy.loginfo("something clever when they all move")
 
     def land(self):
         rospy.logwarn("Landing")
-        for proxy in proxies:
+        for proxy in self.proxies:
             proxy.emergencyLand()
 
     def loop(self):
@@ -47,7 +47,7 @@ class Tower(object):
         if usrCmd == 'x':
             self.scramble()
         elif usrCmd == 'd':
-            self.land
+            self.land()
         else:
             print('Not a valid commmand')
             print("x to start, d to land")

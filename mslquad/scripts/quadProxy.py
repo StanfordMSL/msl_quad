@@ -17,7 +17,7 @@ import rospy
 import std_msgs.msg 
 from geometry_msgs.msg import Pose, PoseStamped, Twist
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from sensor_msgs.msg import Imu
+from mslquad.srv import EmergencyLand
 import tf.transformations as transf 
 
 class QuadProxy(object):
@@ -25,19 +25,20 @@ class QuadProxy(object):
         purposes/usage: 
             read position/location information from motion capture
             envoke go and land commands"""
-    def __init__(self, namespace)
+    def __init__(self, namespace):
         # Tell ROS this is a node
         rospy.init_node('quadProxy', anonymous=True)
         self.pose = None
-        self.poseSub = rospy.Subscriber('mavros/local_position/pose', PoseStamped, self.PoseCB) 
+        self.poseSub = rospy.Subscriber(namespace+'/mavros/local_position/pose', PoseStamped, self.PoseCB) 
 
         # land service
-        self.eLandService = rospy.ServiceProxy('emergency_land', Emergency)
+        self.eLandService = rospy.ServiceProxy(namespace+'/emergency_land', EmergencyLand)
 
         #wait for pose
         while self.pose is None:
+            print("waiting for pose")
             rospy.sleep(.5)
-        rospy.loginfo("Monitor active on: {%s}".format(namespace))
+        rospy.loginfo("Monitor active on: {:s}".format(namespace))
 
     def PoseCB(self, msg):
         self.pose = msg.pose
