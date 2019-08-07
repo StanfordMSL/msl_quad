@@ -5,7 +5,7 @@
                  Multi-Robot Systems Lab (MSL), Stanford University
   Contact      : k2shah@stanford.edu
   Create Time  : Aug 5, 2019.
-  Description  : Trajectory tracking
+  Description  : Open Loop Trajectory tracking
 **************************************************************************/
 
 #ifndef __TRAJ_TRACK_CONTROLELR_H__
@@ -22,8 +22,13 @@ class TrajTrackController : public PX4BaseController {
     ~TrajTrackController();
 
  protected:
-    trajectory_msgs::MultiDOFJointTrajectoryPoint traj;
     int trajIdx = 0;
+    int trajNPoints = 0;
+    float trajTimeStep = 0; 
+    float trajKp = 0;
+    ros::Time trajStartTime;
+    trajectory_msgs::MultiDOFJointTrajectoryPoint traj;
+    
     void controlLoop(void) override;
     void slowLoop(void) override;
     void takeoff(void) override; 

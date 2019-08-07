@@ -15,24 +15,25 @@
 
 TrajTrackController::TrajTrackController() {
     // retrieve ROS parameter
-    // load traj from topic or file
+    ros::param::get("~traj_timestep", trajTimeStep);
+    ros::param::get("~traj_Kp", trajKp);
+    // load traj from topic
+    cmdTrajSub_.shutdown();  // close other trajectory topics
+    std::string trajTargetTopic;
+    ros::param::get("~traj_target_topic", trajTargetTopic);
+    ROS_INFO_STREAM("Subscribing to: "<< trajTargetTopic);
+    trajTargetSub_ =
+        nh_.subscribe<trajectory_msgs::MultiDOFJointTrajectoryPoint>(
+        trajTargetTopic, 1, &TrajTrackController::trajTargetCB, this);
+    // check for traj file
     ros::param::get("~load_traj_file", loadTrajFile);
-    std::cout << loadTrajFile << std::endl;
-
     if (loadTrajFile) {
         ROS_INFO_STREAM("Loading Trajectory File");
         std::string trajFile;
         ros::param::get("~traj_file", trajFile);
         parseTrajFile(&trajFile);
-    } else {
-        cmdTrajSub_.shutdown();  // close other trajectory topics
-        std::string trajTargetTopic;
-        ros::param::get("~traj_target_topic", trajTargetTopic);
-        ROS_INFO_STREAM("Subscribing to: "<< trajTargetTopic);
-        trajTargetSub_ =
-            nh_.subscribe<trajectory_msgs::MultiDOFJointTrajectoryPoint>(
-            trajTargetTopic, 1, &TrajTrackController::trajTargetCB, this);
     }
+
     // set desired position to 1st waypoint
     while (!updateTarget()) {
         ROS_INFO_STREAM("Awaiting Trajectory");
@@ -58,6 +59,7 @@ void TrajTrackController::scrambleSubCB(
     std::cout << "got data" << msg->data << std::endl;
     scramble = true;
     ROS_INFO_STREAM("Executing Command");
+    trajStartTime = ros::Time::now();
 }
 void TrajTrackController::parseTrajFile(std::string* trajFilePtr) {
         std::ifstream f;
@@ -91,6 +93,8 @@ void TrajTrackController::parseTrajFile(std::string* trajFilePtr) {
             traj.velocities.push_back(tw);
         }
     }
+    // save number of points
+    trajNPoints = traj.transforms.size();
     // I don't think we can leave this blank
     traj.time_from_start = ros::Duration(1);
 }
@@ -101,7 +105,7 @@ bool TrajTrackController::updateTarget() {
         desPos(0) = traj.transforms[trajIdx].translation.x;
         desPos(1) = traj.transforms[trajIdx].translation.y;
         desPos(2) = traj.transforms[trajIdx].translation.z;
-        std::cout << "next waypoint " << std::endl;
+        std::cout << "Moveing to next waypoint " << std::endl;
         std::cout << desPos << std::endl;
         return true;
     }
@@ -119,7 +123,7 @@ void TrajTrackController::takeoff() {
     std::cout << "Launch" << std::endl;
     while (ros::ok() && posErr >0.1) {
         // take off to starting position
-        posErr = calcVelCmd(desVel, desPos, maxVel_, 4.0);
+        posErr = calcVelCmd(desVel, desPos, maxVel_, trajKp);
         twist.linear.x = desVel(0);
         twist.linear.y = desVel(1);
         twist.linear.z = desVel(2);
@@ -141,17 +145,12 @@ void TrajTrackController::controlLoop(void) {
         px4SetPosPub_.publish(hoverPose_);
         ros::spinOnce();
     }
-    // p control on velocity to target
-    posError = calcVelCmd(desVel, desPos, maxVel_, 2.0);
-    if (posError < .3) {  // proceed to next
+    float timeIdx;
+    timeIdx = ((ros::Time::now() - trajStartTime).toSec())/trajTimeStep;
+    if (timeIdx > trajIdx) {  // proceed to next
         trajIdx++;
         updateTarget();
     }
-    geometry_msgs::Twist twist;  // velocity to publish
-    twist.linear.x = desVel(0);
-    twist.linear.y = desVel(1);
-    twist.linear.z = desVel(2);
-    px4SetVelPub_.publish(twist);
     // check if we are at the end
     if (trajIdx == traj.transforms.size()) {
         ROS_INFO_STREAM("Trajectory Complete");
@@ -161,5 +160,14 @@ void TrajTrackController::controlLoop(void) {
         hoverPose_.pose.position.z = desPos(2);
         scramble = false;
         ROS_INFO_STREAM("Standby");
+    } else {
+        // p control on velocity to target
+        calcVelCmd(desVel, desPos, maxVel_, trajKp);
+        // velocity to publish 
+        geometry_msgs::Twist twist;  
+        twist.linear.x = desVel(0);
+        twist.linear.y = desVel(1);
+        twist.linear.z = desVel(2);
+        px4SetVelPub_.publish(twist);
     }
 }
