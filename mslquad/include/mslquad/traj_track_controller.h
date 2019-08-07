@@ -39,7 +39,6 @@ class TrajTrackController : public PX4BaseController {
     bool loadTrajFile;
     void parseTrajFile(std::string* trajFilePtr);
     // reverse the trajectory for speed up
-    void trajReverse();
     // internals
     Eigen::Vector3d desPos;  // desired position
     Eigen::Vector3d desVel;  // desired velocity
