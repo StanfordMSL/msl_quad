@@ -6,9 +6,11 @@
     <arg name="quad_ns"  default="$(arg mav_name)$(arg id)"/>
     <!-- quad params --> 
     <arg name="auto_takeoff" default="true"/>
-    <arg name="takeoff_height" default="3.5"/>
+    <arg name="takeoff_height" default="1.5"/>
     <arg name="max_vel" default="1.5"/>
     <!-- trajectory params -->
+    <arg name="trajTimeStep" value="0.2"/>
+    <arg name="traj_kp" value="2"/>
         <!-- topic -->
         <arg name="traj_target_topic" default="command/trajectory"/>
         <!-- file -->
@@ -33,7 +35,6 @@
             <!-- trajectory params -->
             <param name="trajTimeStep" value="0.2"/>
             <param name="traj_kp" value="2"/>
-
                 <!-- topic -->
                 <param name="traj_target_topic" value="$(arg traj_target_topic)"/>
                 <!-- file -->

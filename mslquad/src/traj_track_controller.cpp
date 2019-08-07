@@ -22,9 +22,9 @@ TrajTrackController::TrajTrackController() {
     std::string trajTargetTopic;
     ros::param::get("~traj_target_topic", trajTargetTopic);
     ROS_INFO_STREAM("Subscribing to: "<< trajTargetTopic);
-    trajTargetSub_ =
-        nh_.subscribe<trajectory_msgs::MultiDOFJointTrajectoryPoint>(
-        trajTargetTopic, 1, &TrajTrackController::trajTargetCB, this);
+    trajTargetSub_ = nh_.subscribe<trajectory_msgs::MultiDOFJointTrajectoryPoint>(
+                     trajTargetTopic, 1, 
+                     &TrajTrackController::trajTargetCB, this);
     // check for traj file
     ros::param::get("~load_traj_file", loadTrajFile);
     if (loadTrajFile) {
@@ -33,7 +33,6 @@ TrajTrackController::TrajTrackController() {
         ros::param::get("~traj_file", trajFile);
         parseTrajFile(&trajFile);
     }
-
     // set desired position to 1st waypoint
     while (!updateTarget()) {
         ROS_INFO_STREAM("Awaiting Trajectory");
@@ -42,7 +41,8 @@ TrajTrackController::TrajTrackController() {
     }
     // ROS subs and pub
     scambleSub_ = nh_.subscribe<std_msgs::Bool>(
-        "/tower/scramble", 1, &TrajTrackController::scrambleSubCB, this);
+                  "/tower/scramble", 1,
+                   &TrajTrackController::scrambleSubCB, this);
 }
 
 TrajTrackController::~TrajTrackController() {
@@ -105,7 +105,7 @@ bool TrajTrackController::updateTarget() {
         desPos(0) = traj.transforms[trajIdx].translation.x;
         desPos(1) = traj.transforms[trajIdx].translation.y;
         desPos(2) = traj.transforms[trajIdx].translation.z;
-        std::cout << "Moveing to next waypoint " << std::endl;
+        ROS_INFO_STREAM("Moving to next waypoint");
         std::cout << desPos << std::endl;
         return true;
     }
@@ -141,12 +141,14 @@ void TrajTrackController::slowLoop(void) {
 }
 void TrajTrackController::controlLoop(void) {
     // follow the trajectory
-    while (!scramble) {
+    if (!scramble) {
         px4SetPosPub_.publish(hoverPose_);
         ros::spinOnce();
+        return;
     }
     float timeIdx;
     timeIdx = ((ros::Time::now() - trajStartTime).toSec())/trajTimeStep;
+    std::cout << timeIdx << std::endl;
     if (timeIdx > trajIdx) {  // proceed to next
         trajIdx++;
         updateTarget();
