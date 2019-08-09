@@ -13,7 +13,7 @@ import numpy.linalg as la
 
 # Standard ROS message
 import rospy
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Time
 from geometry_msgs.msg import Pose, PoseStamped, Twist
 
 from quadProxy import QuadProxy
@@ -30,11 +30,11 @@ class Tower(object):
         self.proxies = [QuadProxy(quad) for quad in self.manifest]
 
         # publish 
-        self.scramblePub = rospy.Publisher('tower/scramble', Bool, queue_size=10)
+        self.scramblePub = rospy.Publisher('tower/scramble', Time, queue_size=10)
     
     def scramble(self):
         # BUT I LIKE TO SCRAMBLE THE FARIES
-        self.scramblePub.publish(True)
+        self.scramblePub.publish(rospy.Time.now())
         rospy.loginfo("something clever when they all move")
 
     def land(self):

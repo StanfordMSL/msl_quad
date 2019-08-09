@@ -15,6 +15,8 @@
 #include<mslquad/px4_base_controller.h>
 #include "trajectory_msgs/MultiDOFJointTrajectoryPoint.h"
 #include "std_msgs/Bool.h"
+#include "std_msgs/Time.h"
+
 
 class TrajTrackController : public PX4BaseController {
  public:
@@ -47,6 +49,6 @@ class TrajTrackController : public PX4BaseController {
     // go and stop signals
     bool scramble = false;
     ros::Subscriber scambleSub_;
-    void scrambleSubCB(const std_msgs::Bool::ConstPtr& msg);
+    void scrambleSubCB(const std_msgs::Time::ConstPtr& msg);
 };
 #endif

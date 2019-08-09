@@ -41,7 +41,7 @@ TrajTrackController::TrajTrackController() {
         ros::spinOnce();
     }
     // ROS subs and pub
-    scambleSub_ = nh_.subscribe<std_msgs::Bool>(
+    scambleSub_ = nh_.subscribe<std_msgs::Time>(
                   "/tower/scramble", 1,
                    &TrajTrackController::scrambleSubCB, this);
 }
@@ -56,11 +56,12 @@ void TrajTrackController::trajTargetCB(
     trajIdx = 0;  // reset traj index counter
 }
 void TrajTrackController::scrambleSubCB(
-        const std_msgs::Bool::ConstPtr& msg) {
+        const std_msgs::Time::ConstPtr& msg) {
     std::cout << "got data" << msg->data << std::endl;
     scramble = true;
     ROS_INFO_STREAM("Executing Command");
-    trajStartTime = ros::Time::now();
+    // save the flag time
+    trajStartTime = msg->data;
 }
 void TrajTrackController::parseTrajFile(std::string* trajFilePtr) {
         std::ifstream f;
