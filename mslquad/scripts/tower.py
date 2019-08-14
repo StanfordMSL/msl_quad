@@ -5,7 +5,7 @@ The MIT License (MIT)
 Copyright (c) 2019 Kunal Shah
                 kshah.kunal@gmail.com
 '''
-#std lib imports 
+# std lib imports
 import sys
 import time
 import numpy as np
@@ -21,17 +21,21 @@ from quadProxy import QuadProxy
 
 class Tower(object):
     """docstring for Tower
-    this class impliments a start and stop/land signals for general quad experiemnts"""
+    this class impliments a start and stop/land signals
+    for general quad experiemnts"""
+
     def __init__(self):
-        self.manifest = ["quad0"]
+        # self.manifest = ["rexquad1"]
+        self.manifest = ["rexquad0", "rexquad1"]
         print(self.manifest)
 
         # make proxy objects
         self.proxies = [QuadProxy(quad) for quad in self.manifest]
 
-        # publish 
-        self.scramblePub = rospy.Publisher('tower/scramble', Time, queue_size=10)
-    
+        # publish
+        self.scramblePub = rospy.Publisher(
+            'tower/scramble', Time, queue_size=10)
+
     def scramble(self):
         # BUT I LIKE TO SCRAMBLE THE FARIES
         self.scramblePub.publish(rospy.Time.now())
@@ -52,9 +56,8 @@ class Tower(object):
             print('Not a valid commmand')
             print("x to start, d to land")
 
-
     def run(self):
-        rate = rospy.Rate(10) # 10 Hz
+        rate = rospy.Rate(10)  # 10 Hz
         print("x to start, d to land")
         while not rospy.is_shutdown():
             self.loop()
@@ -62,6 +65,6 @@ class Tower(object):
 
 
 if __name__ == '__main__':
-    #make tower
+    # make tower
     tower = Tower()
     tower.run()
