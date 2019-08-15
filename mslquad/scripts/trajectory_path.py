@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+#Sergio Esteban SURF 2019
+#takes waypoints from .CSV files and commands the drone
 import rospy
 import std_msgs.msg
 from geometry_msgs.msg import Pose, PoseStamped

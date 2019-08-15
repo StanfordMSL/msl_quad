@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
+#Sergio Esteban SURF 2019
+#Simple quad path test (rectangular shape)
 import sys
 import rospy
 import std_msgs.msg
-from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from geometry_msgs.msg import Pose, PoseStamped
 from tf.transformations import quaternion_from_euler, euler_from_quaternion
 import numpy as np
@@ -17,22 +18,22 @@ class Pilot:
         self.pathSub = rospy.Subscriber('mavros/local_position/pose', PoseStamped, self.updatePoseCB) 
         self.pathPub = rospy.Publisher('command/pose', Pose, queue_size = 10)
         #Static Variables
-        self.l = rospy.get_param('~length')
-        self.w = rospy.get_param('~width')
-        self.h = rospy.get_param('~height')
+        self.x_flightroom = rospy.get_param('~x_flightroom')
+        self.y_flightroom = rospy.get_param('~y_flightroom')
+        self.z_flightroom = rospy.get_param('~z_flightroom')
         self.distTol = rospy.get_param('~tolerance')
-        self.waypoints =   [(0, 0, self.h, 0),
-                            (self.l/2, 0, self.h, np.pi/4),
-                            (self.l/2, self.w/2, self.h, np.pi/2),
-                            (0, self.w/2, self.h, 3*np.pi/4),
-                            (-self.l/2, self.w/2, self.h, np.pi),
-                            (-self.l/2, 0, self.h, 5*np.pi/4),
-                            (-self.l/2, -self.w/2, self.h, 3*np.pi/2),
-                            (0, -self.w/2, self.h, 7*np.pi/4),
-                            (self.l/2, -self.w/2, self.h, 0),
-                            (self.l/2, 0, self.h, np.pi/4),
-                            (0, 0, self.h, np.pi/2),
-                            (0, 0, self.h, np.pi/4)]
+        self.waypoints =   [(0, 0, self.z_flightroom, 0),
+                            (self.x_flightroom/2, 0, self.z_flightroom, np.pi/4),
+                            (self.x_flightroom/2, self.y_flightroom/2, self.z_flightroom, np.pi/2),
+                            (0, self.y_flightroom/2, self.z_flightroom, 3*np.pi/4),
+                            (-self.x_flightroom/2, self.y_flightroom/2, self.z_flightroom, np.pi),
+                            (-self.x_flightroom/2, 0, self.z_flightroom, 5*np.pi/4),
+                            (-self.x_flightroom/2, -self.y_flightroom/2, self.z_flightroom, 3*np.pi/2),
+                            (0, -self.y_flightroom/2, self.z_flightroom, 7*np.pi/4),
+                            (self.x_flightroom/2, -self.y_flightroom/2, self.z_flightroom, 0),
+                            (self.x_flightroom/2, 0, self.z_flightroom, np.pi/4),
+                            (0, 0, self.z_flightroom, np.pi/2),
+                            (0, 0, self.z_flightroom, np.pi/4)]
         rospy.sleep(2)
 
     #Update current pose and orientation
@@ -46,11 +47,11 @@ class Pilot:
 
     #check if parameters are reasonable
     def param_check(self):
-        if self.l < 1 or self.l > 5:
+        if self.x_flightroom < 1 or self.x_flightroom > 14:
             print("\n\t*** Length value must satisfy 1 m < length < 5 m ! ***\n") ; sys.exit()
-        elif self.w < 1 or self.w > 14:
+        elif self.y_flightroom < 1 or self.y_flightroom > 5:
             print("\n\t*** Width value must satisfy 1 m < width < 14 m ! ***\n") ; sys.exit()
-        elif self.h < 0.5 or self.h > 1.9:
+        elif self.z_flightroom < 0.5 or self.z_flightroom > 1.9:
             print("\n\t*** Height value must satisfy 0.5 m < heigth < 1.9 m ! ***\n") ; sys.exit()
         elif self.distTol < 0.1 :
             print("\n\t*** Tolerance value must satisfy tolerance > 0.05m  ! ***\n") ; sys.exit()

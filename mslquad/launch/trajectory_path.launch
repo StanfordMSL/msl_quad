@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <launch>
-  <!-- launches trajecotry path under / namespace-->
+  <!-- #Sergio Esteban SURF 2019-->
+  <!-- #takes waypoints from .CSV files and commands the drone-->
   <group ns="quad0">
       <node pkg="mslquad" type="trajectory_path.py" name="poseConducter" output="screen">
           <param name = "file_path" type = "string" value = "/home/msl/catkin_ws/src/msl_quad/mslquad/scripts/follow_path.csv" />
