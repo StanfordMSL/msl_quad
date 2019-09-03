@@ -33,6 +33,7 @@ class QuadProxy(object):
         rospy.init_node('quadProxy', anonymous=True)
         self.pose = None
         self.lastPose = None
+        self.poseErrorCounter = 0
         self.namespace = namespace
         self.poseSub = rospy.Subscriber(
             namespace+'/mavros/local_position/pose', PoseStamped, self.PoseCB)
@@ -48,7 +49,7 @@ class QuadProxy(object):
         rospy.loginfo("Monitor active on: {:s}".format(namespace))
 
         # timers
-        self.bounds = [[-.6, 11.], [-1., 3.5], [0., 2.2]]
+        self.bounds = [[-7.0, 6.], [-1.2, 1.8], [0., 2.3]]
         self.statusCB = rospy.Timer(rospy.Duration(.5), self.statusCB)
 
     def inRange(self, x, lower, upper):
@@ -58,17 +59,21 @@ class QuadProxy(object):
         v1 = np.array([p1.position.x, p1.position.y, p1.position.z])
         v2 = np.array([p2.position.x, p2.position.y, p2.position.z])
         # check dist
-        return la.norm(v1-v2) > .2
+        return la.norm(v1-v2) > .4
 
     def statusCB(self, timer):
         land = False
 
         # check pose diff
         if self.poseDist(self.pose, self.lastPose):
-            rospy.logwarn(self.namespace + " massive pose drift. Landing")
-            land = True
+            self.poseErrorCounter += 1  # increment
+            if self.poseErrorCounter > 5:
+                rospy.logwarn(self.namespace + " massive pose drift. Landing")
+                land = True
+        else: 
+            self.poseErrorCounter = 0  # reset
         # check bounds
-        elif self.inRange(self.pose.position.x,
+        if self.inRange(self.pose.position.x,
                           self.bounds[0][0], self.bounds[0][1]):
             rospy.logwarn(self.namespace + " out of x range. Landing")
             land = True

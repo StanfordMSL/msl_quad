@@ -1,11 +1,11 @@
 /* copyright[2019] <msl>
 **************************************************************************
-  File Name    : pose_track_controller.cpp
+  File Name    : traj_track_controller.cpp
   Author       : Kunal Shah
                  Multi-Robot Systems Lab (MSL), Stanford University
   Contact      : k2shah@stanford.edu
-  Create Time  : Dec 3, 2018.
-  Description  : Basic control + pose tracking
+  Create Time  : Aug 5, 2019.
+  Description  : Open Loop Trajectory tracking
 **************************************************************************/
 
 #include<mslquad/traj_track_controller.h>
@@ -123,7 +123,7 @@ void TrajTrackController::takeoff(void) {
     ros::Rate rate(10);  // change to meet the control loop?
     geometry_msgs::Twist twist;
     std::cout << "Launch" << std::endl;
-    while (ros::ok() && posErr >0.1) {
+    while (ros::ok() && posErr > 0.1) {
         // take off to starting position
         posErr = calcVelCmd(desVel, desPos, maxVel_, trajKp);
         twist.linear.x = desVel(0);
@@ -134,8 +134,8 @@ void TrajTrackController::takeoff(void) {
         ros::spinOnce();
     }
     // set hover pose
-    geometry_msgs::PoseStamped hoverPose = takeoffPose_;
-        hoverPose.pose.position.z = takeoffHeight_;
+    hoverPose_ = takeoffPose_;
+    hoverPose_.pose.position.z = takeoffHeight_;
     ROS_INFO_STREAM("Standby");
 }
 void TrajTrackController::slowLoop(void) {
@@ -148,9 +148,8 @@ void TrajTrackController::controlLoop(void) {
         ros::spinOnce();
         return;
     }
-    float timeIdx;
-    timeIdx = ((ros::Time::now() - trajStartTime).toSec())/trajTimeStep;
-    if (static_cast<int>(timeIdx) > trajIdx) {  // proceed to next
+    float timeIdx = ((ros::Time::now() - trajStartTime).toSec())/trajTimeStep;
+    if (static_cast<int>(timeIdx) > trajIdx) {  // proceed to next waypoint
         trajIdx++;
         updateTarget();
     }

@@ -1,7 +1,7 @@
 <launch>
 
-  <arg name="namespace" default="robot" /> <!--namespace of asset -->
-  <arg name="asset" default="robot"/> <!-- name of vrpn asset -->
+  <arg name="namespace" default="bob" /> <!--namespace of asset -->
+  <arg name="asset" default="bob"/> <!-- name of vrpn asset -->
   <arg name="server" default="mocap.local"/>  <!-- vrpn server on local network  -->
   <arg name="pose_topic" default="ground_truth/pose" /> <!-- output pose stamped on local namespace  -->
 

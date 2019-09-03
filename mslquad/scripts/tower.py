@@ -25,8 +25,8 @@ class Tower(object):
     for general quad experiemnts"""
 
     def __init__(self):
-        # self.manifest = ["rexquad1"]
-        self.manifest = ["rexquad0", "rexquad1"]
+        # self.manifest = ["rexquad3"]
+        self.manifest = ["rexquad0", "rexquad3", "quad3"]
         print(self.manifest)
 
         # make proxy objects
