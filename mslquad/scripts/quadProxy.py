@@ -49,7 +49,7 @@ class QuadProxy(object):
         rospy.loginfo("Monitor active on: {:s}".format(namespace))
 
         # timers
-        self.bounds = [[-7.0, 6.], [-1.2, 1.8], [0., 2.3]]
+        self.bounds = [[-7.0, 6.], [-1.2, 1.8], [0., 2.7]]
         self.statusCB = rospy.Timer(rospy.Duration(.5), self.statusCB)
 
     def inRange(self, x, lower, upper):
@@ -70,11 +70,11 @@ class QuadProxy(object):
             if self.poseErrorCounter > 5:
                 rospy.logwarn(self.namespace + " massive pose drift. Landing")
                 land = True
-        else: 
+        else:
             self.poseErrorCounter = 0  # reset
         # check bounds
         if self.inRange(self.pose.position.x,
-                          self.bounds[0][0], self.bounds[0][1]):
+                        self.bounds[0][0], self.bounds[0][1]):
             rospy.logwarn(self.namespace + " out of x range. Landing")
             land = True
         elif self.inRange(self.pose.position.y,
@@ -102,7 +102,7 @@ class QuadProxy(object):
                 # land at current location
                 ePose.position.x = self.pose.position.x
                 ePose.position.y = self.pose.position.y
-                ePose.position.z = -.1
+                ePose.position.z = -.9
                 eResponse = self.eLandService(ePose)
             except rospy.ServiceException as e:
                 rospy.loginfo("Emergency call failed: %s" % e)
