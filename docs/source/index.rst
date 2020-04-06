@@ -14,35 +14,14 @@ Here we describe the steps necessary for setting
 up its hardware and software for flight tests in
 the Stanford Flightroom.
 
-Hardware
-========
+Table of Contents
+=================
 
 .. toctree::
    :maxdepth: 2
    :titlesonly:
 
-   HardwareDocs/Build_Materials
-   HardwareDocs/Wiring_Diagrams
-   HardwareDocs/Remote_Controllers
-
-Software
-========
-
-.. toctree::
-   :maxdepth: 2
-   :titlesonly:
-
-   SoftwareDocs/PX4_Parameters
-   SoftwareDocs/Flight_Controller
-   SoftwareDocs/Firmware
-   SoftwareDocs/MAVROS
-   SoftwareDocs/Motion_Capture
-   SoftwareDocs/Block_Diagrams
-   SoftwareDocs/External
-   
-
-External Resources
-==================
-
-References
-==========
+   HardwareDocs/index_hardware
+   SoftwareDocs/index_software
+   external_resources
+   references
