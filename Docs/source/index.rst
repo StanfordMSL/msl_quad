@@ -21,7 +21,9 @@ Hardware
    :maxdepth: 2
    :titlesonly:
 
-   HardwareDocs/Installation
+   HardwareDocs/Build_Materials
+   HardwareDocs/Wiring_Diagrams
+   HardwareDocs/Remote_Controllers
 
 Software
 ========
@@ -30,4 +32,17 @@ Software
    :maxdepth: 2
    :titlesonly:
 
-   SoftwareDocs/Installation
+   SoftwareDocs/PX4_Parameters
+   SoftwareDocs/Flight_Controller
+   SoftwareDocs/Firmware
+   SoftwareDocs/MAVROS
+   SoftwareDocs/Motion_Capture
+   SoftwareDocs/Block_Diagrams
+   SoftwareDocs/External
+   
+
+External Resources
+==================
+
+References
+==========
