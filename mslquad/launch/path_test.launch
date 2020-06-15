@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+  <!-- Sergio Esteban SURF 2019 -->
+  <!-- Simple quad path test  -->
+  <group ns="quad0">
+      <node pkg="mslquad" type="path_test.py" name="posePilot" output="screen">
+          <param name="x_flightroom" type="double" value="5.0" />
+          <param name="y_flightroom" type="double" value="2.0" />
+          <param name="z_flightroom" type="double" value="1.5" />
+          <param name="tolerance" type="double" value="0.5" />
+      </node> 
+  </group>
+</launch>
