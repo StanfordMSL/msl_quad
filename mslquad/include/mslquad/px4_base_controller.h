@@ -16,6 +16,7 @@
 #include "geometry_msgs/PoseStamped.h"
 #include "geometry_msgs/TwistStamped.h"
 #include "nav_msgs/Odometry.h"
+#include "geometry_msgs/Transform.h"
 #include "geometry_msgs/Twist.h"
 #include "mavros_msgs/ActuatorControl.h"
 #include <Eigen/Dense>
@@ -64,13 +65,14 @@ class PX4BaseController {
     geometry_msgs::PoseStamped curPose_;  // current pose of quad from px4
     geometry_msgs::TwistStamped curVel_;  // current velocity from px4
     geometry_msgs::PoseStamped takeoffPose_;  // record the position at takeoff
-    geometry_msgs::Pose emergencyLandPose_;
+    geometry_msgs::PoseStamped hoverPose_;  // pose to hover
     trajectory_msgs::MultiDOFJointTrajectory desTraj_;  // traj from planner
 
     ros::Publisher px4SetVelPub_;  // px4 setpoint_velocity command
     ros::Publisher px4SetPosPub_;  // px4 setpoint_position command
     ros::Publisher odomPub_;  // publish pose of px4 agent to the planner
     ros::Publisher actuatorPub_;  // px4 actuator_control topic
+    ros::Subscriber cmdTrajSub_;  // command traj sub
 
     // calculate desired velocity vector given desired position
     // vmax is the maximum velocity. return the norm of the position error
@@ -85,19 +87,16 @@ class PX4BaseController {
                         const double vmax,
                         const double kp) const;
 
-    virtual void takeoff(const double desx,
-                         const double desy,
-                         const double desz);
+    virtual void takeoff(void);
     // main controller loop (fast, up to >200 Hz), overload in derived class
     virtual void controlLoop(void);
     // slow loop (<= 10Hz), good for publishing visualization data, etc
     virtual void slowLoop(void);
 
  private:
-    ros::Subscriber cmdTrajSub_;  // game planner command traj sub
     ros::Subscriber px4PoseSub_;  // px4 pose sub
-    ros::Duration poseTimeDiff_;  // difference btwn current time and last time
     ros::Subscriber px4VelSub_;  // px4 velocity sub
+    ros::Duration poseTimeDiff_;  // difference btwn current time and last time
     ros::Subscriber vrpnSub_;  // subscribe to vrpn
     geometry_msgs::PoseStamped curVrpnPose_;  // current mocap pose,
     ros::ServiceServer emergencyLandSrv_;  // service for emergency landing

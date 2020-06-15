@@ -14,6 +14,7 @@
 #include"mslquad/px4_base_controller.h"
 #include"mslquad/yaw_track_controller.h"
 #include"mslquad/pose_track_controller.h"
+#include"mslquad/traj_track_controller.h"
 #include"mslquad/se3_controller.h"
 
 int main(int argc, char **argv) {
@@ -29,6 +30,8 @@ int main(int argc, char **argv) {
         px4agent = new YawTrackController();
     } else if (ctrlType == "pose_track") {
         px4agent = new PoseTrackController();
+        } else if (ctrlType == "traj_track") {
+        px4agent = new TrajTrackController();
     } else {
         ctrlType = "default";
         px4agent = new PX4BaseController();

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+    <!-- names -->
+    <arg name="mav_name" default="quad"/>
+    <arg name="id" default="0"/>
+    <arg name="quad_ns"  default="$(arg mav_name)$(arg id)"/>
+    <!-- quad params --> 
+    <arg name="auto_takeoff" default="true"/>
+    <arg name="takeoff_height" default="1"/>
+    <arg name="max_vel" default="1.5"/>
+    <!-- trajectory params -->
+    <arg name="traj_timestep" value="0.2"/>
+    <arg name="traj_Kp" value="2"/>
+        <!-- topic -->
+        <arg name="traj_target_topic" default="command/trajectory"/>
+        <!-- file -->
+        <arg name="load_traj_file" default="true"/>
+        <arg name="traj_file" default="$(find mslquad)/params/trajectories/traj.txt"/>
+    
+    <!-- launch call -->
+    <group ns="$(arg quad_ns)">
+        <node pkg="mslquad" type="default_controller" name="default_controller" output="screen">
+            <!-- controller type -->
+            <param name="controller_type" value="traj_track"/>
+            <param name="/simulation" value="true"/>
+            <!-- names -->
+            <param name="quad_ns" value="$(arg quad_ns)"/>
+            <!-- quad params --> 
+            <param name="auto_takeoff" value="$(arg auto_takeoff)"/>
+            <param name="takeoff_height" value="$(arg takeoff_height)" />
+            <param name="max_vel" value="$(arg max_vel)" />
+            <!-- quad control frequncies --> 
+            <param name="control_freq" value="60"/>
+            <param name="slow_freq" value="10"/>
+            <!-- trajectory params -->
+            <param name="traj_timestep" value="0.2"/>
+            <param name="traj_Kp" value="2"/>
+                <!-- topic -->
+                <param name="traj_target_topic" value="$(arg traj_target_topic)"/>
+                <!-- file -->
+                <param name="load_traj_file" value="$(arg load_traj_file)"/>
+                <param name="traj_file" value="$(arg traj_file)"/>
+            
+        </node>
+    </group>
+</launch>
