@@ -1,4 +1,6 @@
-# msl_quad [![Build Status](https://travis-ci.com/StanfordMSL/msl_quad.svg?branch=master)](https://travis-ci.com/StanfordMSL/msl_quad)
+# msl_quad 
+[![Build Status](https://travis-ci.com/StanfordMSL/msl_quad.svg?branch=master)](https://travis-ci.com/StanfordMSL/msl_quad)
+[![Documentation Status](https://readthedocs.org/projects/pip/badge/?version=stable)](https://pip.pypa.io/en/stable/?badge=stable)
 
 Quadrotor aerial robot developed at Multi-Robot Systems Lab.
 
