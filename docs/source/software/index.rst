@@ -9,10 +9,10 @@ Software
    :maxdepth: 2
    :titlesonly:
 
-   PX4_Parameters
-   Flight_Controller
-   Firmware
-   MAVROS
-   Motion_Capture
-   Block_Diagrams
-   External
+   px4_parameters
+   flight_controller
+   firmware
+   mavros
+   motion_capture
+   block_diagrams
+   external
