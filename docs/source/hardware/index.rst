@@ -9,6 +9,6 @@ Hardware
    :maxdepth: 2
    :titlesonly:
 
-   Build_Materials
-   Wiring_Diagrams
-   Remote_Controllers
+   build_materials
+   wiring_diagrams
+   remote_controllers
