@@ -1,5 +1,9 @@
-Software Main Section
-=====================
+========
+Software
+========
+
+.. meta::
+    :description lang=en: Main page for the Software related documentation.
 
 .. toctree::
    :maxdepth: 2

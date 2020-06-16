@@ -14,10 +14,10 @@ MSL Quadrotor Documentation
    :titlesonly:
    :hidden:
 
-   HardwareDocs/index_hardware
-   SoftwareDocs/index_software
-   external_resources
-   references
+   /hardware/index
+   /software/index
+   /external_resources
+   /references
 
 .. Actual summary of our documentation/project
 
