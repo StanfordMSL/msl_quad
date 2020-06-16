@@ -16,6 +16,7 @@ MSL Quadrotor Documentation
 
    /hardware/index
    /software/index
+   /contributing/index
    /external_resources
    /references
 
