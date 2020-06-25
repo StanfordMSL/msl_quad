@@ -3,7 +3,7 @@ Software
 ========
 
 .. meta::
-    :description lang=en: Main page for the Software related documentation.
+    :description lang=en: This section provides a step-by-step guide for basic software configuration along with some situational guides.
 
 .. toctree::
    :maxdepth: 2
