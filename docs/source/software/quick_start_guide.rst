@@ -7,6 +7,16 @@ Last modified: June 2020
 In general, there are three software platforms involved in an mslquad setup; the flight controller,
 the companion computer and the ground control station.
 
+Ground Station Setup
+--------------------
+<include motive. use motive wiki/stanford flightroom docs> 
+This assumes you going to run Ubuntu on the ground station. Well, you should. <work in progress>
+
+Companion Computer
+~~~~~~~~~~~~~~~~~~
+Next, we need to configure the serial port to be able to take in data from the companion computer. <Need to check
+the parameters for this. I think it's changed from what was shown in the github. PX4 now does it semi-automated>.
+
 Flight Controller Setup
 -----------------------
 The flight controller is responsible for low-level control and is usually separate from the companion
@@ -41,12 +51,3 @@ and change the following:
 * EKF2_EV_GATE = 500
 * EKF2_HGT_MODE = vision
 
-Companion Computer
-~~~~~~~~~~~~~~~~~~
-Next, we need to configure the serial port to be able to take in data from the companion computer. <Need to check
-the parameters for this. I think it's changed from what was shown in the github. PX4 now does it semi-automated>.
-
-
-Ground Station Setup
---------------------
-This assumes you going to run Ubuntu on the ground station. Well, you should. <work in progress>

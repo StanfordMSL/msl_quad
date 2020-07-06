@@ -1,8 +1,8 @@
-==================
-Companion Computer
-==================
+=======================
+Mission Control Station
+=======================
 
-<ADD SSH STEP>
+<for all things involving ground based computers (relay,mocap,personal computer)>
 
 The current main companion computer platform on mslquads is the Jetson TX2. Previous
 generations used the Odroid-XU4. Also documented are the steps for an UP Board.

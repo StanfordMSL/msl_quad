@@ -13,4 +13,7 @@ and additional information on other software related topics.
    :titlesonly:
    
    quick_start_guide
+   mission_control
    companion_computer
+   basic_fc
+   advanced_fc
