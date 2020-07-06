@@ -13,10 +13,7 @@ and additional information on other software related topics.
    :titlesonly:
    
    quick_start_guide
-   px4_parameters
-   flight_controller
-   firmware
-   mavros
-   motion_capture
-   block_diagrams
-   external
+   mission_control
+   companion_computer
+   basic_flight_controller
+   advanced_flight_controller
