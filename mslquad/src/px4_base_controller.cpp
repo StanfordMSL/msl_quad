@@ -100,9 +100,6 @@ PX4BaseController::PX4BaseController():
     // start slow timer
     slowTimer_ = nh_.createTimer(ros::Duration(1.0/slowLoopFreq_),
                                  &PX4BaseController::slowTimerCB, this);
-    // start failsafe timer
-    slowTimer_ = nh_.createTimer(ros::Duration(1.0/slowLoopFreq_),
-                                 &PX4BaseController::slowTimerCB, this);
 
     takeoffPose_ = curPose_;  // record takeoff postion before takeoff
     // take off first at the current location
@@ -226,8 +223,8 @@ void PX4BaseController::controlTimerCB(const ros::TimerEvent& event) {
 }
 
 void PX4BaseController::slowTimerCB(const ros::TimerEvent& event) {
-    this->slowLoop();
     this->statusLoop();
+    this->slowLoop();
 }
 
 void PX4BaseController::emergencyFailsafe(void) {
