@@ -2,8 +2,6 @@
 Quick Start Guide
 =================
 
-Last modified: June 2020
-
 In general, there are three software platforms involved in an mslquad setup; the flight controller,
 the companion computer and the ground control station.
 
