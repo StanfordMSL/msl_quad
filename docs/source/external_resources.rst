@@ -24,6 +24,8 @@ Below is a list of useful resources while working with the quadrotor repository.
 * `UAV Game Theoretic Planner <https://github.com/StanfordMSL/uav_game>`_
 
 * `Odroid <https://wiki.odroid.com/>`_
-.. TODO:: Above should be removed once no longer used
-.. TODO:: Link to Odroid image we will be using?
-.. TODO:: Any other resources for v1.0?
+
+..
+  TODO:: Odroid line should be removed once no longer used
+  TODO:: Link to Odroid image we will be using?
+  TODO:: Any other resources for v1.0?
