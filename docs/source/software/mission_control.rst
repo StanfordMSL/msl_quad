@@ -2,6 +2,9 @@
 Mission Control
 ===============
 
+This section is for all things involving ground based computers that are supporting the quad experiments. 
+
+
 For information regarding: 
 
 - Optitrack (our Motion Capture System)
@@ -12,4 +15,4 @@ For information regarding:
 
 see the `MSL FLightroom Documentation <https://stanfordflightroom.github.io/documentation>`_!
 
-.. TODO: For all things involving ground based computers; Relay, MoCap, laptop, etc.
+These tools are useful if you want to monitor the status of the quad from your personal laptop, acquire near ground truth pose information of rigid bodies, or just synchronize your computer's clock with that of the quads. 
