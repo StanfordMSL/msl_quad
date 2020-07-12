@@ -5,8 +5,8 @@ Advanced Flight Controller
 
 This page will go over how to use the trajectory tracking controller. The tracking controller is designed to follow a single trajectory from start to finish using a lower level velocity controller. This controller will run closed loop on the desired trajectory, but is **not** designed to accept a constantly changing trajectory. A trajectory can either be passed via a rostopic or as a ``.txt`` file
 
-* Usage
-* ROS Parameters
+* `Usage`_
+* `ROS Parameters`_
 
 Usage
 =====
@@ -26,7 +26,8 @@ Trajectory Controller Parameters:
 * ``load_traj_file``: Boolean. (``True``)
     Use onboard onboard text file.
 * ``traj_file``: string. (``params/trajectories/traj.txt``)
-    onboard trajectory file. See example file.
+    onboard trajectory file. See example file. Six values per line
+    ``pos_x pos_y pos_z vel_x vel_y vel_z```
 * ``traj_timestep``: float. (0.2)
     timestep (in sec) between sequential waypoints. 
 * ``traj_Kp``: float. (``2.0``)

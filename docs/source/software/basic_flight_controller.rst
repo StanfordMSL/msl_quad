@@ -2,13 +2,13 @@
 Basic Flight Controller
 =======================
 
-The flight controller is responsible for passing high level position information to the px4.
+The flight controller is responsible for passing high level position information to the px4. The Controller is written in C++ and designed to be extended for multiple use cases. To develop your own controller see the controller development page.
 
 This page will cover how to use the basic pose controller:
 
-* Usage
-* Troubleshooting
-* ROS Parameters
+* `Usage`_
+* `Troubleshooting`_
+* `ROS Parameters`_
 
 Usage
 =====
@@ -60,7 +60,7 @@ Verify all of the following
     Verify that the motion capture and quad estimator poses match::
     
         rostopic echo quad0/mavros/vision_pose/pose
-        rostopic echo quad0/mavros/locaal_position/pose
+        rostopic echo quad0/mavros/local_position/pose
 
 ROS Parameters
 ==============
@@ -69,17 +69,17 @@ Basic Parameters:
 You'll find these in the ``pose_controller.launch``  file.
 
 
-* ``takeoff_height``: Takeoff height in m. (1.5)
-     Do **not** set this higher than **2**
-* ``max_vel``: Maximum velocity in m/s. (2)
-    The flight room is pretty small don't go higher than 4 m/s
-* ``auto_takeoff``: Boolean. (True)
+* ``takeoff_height``: float. (1.5)
+     Takeoff height in m. Do **not** set this higher than **2**
+* ``max_vel``: float. (2.0)
+    Maximum velocity in m/s. The flight room is small don't go higher than 4 m/s
+* ``auto_takeoff``: Boolean. (``True``)
     The quad will takeoff as soon as it's armed. **Stand back**. Don't be another statistic.
 
 Pose Controller Parameters:
 
 * ``pose_target_topic``: Rostopic Pose. (``command/pose``)
-    Target pose of the quad
+    Target pose of the quad.
 
 
 
