@@ -5,7 +5,7 @@ External Resources
 .. meta::
     :description lang=en: Main page for external resource related documentation.
 
-Below is a list of useful resources while working with the quadrotor repository.
+Below is a collection of useful resources while working with the quadrotors.
 
 * `Stanford Flightroom <https://stanfordflightroom.github.io/>`_
 
@@ -27,5 +27,5 @@ Below is a list of useful resources while working with the quadrotor repository.
 
 ..
   TODO:: Odroid line should be removed once no longer used
-  TODO:: Link to Odroid image we will be using?
-  TODO:: Any other resources for v1.0?
+  TODO:: Link to Odroid image we will be using? Doesn't exist ATM
+  TODO:: Any other resources for v1.0???
