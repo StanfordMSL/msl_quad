@@ -13,7 +13,7 @@ and additional information on other software related topics.
    :titlesonly:
    
    quick_start_guide
-   mission_control
+   ground_station
    companion_computer
    basic_flight_controller
    advanced_flight_controller
