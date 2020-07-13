@@ -4,13 +4,13 @@ Quick Start Guide
 
 There are three distinct computer groups that require attention during setup:
 
-1. **Mission Control (MC)**: All involved computer units that are on the ground. In most cases, this would be relay.local, mocap.local and your own personal computer.
+1. **Ground Station (GS)**: All involved computer units that are on the ground. In most cases, this would be relay.local, mocap.local and your own personal computer.
 2. **Companion Computer (CC)**: Computer used for direct access to prototype hardware and algorithms. This is usually a Linux distro with direct access to at least one of the Mission Control units.
 3. **Flight Controller (FC)**: This runs direct flight control. Given the safety and real-time requirements for control, this is a discrete unit from the companion computer. This is usually a unit from the Pixhawk family of flight controllers running PX4.
 
 .. TODO: Generate quickstart script and usb sticks
 
-Mission Control Setup
+Ground Station Setup
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 Setup for motion capture (relay.local and mocap.local) can be found at https://stanfordflightroom.github.io/documentation.
 In most cases, users need only make changes on mocap.local. On your own personal computer, ensure you have the following
