@@ -37,11 +37,14 @@ Differential Flatness
   `PDF <https://msl.stanford.edu/sites/default/files/zhouschwagericra14quadvectorfield.pdf>`_
 
 .. TODO:
-    Does DARS have DOIs??? Couldn't find the first paper's DOI
+    - Does DARS have DOIs??? Couldn't find the first paper's DOI
+    - Do we have other papers that need to be added?
+    - Currently get errors for repeating PDF links. Should we make all or part
+      of the reference a link to the PDF?
 
 .. note::
     If you find our work useful for your research, please consider citing us.
 
 .. TODO:
-    Once the updated lab website with filtering options for publications, we
-    might want to consider using that directly.
+    Once the updated lab website with filtering options for publications is
+    compete, we might want to consider using that directly.

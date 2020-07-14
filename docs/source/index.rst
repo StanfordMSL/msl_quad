@@ -74,12 +74,14 @@ Common
 
 - Start mavros and VRPN for mocap: ```roslaunch mslquad quad_vrpn.launch```
 
-- May need to change ```vrpn_server_ip``` in ```launch/vrpn.launch``` to the ip address of the mocap machine.
+- May need to change ```vrpn_server_ip``` in ```launch/vrpn.launch``` to the ip
+  address of the mocap machine.
 
 Trajectory Following
 ~~~~~~~~~~~~~~~~~~~~
 
-- A basic trajectory following controller is implemented in **src/px4_base_controller.cpp**.
+- A basic trajectory following controller is implemented in 
+  **src/px4_base_controller.cpp**.
 
     ```roslaunch mslquad default_controller.launch```
 
@@ -87,7 +89,8 @@ Trajectory Following
   is of type *MultiDOFJointTrajectory*. It's important that the trajectory is
   updated at least 10Hz since the controller uses a simple lookahead strategy.
 
-- At the moment, the controller operates at a fixed height (only works for 2D trajectory). 3D trajectory is TODO. 
+- At the moment, the controller operates at a fixed height (only works for 2D
+  trajectory). 3D trajectory is TODO. 
 
 Tests
 ~~~~~
