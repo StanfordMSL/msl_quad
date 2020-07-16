@@ -5,25 +5,51 @@ References
 .. meta::
     :description lang=en: Main page for reference related documentation.
 
-Hardware & Experiments
-----------------------
+.. note::
+    If you find our work useful for your research, please consider citing us.
+
+.. code-block:: latex
+
+    @article{
+        spica2020realtime,
+        author={R. {Spica} and E. {Cristofalo} and Z. {Wang} and E. {Montijano} and M. {Schwager}},
+        journal={IEEE Transactions on Robotics}, 
+        title={A Real-Time Game Theoretic Planner for Autonomous Two-Player Drone Racing}, 
+        year={2020}}
+
+Drone Racing Experiments
+------------------------
+
+- **R. Spica, D. Falanga, E. Cristofalo, E. Montijano, D. Scaramuzza, and M.
+  Schwager**, *“A Real-Time Game Theoretic Planner for Autonomous Two-Player
+  Drone Racing”,* in Robotics: Science and Systems (RSS), Pittsburgh, PA, USA,
+  2018. *DOI: 10.15607/RSS.2018.XIV.040*
+  `PDF <https://msl.stanford.edu/sites/g/files/sbiybj8446/f/rss18_spica.pdf>`_
+
+- **R. Spica, E. Cristofalo, Z. Wang, E. Montijano and M. Schwager**, *"A
+  Real-Time Game Theoretic Planner for Autonomous Two-Player Drone Racing,"* in
+  IEEE Transactions on Robotics, *DOI: 10.1109/TRO.2020.2994881.*
+  `PDF <https://msl.stanford.edu/sites/g/files/sbiybj8446/f/spica2020realtime.pdf>`_
 
 - **Z. Wang, R. Spica and M. Schwager**, *“Game Theoretic Motion Planning for
   Multi-Robot Racing,”* In Proc. of the International Symposium on Distributed
-  Autonomous Robotics Systems (DARS 18), October, 2018.
-  `PDF <https://msl.stanford.edu/sites/default/files/wang-etal-dars18-mlt-rbt-racing.pdf>`_
+  Autonomous Robotics Systems (DARS 18), October, 2018. *DOI:
+  10.1007/978-3-030-05816-6_16*
+  `PDF <https://msl.stanford.edu/sites/g/files/sbiybj8446/f/wang-etal-dars18-mlt-rbt-racing_0.pdf>`_
 
-Trajectory Generation
----------------------
+- **E. Cristofalo, E. Montijano, and M. Schwager**, *"Vision-based Control for
+  Fast 3D Reconstruction with an Aerial Robot”,* IEEE Transactions on Control
+  Systems Technology (TCST), pp. 1-14, 2019. *DOI: 10.1109/TCST.2019.2905227*
+  `PDF <https://msl.stanford.edu/sites/g/files/sbiybj8446/f/cristofalo2019vision.pdf>`_
+
+Quadrotor Trajectory Planning and Control
+-----------------------------------------
 
 - **Z. Wang, S. Singh, M. Pavone and M. Schwager**, *“Cooperative Object
   Transport in 3D with Multiple Quadrotors using No Peer Communication,”* In
   Proc. of the International Conference on Robotics and Automation (ICRA), pp.
   1064-1071, 2018. *DOI: 10.1109/ICRA.2018.8460742*
   `PDF <https://msl.stanford.edu/sites/default/files/wang.singh_.pavone.ea_.icra18.pdf>`_
-
-Differential Flatness
----------------------
 
 - **D. Zhou, Z. Wang and M. Schwager**, *“Agile Coordination and Assistive
   Collision Avoidance for Quadrotor Swarms Using Virtual Structures,”* IEEE
@@ -37,14 +63,7 @@ Differential Flatness
   `PDF <https://msl.stanford.edu/sites/default/files/zhouschwagericra14quadvectorfield.pdf>`_
 
 .. TODO:
-    - Does DARS have DOIs??? Couldn't find the first paper's DOI
-    - Do we have other papers that need to be added?
     - Currently get errors for repeating PDF links. Should we make all or part
       of the reference a link to the PDF?
-
-.. note::
-    If you find our work useful for your research, please consider citing us.
-
-.. TODO:
-    Once the updated lab website with filtering options for publications is
-    compete, we might want to consider using that directly.
+    - Once the updated lab website with filtering options for publications is
+      compete, we might want to consider using that directly.
