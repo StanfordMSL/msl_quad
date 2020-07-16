@@ -2,7 +2,7 @@
 Basic Flight Controller
 =======================
 
-The flight controller is responsible for passing high level position information to the px4. The Controller is written in C++ and designed to be extended for multiple use cases. To develop your own controller see the controller development page.
+The flight controller is responsible for passing high level position information to the pixhawk/pixracer. The controller is written in C++ and designed to be extended for multiple use cases. To develop your own controller see the controller development page.
 
 This page will cover how to use the basic pose controller:
 
@@ -37,20 +37,20 @@ This will launch the ``pose_controller`` node which allows you to set a goal poi
 
     roslaunch mslquad goal_set.launch
 
-to use a python script to set the goal position. Make sure you change the namespace before using.
+to use a python script to set the goal position. Make sure you change the namespace before using this launch file.
 
 Troubleshooting
 ===============
 .. TODO: make this section a whole other page?
 
-Things will likely break, this is here so you don't break as well. The first you should do it restart everything on the quad and make sure everything is plugged in
+Things will likely break, this is here so you don't break as well. The first you should do is **restart everything on the quad and make sure everything is plugged in.**
 
-Very many things can go wrong after a crash or coffee break, this section is here to help you sort that out. All the examples use "quad0", change that to the quad that's not working.
+All the examples use "quad0", change that to the quad that's not working.
 
 Verify all of the following 
 
 * Serial Connection
-    Verify all the serial connection wires are connected and not loose. If not then run::
+    Verify all the serial connection wires are connected and not loose. To check if px4 is comunicating with ros run::
 
         rostopic echo quad0/mavros/state
 
