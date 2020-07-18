@@ -50,7 +50,7 @@ Wifi Module for Odroid                                            1        `Amer
 RTC battery for Odroid                                            1        `AmeriDroid <https://ameridroid.com/products/rtc-battery>`_
 Male-Female Threaded Hex Standoff, 20mm Length, M2.5 Thread       8        `McMaster <https://www.mcmaster.com/#98952a117/=18p51v7>`_
 Female Threaded Hex Standoff, 10 mm Length, M3 Thread             4        `McMaster <https://www.mcmaster.com/#95947a006/=18p528y>`_
-CP2102 Module USB 2.0 to TTL 6PIN                                 1        `Amazon <https://www.amazon.com/KEDSUM-CP2102-Module-Download-Converter/dp/B009T2ZR6W>`_
+CP2102 Module USB 2.0 to TTL 6PIN                                 1        `Amazon <https://www.amazon.com/Honbay-CP2102-Module-Download-Converter/dp/B01A0BOGHG>`_
 ================================================================ === ================================================================================================================================
 
 Buy appropriate amount of the following accessories:
@@ -70,15 +70,15 @@ Assembly Guide
 #. Attach a MT2213 935KV motor to each F330 arm.
 #. Connect a ZTW Spider ESC to each motor. The ESCs should be physically attached to the arms with plastic tape so they do not interfere with propellers.
 #. Solder two 10 Gauge wires (red and black) to the bottom plate of F330, connecting the end of both wires to a XT 60 connector for battery connection.
-#. Solder two 16 Gauge wires (red and black) to the bottom plate of F330, on top of where the 10 Gauge wires are soldered. The other end of the wires are soldered to　the input+/- terminals of the power distribution board for PixFalcon.
-#. Solder two 16 Gauge wires (red and black) to the bottom plate of F330, on top of where other wirse are soldered. The other end of the wires go to the input terminals of the Polulu Voltage Regulator.
+#. Solder two 16 Gauge wires (red and black) to the bottom plate of F330, on top of where the 10 Gauge wires are soldered. The other end of the wires are soldered to the input+/- terminals of the power distribution board for PixFalcon.
+#. Solder two 16 Gauge wires (red and black) to the bottom plate of F330, on top of where other wires are soldered. The other end of the wires go to the input terminals of the Polulu Voltage Regulator.
 #. Solder a DC power plug to the output terminals of the voltage regulator. This plug will power the Odroid. 
 #. Attach the Pixfalcon power distribution board, Pololu voltage regulator, and the Odroid onto a laser-cut acrylic board. The Odroid is mounted with four 3D-printed Odroid Raiser (i.e. short standoffs) facing downwards. Attach the acrylic board to the F330 bottom plate.
 #. Attach two 3D-printed Landing Gears to the F330 bottom plate so the Odroid does not touch the ground directly.
-#. Sandwitch the four F330 arms with the bottom and the top plate of the F330 frame, using four screws only. The other four halls are for the 20mm male-female standoffs.
+#. Sandwich the four F330 arms with the bottom and the top plate of the F330 frame, using four screws only. The other four halls are for the 20mm male-female standoffs.
 #. Attach a 3D-printed Pixfalcon Holder onto the top plate and tighten the screws.
 #. Stick the Pixfalcon flight controller carefully onto the Pixfalcon Holder with a piece of glue sponge that is included in the flight controller kit.
 #. Put a 3D-printed Pixfalcon Cover onto the four standoffs so it covers the flight controller.
-#. Use another set of four 20mm male-female standoffs to sandwitch the Pixfalcon Cover.
+#. Use another set of four 20mm male-female standoffs to sandwich the Pixfalcon Cover.
 #. Put a 3D-printed top layer on top of the four standoffs. Place the specturm receiver and the PixFalcon GPS module appropriately onto the top layer.
 #. Complete the wiring. Upload a PX4 Firmware of an appropriate version to the Pixfalcon onboard. Do not attach propellers to the quads until you make sure that the motors are controlled as intended.
