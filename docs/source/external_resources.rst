@@ -5,4 +5,27 @@ External Resources
 .. meta::
     :description lang=en: Main page for external resource related documentation.
 
-.. TODO: Stanford Flightroom, QGround control docs, PX4 docs, MSL github, odroid (cloned image), 
+Below is a collection of useful resources while working with the quadrotors.
+
+* `Stanford Flightroom <https://stanfordflightroom.github.io/>`_
+
+* `QGroundControl <https://docs.qgroundcontrol.com/en/>`_
+
+* `PX4 <https://docs.px4.io/master/en/index.html>`_
+
+* `MSL GitHub <https://github.com/StanfordMSL>`_
+
+* `MSL Raptor <https://github.com/StanfordMSL/MSL-RAPTOR>`_
+
+* `Quad Manip <https://github.com/StanfordMSL/QuadsManip>`_
+
+* `Quadrotor Sim <https://github.com/StanfordMSL/quadrotor_sim>`_
+
+* `UAV Game Theoretic Planner <https://github.com/StanfordMSL/uav_game>`_
+
+* `Odroid <https://wiki.odroid.com/>`_
+
+..
+  TODO:: Odroid line should be removed once no longer used
+  TODO:: Link to Odroid image we will be using? Doesn't exist ATM
+  TODO:: Any other resources for v1.0???
