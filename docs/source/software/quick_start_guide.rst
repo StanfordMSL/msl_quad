@@ -5,23 +5,22 @@ Quick Start Guide
 There are three distinct computer groups that require attention during setup:
 
 1. **Ground Station (GS)**: All involved computer units that are on the ground. In most cases, this would be relay.local, mocap.local and your own personal computer.
-2. **Companion Computer (CC)**: Computer used for direct access to prototype hardware and algorithms. This is usually a Linux distro with direct access to at least one of the Mission Control units.
+2. **Companion Computer (CC)**: Computer used for direct access to prototype hardware and algorithms. This is usually a Linux distro with direct access to at least one of the Ground Station units.
 3. **Flight Controller (FC)**: This runs direct flight control. Given the safety and real-time requirements for control, this is a discrete unit from the companion computer. This is usually a unit from the Pixhawk family of flight controllers running PX4.
 
 .. TODO: Generate quickstart script and usb sticks
 
 Ground Station Setup
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Setup for motion capture (relay.local and mocap.local) can be found at https://stanfordflightroom.github.io/documentation.
-In most cases, users need only make changes on mocap.local. On your own personal computer, ensure you have the following
+Setup for motion capture (relay.local and mocap.local) can be found `here <https://stanfordflightroom.github.io/documentation>`__. In most cases, users need only make changes on mocap.local. On your own personal computer, ensure you have the following
 software:
 
-1. **ROS (melodic)**: For interface with mocap.local and CC during flight.
-2. **QGroundControl**: For setup of flight controller.
-3. **Terminator**: It makes the multitude of terminals that you will be needing a little tidier.
+1. `ROS (melodic) <http://wiki.ros.org/melodic/Installation/Ubuntu>`__: For interface with mocap.local and CC during flight.
+2. `QGroundControl <http://qgroundcontrol.com/downloads/>`__: For setup of flight controller.
+3. `Terminator <https://gnometerminator.blogspot.com/p/introduction.html>`__: It makes the multitude of terminals that you will be needing a little tidier.
 
 Within ROS, you might need certain packages and associated software (e.g the vrpn client, rviz, gazebo)
-and so a full ROS-desktop install is adviced. For reference, you could use the following script:
+and so a full ROS-desktop install is advised. For reference, you could use the following script:
 ::
 
     sudo apt-get install ros-melodic-mavros ros-melodic-mavros-extras ros-melodic-vrpn-client-ros
