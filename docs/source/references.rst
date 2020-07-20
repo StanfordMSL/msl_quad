@@ -6,7 +6,7 @@ References
     :description lang=en: Main page for reference related documentation.
 
 .. important::
-    If you find our work useful for your research, please citing us.
+    If you find our work useful for your research, please cite our publications.
 
     .. code-block:: bibtex
 
@@ -28,7 +28,7 @@ Drone Racing Experiments
 
 - **R. Spica, E. Cristofalo, Z. Wang, E. Montijano and M. Schwager**, *"A
   Real-Time Game Theoretic Planner for Autonomous Two-Player Drone Racing,"* in
-  IEEE Transactions on Robotics. *DOI: 10.1109/TRO.2020.2994881.*
+  IEEE Transactions on Robotics. 2020. *DOI: 10.1109/TRO.2020.2994881.*
   `PDF <https://msl.stanford.edu/sites/g/files/sbiybj8446/f/spica2020realtime.pdf>`_
 
 - **Z. Wang, R. Spica and M. Schwager**, *“Game Theoretic Motion Planning for

@@ -74,9 +74,6 @@ Common
 
 - Start mavros and VRPN for mocap: ```roslaunch mslquad quad_vrpn.launch```
 
-- May need to change ```vrpn_server_ip``` in ```launch/vrpn.launch``` to
-  ```mocap```.
-
 Trajectory Following
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -87,23 +84,8 @@ Trajectory Following
 
 - The controller accepts trajectory from topic ```command/trajectory```, which
   is of type *MultiDOFJointTrajectory*. It's important that the trajectory is
-  updated at least 10Hz since the controller uses a simple lookahead strategy.
-
-Tests
-~~~~~
-
-- Test position control: 
-
-    ```roslaunch mslquad pos_ctrl_test.launch```
-
-- Test velocity control: 
-    
-    ```roslaunch mslquad vel_ctrl_test.launch```
-
-- Experimental: test direct motor control (se3 control). This requires
-  `custom PX4 firmware <https://github.com/StanfordMSL/Firmware/tree/msl-quads-manip>`_
-
-    ```roslaunch mslquad se3controller.launch```
+  updated at a frequency of at least 10Hz since the controller uses a simple
+  lookahead strategy.
 
 Demo Videos
 ===========
