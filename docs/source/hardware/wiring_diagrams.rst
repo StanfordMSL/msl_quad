@@ -16,6 +16,10 @@ On the Orbitty Carrier, connect... to the Pixracer...
 16, 18, 19, or 20 GND              6                        GND
 ================= ================ ======================== ===============
 
+Diagram:
+
+.. image:: ../../_static/images/hardware/orbitty_to_pixracer.png
+
 | **Resources**:
 | `Orbitty Carrier <http://connecttech.com/product/orbitty-carrier-for-nvidia-jetson-tx2-tx1/>`_ board product page with technical references.
 | `Pixracer <https://docs.px4.io/v1.9.0/en/flight_controller/pixracer.html>`_ documentation page.
@@ -35,6 +39,10 @@ On the ODROID-XU4 CON10 header, connect... to the Pixracer...
 6                 UART_0.RXD 1.8v          2                        TX (OUT) 3.3v
 2, 28, or 30      GND                      6                        GND
 ================= ======================== ======================== ===============
+
+Diagram, using a `Sparkfun Logic Level Converter <https://www.sparkfun.com/products/12009>`_:
+
+.. image:: ../../_static/images/hardware/odroidxu4_to_pixracer.png
 
 | **Resources**:
 | `ODROID-XU4 <https://wiki.odroid.com/odroid-xu4/hardware/expansion_connectors>`_ expansion connectors technical reference.
