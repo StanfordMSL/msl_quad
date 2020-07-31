@@ -5,100 +5,145 @@ Remote Controllers
 .. meta::
     :description lang=en: Hardware page for the quadrotor's remote control transmitter.
 
-The quadrotors require a standard remote control transmitter to 
+The quadrotors require a standard remote control transmitter to do the following. 
 
-* arm the flight controller, 
-* select flight control modes, 
-* fly manually, and
-* perform emergency landings. 
+#. Arm or disarm the flight controller
+#. Toggle between flight control modes
+#. Fly manually using the transmitter
+#. Perform emergency landings
 
-We use the Spektrum DX6e 6-channel transmitter. This page documents the configuration of this transmitter and its use with the quadrotors. 
+We use the Spektrum DX6e 6-channel transmitter. This page documents the :ref:`configuation <remote-controllers-configuration>` of this transmitter and its :ref:`use <remote-controllers-use>` with the quadrotors. 
 
-Configurations
-------------------
+.. _remote-controllers-configuration:
 
-There are three transmitter features to be familiar with: 1) the control sticks, 2) the flight mode toggle, and 3) the arm/disarm toggle and the throttle cut toggle. 
+Remote Controller Configuration
+===============================
 
-**Control Sticks**
+There are three transmitter features to be familiar with: 
+
+#. Control sticks
+#. Flight mode toggle
+#. Throttle cut toggle
+
+.. important::
+  The default position for all toggles is the **0** position (pointed furthest away from the user). This is depicted in the image below. Ensure all toggles are set to the **0** position before using the controller. 
+
+Control Sticks
+--------------
+
 The control stick control the throttle, roll, pitch, and yaw of the quadrotor. The *zero configuration* is illustrated in the image below where all sticks are at the center of their range. 
 
-**Flight Mode Toggle**
-The flight mode toggle switches between stability mode (0), position hold mode (1), and offboard mode (2). 
+Flight Mode Toggle
+------------------
 
-**Arm/Disarm Toggle**
-The arm/disarm toggle arms (1) or disarms (0) the quadrotor. The optional throttle cut switch cuts the throttle if moved from the (0) position. This is a last resort option to stop the motors from spinning. *DO NOT* cut throttle in flight as the quadrotor will drop to the ground. 
+The flight mode toggle switches between stability mode (**0**), position hold mode (**1**), and offboard mode (**2**). More discussion of these modes is in the :ref:`remote controller use <remote-controllers-use>` section below.  
 
-.. image:: spektrum_configuration_front.jpg
+Throttle Cut Toggle
+-------------------
+
+The throttle cut toggle does nothing in the **0** position and cuts the throttle in the **1** position. This is an emergency method of stopping the rotors from spinning. 
+
+.. warning::
+  **Do not** cut throttle in flight as the quadrotor will drop out of the air. 
+
+.. image:: /_static/images/hardware/remote_controllers_front.jpg
+  :target: ../_static/images/hardware/remote_controllers_front.jpg
   :width: 310px
   :alt: Spektrum Configuration Front
   :align: left
 
-.. image:: spektrum_configuration_top.jpg
+.. image:: /_static/images/hardware/remote_controllers_top.jpg
+  :target: ../_static/images/hardware/remote_controllers_top.jpg
   :width: 310px
   :alt: Spektrum Configuration Top
   :align: right
 
-Use
-------------------
 
-Please read this entire section before attempting to fly a quadrotor -- even autonomously. Familiarity with the emergency landing procedure can save quadrotors, time, and prevent injuries. 
+.. _remote-controllers-use:
 
-**Preflight Check**
+Remote Controller Use
+=====================
 
-* Ensure throttle is all the way down (not in the zero configuration)
-* Ensure all switches are set to the default 0 position
-* Launch quadrotor mocap ROS nodes (the quadrotor cannot fly without pose feedback from mocap)
+.. important::
+   Please read this entire section before attempting to fly a quadrotor -- even autonomously -- as errors can cause serious injury. 
 
-.. TODO:: Add a link here to the mocap documentation page
+Basic Flight Procedures
+-----------------------
 
-**Arm Procedure**
+We summarize the basic use of the transmitter for quadrotor flight and refer the reader to the :doc:`quick start guide <../software/quick_start_guide>` for additional information on setting up the quadrotor. 
 
-* Perform preflight check
-* Arm quadrotor's safety button located on the flight controller
-* With thottle down, slide yaw control all the way to the left and hold for 2 seconds
-* Flip the arm toggle to 1
-* The drone is now armed and ready for flight
+Preflight Check
+^^^^^^^^^^^^^^^
 
-**Disarm Procedure**
+#. Ensure throttle is all the way down (not in the zero configuration)
+#. Ensure all switches are set to the default **0** position
+#. Launch quadrotor mocap ROS nodes (the quadrotor cannot fly without pose feedback from mocap)
 
-* Flip the arm toggle to 1
-* With thottle down, slide yaw control all the way to the right and hold for 2 seconds
-* Disarm quadrotor's safety button located on the flight controller
-* The drone is now safe to be handled
+Arm Procedure
+^^^^^^^^^^^^^
 
-.. TODO:: Maybe we can refer to another page that specifies the different flight modes so we don't clutter this page? Then each of the following sections can just link to that page. 
+#. Perform preflight check
+#. Arm quadrotor's safety button located on the flight controller
+#. With thottle down, slide yaw control all the way to the left and hold for 2 seconds
+#. The drone is now armed and ready for flight
 
-**Stability Flight**
+Disarm Procedure
+^^^^^^^^^^^^^^^^
 
+#. With thottle down, slide yaw control all the way to the right and hold for 2 seconds
+#. Disarm quadrotor's safety button located on the flight controller
+#. The drone is now safe to be handled
+
+Emergency Landing Procedure
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+#. Switch the quadrotor to stability flight
+#. Gently decrease the throttle to land
+#. [Optional] Cut throttle by setting the throttle cut toggle to the **1** position
+#. Disarm the quadrotor
+
+Flight Mode Procedures
+----------------------
+
+We summarize the instructions for using each flight mode with the quadrotor. Additional information on each flight mode can be found in the `PX4 flight mode documentation`_.
+
+.. _PX4 flight mode documentation: https://docs.px4.io/v1.9.0/en/flight_modes/#multicopter
+
+Stability Flight
+^^^^^^^^^^^^^^^^
 Stability mode enables you to fly the quadrotor manually using the transmitter as you would expect on a normal drone. Here, the throttle stick position is proportional to thrust. To fly manually in stability mode:
 
-* Arm the quadrotor
-* Take off by gently increasing the throttle
+#. Arm the quadrotor
+#. Take off by gently increasing the throttle
 
-**Position Hold Flight**
+Position Hold Flight
+^^^^^^^^^^^^^^^^^^^^
 
-Position hold flight uses mocap pose feedback to keep the quadrotor hovering at desired waypoints. These waypoints are set using the transmitter's control sticks. Here, all of the sticks *must* be set in the zero configuration (in the middle of their range). Deviation from the zero configuration modifies the new waypoint. For example, if the quadrotor is hovering and you increase the thottle stick from the zero configuration upwards, the quadrotor will fly higher. This is *different* from stability flight. To fly in position hold mode:
+Position hold flight uses mocap pose feedback to keep the quadrotor hovering at desired waypoints. These waypoints are set using the transmitter's control sticks. 
 
-* Arm the quadrotor
-* Flip flight mode toggle to the 1 position
-* Ensure all sticks are in the zero configuration
-* Take off by gently increasing the throttle
-* Remember to return the sticks to the zero configuration if you want the quadrotor to hover
-* Land by decreasing the throttle gently
+.. warning::
+  All sticks **must** be set in the zero configuration (in the middle of their range). Deviation from the zero configuration modifies the new waypoint. For example, if the quadrotor is hovering and you increase the thottle stick from the zero configuration upwards, the quadrotor will fly higher. This is *different* from stability flight. 
 
-**Offboard Flight**
+To fly in position hold mode:
 
-Offboard flight allows the quadrotor to maneuver according to external commands. The sticks on the transmitter will *not* respond in this mode. It is important to be prepared to switch out of offboard mode when testing autonomous flight in case there is an emergency and you need to land manually (either in position hold or stability mode). To fly in offboard mode:
+#. Arm the quadrotor
+#. Flip flight mode toggle to the **1** position
+#. Ensure all sticks are in the zero configuration
+#. Take off by gently increasing the throttle
+#. Remember to return the sticks to the zero configuration if you want the quadrotor to hover
+#. Land by decreasing the throttle gently
 
-* Arm the quadrotor
-* Flip flight mode toggle to the 2 position (the quadrotor is now awaiting commands)
-* Launch external command node (be careful as the quadrotor will immediately respond)
+Offboard Flight
+^^^^^^^^^^^^^^^
 
-**Emergency Landing Procedure**
+Offboard flight allows the quadrotor to maneuver according to external commands. 
 
-In the event of an emergency:
+.. warning::
+  The sticks on the transmitter will **not** respond in this mode. It is important to be prepared to switch out of offboard mode when testing autonomous flight in case there is an emergency and you need to land manually (either in position hold or stability mode). 
 
-* Switch the quadrotor to stability flight
-* Gently decrease the throttle to land
-* Disarm the quadrotor
-* [Optional] Cut throttle by setting the thottle cut toggle to 1 or 2
+To fly in offboard mode:
+
+#. Arm the quadrotor
+#. Flip flight mode toggle to the **2** position (the quadrotor is now awaiting commands)
+#. Launch external command node (be careful as the quadrotor will immediately respond)
+
