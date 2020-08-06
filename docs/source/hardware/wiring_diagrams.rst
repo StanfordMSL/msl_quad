@@ -4,6 +4,7 @@ Wiring Diagrams
 
 Interfacing an NVIDIA TX2 on an Orbitty Carrier with a Pixracer
 ---------------------------------------------------------------
+
 Using the serial interface:
 
 ================= ================ ======================== ===============
@@ -18,15 +19,19 @@ On the Orbitty Carrier, connect... to the Pixracer...
 
 Diagram:
 
-.. image:: ../../_static/images/hardware/orbitty_to_pixracer.png
+.. image:: ../_static/images/hardware/orbitty_to_pixracer.png
 
 | **Resources**:
-| `Orbitty Carrier <http://connecttech.com/product/orbitty-carrier-for-nvidia-jetson-tx2-tx1/>`_ board product page with technical references.
-| `Pixracer <https://docs.px4.io/v1.9.0/en/flight_controller/pixracer.html>`_ documentation page.
+| `Orbitty Carrier <http://connecttech.com/product/orbitty-carrier-for-nvidia-jetson-tx2-tx1/>`_ \
+ board product page with technical references.
+| `Pixracer <https://docs.px4.io/v1.9.0/en/flight_controller/pixracer.html>`_ \
+ documentation page.
 
 Interfacing an ODROID-XU4 with a Pixracer
 -----------------------------------------
-**WARNING**: using the serial interface on the ODROID-XU4 requires a logic level shifter, as the ODROID uses 1.8v logic and the Pixracer uses 3.3v logic. 
+
+.. warning:: using the serial interface on the ODROID-XU4 requires a logic level
+ shifter, as the ODROID uses 1.8v logic and the Pixracer uses 3.3v logic. 
 
 Using the serial interface:
 
@@ -42,8 +47,10 @@ On the ODROID-XU4 CON10 header, connect... to the Pixracer...
 
 Diagram, using a `Sparkfun Logic Level Converter <https://www.sparkfun.com/products/12009>`_:
 
-.. image:: ../../_static/images/hardware/odroidxu4_to_pixracer.png
+.. image:: ../_static/images/hardware/odroidxu4_to_pixracer.png
 
 | **Resources**:
-| `ODROID-XU4 <https://wiki.odroid.com/odroid-xu4/hardware/expansion_connectors>`_ expansion connectors technical reference.
-| `Pixracer <https://docs.px4.io/v1.9.0/en/flight_controller/pixracer.html>`_ documentation page.
+| `ODROID-XU4 <https://wiki.odroid.com/odroid-xu4/hardware/expansion_connectors>`_ \
+ expansion connectors technical reference.
+| `Pixracer <https://docs.px4.io/v1.9.0/en/flight_controller/pixracer.html>`_ \
+ documentation page.
