@@ -30,8 +30,9 @@ Diagram:
 Interfacing an ODROID-XU4 with a Pixracer
 -----------------------------------------
 
-.. warning:: using the serial interface on the ODROID-XU4 requires a logic level
- shifter, as the ODROID uses 1.8v logic and the Pixracer uses 3.3v logic. 
+.. warning::
+   Using the serial interface on the ODROID-XU4 requires a logic level shifter,
+   as the ODROID uses 1.8v logic and the Pixracer uses 3.3v logic. 
 
 Using the serial interface:
 
