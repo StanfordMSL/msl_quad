@@ -107,8 +107,8 @@ generate_messages(
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
   INCLUDE_DIRS include
-#  LIBRARIES mslquad
-#  CATKIN_DEPENDS roscpp rospy
+  LIBRARIES $(PROJECT_NAME)
+  CATKIN_DEPENDS roscpp
 #  DEPENDS system_lib
 )
 
@@ -127,6 +127,19 @@ include_directories(
 # add_library(${PROJECT_NAME}
 #   src/${PROJECT_NAME}/mslquad.cpp
 # )
+# really these don't need to all be shoved into the libaray
+# only BASE CONTROLLER needs to be a libaray because it should not be a node build target
+# the only reason these are being turned into the library is because of the "default_node" target
+add_library(${PROJECT_NAME}
+  src/px4_base_controller.cpp
+  src/yaw_track_controller.cpp
+  src/pose_track_controller.cpp
+  src/traj_track_controller.cpp
+  src/se3_controller.cpp)
+target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_generate_messages_cpp)
+
+
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
@@ -136,6 +149,10 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
+
+# THESE ARE OLD TESTS AND _DO NOT_ LINK AGAINST THE MSLQUAD LIB
+# THIS IS BAD
+# THIS NEEDS TO GO AWAY
 add_executable(actuator_test src/actuator_test/actuator_test.cpp)
 target_link_libraries(actuator_test ${catkin_LIBRARIES})
 
@@ -145,24 +162,21 @@ target_link_libraries(pos_ctrl_test ${catkin_LIBRARIES})
 add_executable(vel_ctrl_test src/vel_ctrl_test/vel_ctrl_test.cpp)
 target_link_libraries(vel_ctrl_test ${catkin_LIBRARIES})
 
+
+# THIS IS A VERY OLD THING AND SHOULD GO AWAY 
 add_executable(follower src/follower/follower.cpp)
 target_link_libraries(follower ${catkin_LIBRARIES})
 
-add_library(controller_lib
-  src/px4_base_controller.cpp
-  src/yaw_track_controller.cpp
-  src/pose_track_controller.cpp
-  src/traj_track_controller.cpp
-  src/se3_controller.cpp)
-add_dependencies(controller_lib ${PROJECT_NAME}_generate_messages_cpp)
 
-add_executable(default_controller 
-  src/default_controller_node.cpp)
-target_link_libraries(default_controller ${catkin_LIBRARIES} controller_lib)
+# THIS IS HOW THINGS SHOULD BE DONE
+# we really just only be generating build targets that use the actual lib
+add_executable(default_controller src/default_controller_node.cpp)
+target_link_libraries(default_controller ${catkin_LIBRARIES} ${PROJECT_NAME})
 
 add_executable(safety src/safety.cpp)
-target_link_libraries(safety ${catkin_LIBRARIES})
 add_dependencies(safety ${PROJECT_NAME}_generate_messages_cpp)
+target_link_libraries(safety ${catkin_LIBRARIES} ${PROJECT_NAME})
+
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -201,11 +215,11 @@ add_dependencies(safety ${PROJECT_NAME}_generate_messages_cpp)
 # )
 
 ## Mark cpp header files for installation
-# install(DIRECTORY include/${PROJECT_NAME}/
-#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+install(DIRECTORY include/${PROJECT_NAME}/
+   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
 #   FILES_MATCHING PATTERN "*.h"
 #   PATTERN ".svn" EXCLUDE
-# )
+)
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
 # install(FILES
