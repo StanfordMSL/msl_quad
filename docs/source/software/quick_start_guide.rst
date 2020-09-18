@@ -106,3 +106,7 @@ QGroundControl and change the following:
 * EKF2_EVP_NOISE = 0.01
 * EKF2_EV_GATE = 500
 * EKF2_HGT_MODE = vision
+
+
+Safety  
+=======================
