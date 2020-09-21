@@ -2,17 +2,39 @@
 Ground Station
 ===============
 
-This section is for all things involving ground based computers that are supporting the quad experiments. 
+This section is for all things involving ground-based computers that are supporting the quad experiments. Apart from your own personal computer, you also need to have Optitrack (our motion capture system running on relay.local and mocap.local in Stanford Flight Room) setup and streaming rigid body information. More information on how to setup the motion capture system can be found in the `Stanford Flight Room Documentation <https://stanfordflightroom.github.io/documentation>`_. In most cases, users only need to make changes on mocap.local, such as modifying and registering rigid bodies through the Motive Software. 
+
+The following software needs to be installed on your own computer:
+
+1. `ROS (melodic) <http://wiki.ros.org/melodic>`_:
+   For interface with mocap.local and the Companion Computer during flight.
+2. `QGroundControl <http://qgroundcontrol.com/downloads/>`_:
+   For setup of flight controller.
+3. `Terminator <https://gnometerminator.blogspot.com/p/introduction.html>`_:
+   It makes the multitude of terminals that you will be needing a little
+   tidier.
+
+ROS Melodic Installation and Setup
+----------------------------------
+Please see the official `installation instructions <http://wiki.ros.org/melodic/Installation/Ubuntu>`_. Note that ROS Melodic is primarily targeted at the Ubuntu 18.04 (Bionic) release. Setup instructions specific to Stanford Flight Room can be found `here <https://stanfordflightroom.github.io/start_ros>`_.
+
+QGroundControl Installation and Setup
+-------------------------------------
+QGroundControl is used to configure the quads. To install and run QGroundControl on your personal computer, follow the Ubuntu Linux section of the `instructions page <https://docs.qgroundcontrol.com/master/en/getting_started/download_and_install.html>`_.
 
 
-For information regarding: 
+Terminator Installation
+-----------------------
+This step is optional, although we highly recommend that you use Terminator to monitor multiple streams of ROS topics before and during flight. Terminator lets you arrange multiple terminals in grids and save layouts. See the `introduction page <https://gnometerminator.blogspot.com/p/introduction.html>`_ for more information and installation instructions, 
 
-- Optitrack (our Motion Capture System)
-- Connecting to the Local Network
-- Using ROS
-- Our current Flightroom-specific computer setup 
-- and much, much, more
+.. For information regarding: 
 
-see the `MSL Flightroom Documentation <https://stanfordflightroom.github.io/documentation>`_!
+.. - Optitrack (our Motion Capture System)
+.. - Connecting to the Local Network
+.. - Using ROS
+.. - Our current Flightroom-specific computer setup 
+.. - and much, much, more
 
-These tools are useful if you want to monitor the status of the quad from your personal laptop, acquire near ground truth pose information of rigid bodies, or just synchronize your computer's clock with that of the quads. 
+.. see the `MSL Flightroom Documentation <https://stanfordflightroom.github.io/documentation>`_!
+
+.. These tools are useful if you want to monitor the status of the quad from your personal laptop, acquire near ground truth pose information of rigid bodies, or just synchronize your computer's clock with that of the quads. 
