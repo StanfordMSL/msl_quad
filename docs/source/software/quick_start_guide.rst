@@ -108,5 +108,33 @@ QGroundControl and change the following:
 * EKF2_HGT_MODE = vision
 
 
-Safety  
-=======================
+Safety Checklist
+==================
+
+Make sure you complete the following check list *before every flight*. Most of the checks are automated by the controller on startup, but that is no substitute for good ole human caution.
+
+
+Hardware
+----------
+
+1. Mechanical
+    a. All *4* rotors are tightly secured
+    b. Battery is secured 
+2. Electrical 
+    a. The fcu serial connection is secured between the px4 and cc
+    b. Battery voltage is over the nominal 11.5v (*DO NOT* start a flight with less than this voltage)
+
+
+Software
+--------
+
+1. Motive
+    a. z is up
+    b. quad frame is aligned with room (room's long-axis is quad x-axis)
+2. ROS Topics
+    a. ``local_position/pose`` matches ``vision_pose/pose``
+    b.  ``state`` has ``connected=True``
+3. Quad arms on the ground 
+    a. This can be checked without even ssh-ing the quad
+    b. You will not have attitude control
+    c. Do not try to takeoff, just arm check propeller rotation and disarm
