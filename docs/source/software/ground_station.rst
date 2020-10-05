@@ -8,7 +8,7 @@ The following software needs to be installed on your own computer:
 
 1. `ROS (melodic) <http://wiki.ros.org/melodic>`_:
    For interface with mocap.local and the Companion Computer during flight.
-2. `QGroundControl <http://qgroundcontrol.com/downloads/>`_:
+2. `QGroundControl <http://qgroundcontrol.com>`_:
    For setup of flight controller.
 3. `Terminator <https://gnometerminator.blogspot.com/p/introduction.html>`_:
    It makes the multitude of terminals that you will be needing a little
@@ -20,12 +20,12 @@ Please see the official `installation instructions <http://wiki.ros.org/melodic/
 
 QGroundControl Installation and Setup
 -------------------------------------
-QGroundControl is used to configure the quads. To install and run QGroundControl on your personal computer, follow the Ubuntu Linux section of the `instructions page <https://docs.qgroundcontrol.com/master/en/getting_started/download_and_install.html>`_.
+QGroundControl is used to configure the quads. To install and run QGroundControl on your personal computer, follow the Ubuntu Linux section of the `instructions page <https://docs.qgroundcontrol.com/master/en/getting_started/download_and_install.html#ubuntu>`_.
 
 
 Terminator Installation
 -----------------------
-This step is optional, although we highly recommend that you use Terminator to monitor multiple streams of ROS topics before and during flight. Terminator lets you arrange multiple terminals in grids and save layouts. See the `introduction page <https://gnometerminator.blogspot.com/p/introduction.html>`_ for more information and installation instructions, 
+This step is optional, although we highly recommend that you use Terminator or a similar tool to monitor multiple streams of ROS topics before and during flight. Terminator lets you arrange multiple terminals in grids and save layouts. See the `introduction page <https://gnometerminator.blogspot.com/p/introduction.html>`_ for more information and installation instructions.
 
 .. For information regarding: 
 
