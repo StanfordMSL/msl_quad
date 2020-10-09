@@ -112,31 +112,44 @@ Safety Checklist
 ==================
 
 .. important::
-  Make sure you complete the following check list *before every flight*. Most of the checks are automated by the controller on startup, but that is no substitute for good ole human caution.
+
+    Make sure you complete the following check list *before every flight*. Most
+    of the checks are automated by the controller on startup, but that is no
+    substitute for good ole human caution.
 
 
 Hardware
 ----------
 
 1. Mechanical
+
     a. All *4* rotors are tightly secured (more than hand tight)
-    b. Battery is secured 
-2. Electrical 
+    b. Battery is secured
+
+2. Electrical
+
     a. The fcu serial connection is secured between the px4 and cc
-    b. Battery voltage is over the nominal 11.5v (*DO NOT* start a flight with less than this voltage)
+    b. Battery voltage is over the nominal 11.5v (*DO NOT* start a flight with
+       less than this voltage)
 
 
 Software
 --------
 
 1. Motive
+
     a. z is up
     b. quad frame is aligned with room (room's long-axis is quad x-axis)
+
 2. ROS Topics
+
     a. ``local_position/pose`` matches ``vision_pose/pose``
     b.  ``state`` has ``connected=True``
+
 3. PX4 Arms
+
     a. Arm the quad but *DO NOT* takeoff as you will not have attitude control
-    b. This checks that the PX4 is correctly communicating with the onboard sensors
+    b. This checks that the PX4 is correctly communicating with the onboard
+       sensors
     c. This can be checked without even ssh-ing the quad
     d. Do not try to takeoff, just arm check propeller rotation and disarm
