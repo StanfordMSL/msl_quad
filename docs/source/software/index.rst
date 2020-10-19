@@ -15,5 +15,6 @@ and additional information on other software related topics.
    quick_start_guide
    ground_station
    companion_computer
+   FMU_computer
    basic_flight_controller
    advanced_flight_controller
