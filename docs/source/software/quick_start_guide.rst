@@ -112,29 +112,40 @@ Safety Checklist
 ==================
 
 .. important::
-  Make sure you complete the following check list *before every flight*. Most of the checks are automated by the controller on startup, but that is no substitute for good ole human caution.
+
+    Make sure you complete the following check list *before every flight*. Most
+    of the checks are automated by the controller on startup, but that is no
+    substitute for good ole human caution.
 
 
 Hardware
 ----------
 
 1. Mechanical
+
     a. All *4* rotors are tightly secured (more than hand tight)
-    b. Battery is secured 
-2. Electrical 
+    b. Battery is secured
+
+2. Electrical
+
     a. The fcu serial connection is secured between the px4 and cc
-    b. Battery voltage is over the nominal 11.5v (*DO NOT* start a flight with less than this voltage)
+    b. Battery voltage is over the nominal 11.5v (*DO NOT* start a flight with
+       less than this voltage)
 
 
 Software
 --------
 
 1. Motive
+
     a. z is up
     b. quad frame is aligned with room (room's long-axis is quad x-axis)
+
 2. ROS Topics
+
     a. ``local_position/pose`` matches ``vision_pose/pose``
     b.  ``state`` has ``connected=True``
+    
 3. PX4 Arms and Kills
     a. Arm the quad by pinching the sticks down and inwards. DO NOT push up throttle stick after arm as this will cause the craft to take off.
     b. Gently push the throttle stick up until the motors start spinning. check that the propeller rotation is in the correct direction.
