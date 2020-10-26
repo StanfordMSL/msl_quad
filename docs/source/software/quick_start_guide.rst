@@ -135,8 +135,8 @@ Software
 2. ROS Topics
     a. ``local_position/pose`` matches ``vision_pose/pose``
     b.  ``state`` has ``connected=True``
-3. PX4 Arms
-    a. Arm the quad but *DO NOT* takeoff as you will not have attitude control
-    b. This checks that the PX4 is correctly communicating with the onboard sensors
-    c. This can be checked without even ssh-ing the quad
-    d. Do not try to takeoff, just arm check propeller rotation and disarm
+3. PX4 Arms and Kills
+    a. Arm the quad by pinching the sticks down and inwards. DO NOT push up throttle stick after arm as this will cause the craft to take off.
+    b. Gently push the throttle stick up until the motors start spinning. check that the propeller rotation is in the correct direction.
+    c. Disarm the quad by pinching the sticks down and inwards.
+    d. Arm the quad again but this time, use the kill switch to disarm. The motors should cut instantaneously.
