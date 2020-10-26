@@ -33,8 +33,13 @@ import sphinx_rtd_theme
 # ones.
 extensions = [
     "sphinx_rtd_theme",
+    "sphinx.ext.autosectionlabel",
     "recommonmark"
 ]
+
+# Set configuration for autosectionlabel extension
+autosectionlabel_maxdepth = 2
+autosectionlabel_prefix_document = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
