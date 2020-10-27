@@ -50,17 +50,11 @@ Companion Computer Setup
 ========================
 
 You will need to run a similar setup on the companion computer (CC). For
-simplicity, we have prepared disk images that can be cloned via Clonezilla
-straight onto new boards. They currently come in three different flavours:
+simplicity, we have prepared disk images that can be cloned via Etcher
+straight onto new boards. We currently use the ODriod UX4 as our companion
+computer.
 
-1. Odroid
-2. Upboard
-3. TX2
-
-.. TODO:
-    Link to cloned image for those not in lab.
-
-Borrow the relevant USB stick from the lab.
+Instructions for flashing can be found :ref:`here<Companion Computer>`.
 
 Once you have flashed the relevant image and AFTER you have setup the flight
 controller (see next section) you will need to configure one of the board's
