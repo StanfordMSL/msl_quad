@@ -18,6 +18,10 @@ instructions for the appropriate manufacture.
 ODroid - XU4
 ------------
 
+.. warning::
+   The ODroid companion computer will be deprecated in a future release in
+   favor of the NVIDIA TX2 Jetson computer. 
+
 This setup requires the user to clone an image of the computer OS to an eMMC
 card which will be used directly on the ODroid board.
 
