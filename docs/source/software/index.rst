@@ -18,3 +18,4 @@ and additional information on other software related topics.
    FMU_computer
    basic_flight_controller
    advanced_flight_controller
+   px4_direct_controller
