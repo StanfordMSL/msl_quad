@@ -15,10 +15,6 @@ Pipeline
 --------
 
 .. image:: /_static/images/px4_direct_control/pipeline.png
-  :target: ../_static/images/px4_direct_control/pipeline.png
-  :width: 930px
-  :alt: Basic Pipeline 
-  :align: center
 
 Trajectory objectives would be like flying through a sequence of gates. Trajectory 
 constraints would be like motor limits and obstacle avoidance. These are fed into
@@ -51,10 +47,6 @@ So... where does this fit into the px4 architecture. To keep the rest of the fea
 state estimation, mocap integration etc.) we do the following:
 
 .. image:: /_static/images/px4_direct_control/px4_modified.png
-  :target: ../_static/images/px4_direct_control/px4_modified.png
-  :width: 930px
-  :alt: Basic Pipeline 
-  :align: center
 
 Note that the high level controller can be separate. So write it in whatever flavour you fancy. What matters is that
 it has to publish a uORB message that contains the traj data. This is then fed into a low level controller using the
