@@ -13,6 +13,7 @@ planning. The pipeline looks as follows:
 
 Pipeline
 --------
+
 .. image:: /_static/images/px4_direct_control/pipeline.png
   :target: ../_static/images/px4_direct_control/pipeline.png
   :width: 930px
@@ -48,6 +49,7 @@ In PX4 Architecture
 -------------------
 So... where does this fit into the px4 architecture. To keep the rest of the features running (the safety checks,
 state estimation, mocap integration etc.) we do the following:
+
 .. image:: /_static/images/px4_direct_control/px4_modified.png
   :target: ../_static/images/px4_direct_control/px4_modified.png
   :width: 930px
