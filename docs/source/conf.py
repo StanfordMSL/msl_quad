@@ -39,7 +39,7 @@ extensions = [
 
 # Set configuration for autosectionlabel extension
 autosectionlabel_maxdepth = 2
-autosectionlabel_prefix_document = False
+autosectionlabel_prefix_document = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

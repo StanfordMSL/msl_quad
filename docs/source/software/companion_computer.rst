@@ -79,9 +79,12 @@ into the ODroid and turn it on. The system will boot to the Ubuntu Mate login
 screen and ask for the password. Enter the password, which is the same as the
 username. You will need to update a few files on the system.
 
-#. Change the hostname to `quad#` (# is the number of the quad) in the files
+#. Change the hostname in the files below to `quad#`, where # is the number of
+   the quad being made.
 
    #. `/etc/hostname`
    #. `/etc/hosts`
 
-#. ???
+.. note::
+    These files should have `quad7` for the hostnames, as the image was created
+    from our "Quad 7".

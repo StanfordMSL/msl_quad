@@ -54,7 +54,8 @@ simplicity, we have prepared disk images that can be cloned via Etcher
 straight onto new boards. We currently use the ODriod UX4 as our companion
 computer.
 
-Instructions for flashing can be found :ref:`here<Companion Computer>`.
+Instructions for flashing can be found
+:ref:`here<software/Companion_computer:Companion Computer>`.
 
 Once you have flashed the relevant image and AFTER you have setup the flight
 controller (see next section) you will need to configure one of the board's
