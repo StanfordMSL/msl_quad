@@ -28,6 +28,7 @@ In PX4 Architecture
 We want to implement this into PX4 so that we can leverage its already existing safety and state estimation features. Given the high rates need for control and the necessary communication between a variety of devices (computers and sensors both onboard and offboard), developing a test platform from the ground up would be too time consuming. 
 
 So here is where it fits into the PX4 architecture.
+
 .. image:: ../_static/images/px4_direct_control/px4_modified.png
 
 Seems deceptively simple. But underneath those blocks, there's a bunch of work across three different repos that we need to implement 1) ROS, 2) mavros/mavlink and 3) PX4 itself. Thankfully, with the right approach, we need only implement the pipeline once for the mavros/mavlink and PX4 components, leaving the customization (specifically... the implementation of our research work) of the high-level controller as purely a ROS problem.
