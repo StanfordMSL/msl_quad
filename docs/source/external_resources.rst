@@ -14,8 +14,6 @@ External Resources
 
 Below is a collection of useful resources while working with the quadrotors.
 
-* `Stanford Flightroom <https://stanfordflightroom.github.io/>`_
-
 * `QGroundControl <https://docs.qgroundcontrol.com/en/>`_
 
 * `PX4 <https://docs.px4.io/master/en/index.html>`_
@@ -31,6 +29,18 @@ Below is a collection of useful resources while working with the quadrotors.
 * `UAV Game Theoretic Planner <https://github.com/StanfordMSL/uav_game>`_
 
 * `Odroid <https://wiki.odroid.com/>`_
+
+
+For information regarding: 
+
+- Optitrack (our Motion Capture System)
+- Connecting to the Local Network
+- Using ROS
+- Our current Flightroom-specific computer setup 
+- and much, much, more
+
+see the `Stanford Flightroom Documentation 
+<https://stanfordflightroom.github.io/documentation>`_.
 
 ..
   TODO:: Odroid line should be removed once no longer used
