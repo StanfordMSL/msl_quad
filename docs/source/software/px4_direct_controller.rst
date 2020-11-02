@@ -2,53 +2,38 @@
 PX4 Direct Controller
 =====================
 
-Here be the ramblings of jelow as he tries to develop a full-stack pipeline for
-quadcopter trajectory planning. Be warned. There is a lot of text diarrhea. If it
-works out, this document will be polished into an actual proper tutorial.
+Here be progress logs for the development of a state/input trajectory planning pipelinefor quadcopters using ROS and PX4. Perhaps this will get far enough that I'll polish it into a full fledged tutorial/manual.
 
 Objective
 ---------
-The idea here is to use PX4 to execute a full-stack pipeline for quadcopter trajectory
-planning. The pipeline looks as follows:
+The objective is to implement a trajectory planner that can fly a quadcopter through a tightly constrained gate. 
+
+Hardware
+--------
+Our hardware setup is as follows, a racing quadcopter equiped with two onboard computers: 1) a PixRacer running a modification of the PX4 firmware. 2) an UpBoard (an Intel® ATOM™ x5-Z8350) running ROS Melodic (on Ubuntu 18.04) with modified mavros and mavlink packages. We use this setup to get better parity with an existent simulation setup (https://github.com/StanfordMSL/quadrotor_sim) that is run on similiar hardware. We skip feasibility testing with other Linux flavours and CPU architectures. 
+
+Another point on the hardware is that the focus here is the controls aspect of the pipeline so we simplify the challenge of state estimation by assuming we have access to an accurate source of the full state (i.e IMU + Mocap fusion) and we simplify communication by using a wired connection between the two computers. As will be emphasized later, we run the more time consuming part of the control pipeline separate from the rest of the control. This framework ensures that safety guarantees are focused on the low-level controller.
 
 Pipeline
 --------
 
-.. image:: /_static/images/px4_direct_control/pipeline.png
+.. image:: ../_static/images/px4_direct_control/pipeline.png
 
-Trajectory objectives would be like flying through a sequence of gates. Trajectory 
-constraints would be like motor limits and obstacle avoidance. These are fed into
-a high level controller whose purpose is to simulate the entire trajectory and output
-the corresponding motor wrench commands to achieve it. Let us define the wrench command
-specific to the quadcopter to be the thrust (Fz) and the roll, pitch, yaw torques (Mx,My,Mz).
-A good example of such a high level controller would be the differential flatness based
-controller seen in the Minimum Snap Trajectory paper by Mellinger. Another example would be
-the iterative Linear Quadratic Regulator (iLQR).
+We split the pipeline into two key components, the "High Level Controller" and the "Low Level Controller". The job of the former is to solve and simulate the entire trajectory while the job of the latter is to execute the resultant motor commands to achieve said trajectory. We split it as such because the former can take long to solve while the latter needs to be run at a high rate for aggressive trajectories (let's say 200Hz).
 
-It is important here that we keep things general. Whatever the constraints, objective or
-high level controller are, what we care about is only the 'traj' message that comes out of it.
-traj contains the terms we need to compute the wrench command online EXCEPT FOR the quadcopter's
-current state. In the case of the minimum snap controller that would be the flat output polynomial
-spline. In the case of iLQR it would be the feedback and feedforward matrices. One might wonder, why
-not just output the wrench command directly. Well... a problem that I am worried about is that this
-high level controller is likely to have an expensive compute; i.e it'll take too long to compute to 
-meet online control requirements. Let's assume the actuator controller needs to run at 200Hz. It is 
-simply not robust to believe that the high level controller can solve consistently at under 0.005s.
-So the workaround is simple... we update our high level solution as and when we can but at the low
-level end, we use our 'current best' solution. This is essentially what traj encodes. For that 0.005s,
-we lock our trajectory based on our current best prediction of the entire trajectory. This corresponds
-to an already computed polynomial spline or FF+FB matrix set. These are often functions of current state,
-which we can assume is reliably updated at a high rate. And so we compute the corresponding low level solution
-u = f(traj,x).
+As an example, let's use the differential flatness approach introduced by Mellinger. The High Level Controller would correspond to the solving of the piecewise QP problem. This produces a flat output trajectory that is fed into back into the differential flatness transform (the Low Level Controller) to generate the wrench input necessary. Note that this architecture is general and the same partition can be applied to many other approaches (e.g for iLQR High Level would generate the feedback and feedforward matrices and the Low Level would generate the input wrench using said matrices and an estimate of current state). For clarity, I shall define the wrench to be thrust (Fz) and roll, pitch and yaw torques (Mx, My, Mz respectively). Let us also define the intermediate variables (e.g the flat outputs or the feedback and feedforward matrices) as the trajectory nominal (traj_nom henceforth). This name is based on the fact that these values are the product of a nominal trajectory that was simulated using the High Level Controller.
 
 In PX4 Architecture
 -------------------
-So... where does this fit into the px4 architecture. To keep the rest of the features running (the safety checks,
-state estimation, mocap integration etc.) we do the following:
+We want to implement this into PX4 so that we can leverage its already existing safety and state estimation features. Given the high rates need for control and the necessary communication between a variety of devices (computers and sensors both onboard and offboard), developing a test platform from the ground up would be too time consuming. 
 
-.. image:: /_static/images/px4_direct_control/px4_modified.png
+So here is where it fits into the PX4 architecture.
+.. image:: ../_static/images/px4_direct_control/px4_modified.png
 
-Note that the high level controller can be separate. So write it in whatever flavour you fancy. What matters is that
+Seems deceptively simple. But underneath those blocks, there's a bunch of work across three different repos that we need to implement 1) ROS, 2) mavros/mavlink and 3) PX4 itself. Thankfully, with the right approach, we need only implement the pipeline once for the mavros/mavlink and PX4 components, leaving the customization (specifically... the implementation of our research work) of the high-level controller as purely a ROS problem.
+
+===================== old ======================
+
 it has to publish a uORB message that contains the traj data. This is then fed into a low level controller using the
 existent Message Bus. We then replace the pos->att->rate control module sequence with our own custom module that does
 the necessary computation where it subscribes to traj and x to output u. 
