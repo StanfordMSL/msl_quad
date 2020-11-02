@@ -33,53 +33,48 @@ So here is where it fits into the PX4 architecture.
 
 Seems deceptively simple. But underneath those blocks, there's a bunch of work across three different repos that we need to implement 1) ROS, 2) mavros/mavlink and 3) PX4 itself. Thankfully, with the right approach, we need only implement the pipeline once for the mavros/mavlink and PX4 components, leaving the customization (specifically... the implementation of our research work) of the high-level controller as purely a ROS problem.
 
-===================== old ======================
+To add some detail to what is meant by 'the right approach', we want something that can exist in the PX4/mavros/mavlink repositories. This way we can keep this pipeline usable across updates to PX4 itself (given its much broader objectives).
 
-it has to publish a uORB message that contains the traj data. This is then fed into a low level controller using the
-existent Message Bus. We then replace the pos->att->rate control module sequence with our own custom module that does
-the necessary computation where it subscribes to traj and x to output u. 
+Development Roadmap
+-------------------
+We will take the approach of developing from the PixRacer up to the Upboard; from low-level controller up to the high-level controller. As such, the roadmap (and updates in a somewhat chronological order) are as follows:
+
+[DONE] Direct Access to the Wrench Input
+++++++++++++++++++++++++++++++++++++++++
+Fortunately for us, there already exists a method for accessing the wrench input, the uORB topic actuator_controls_0. It's in non-dimensional form so some kind of scaling is necessary but we'll worry about that in a later hardware test. To implement this we implement a submodule (mc_direct_control). The objective of this module is to subscribe to an arbitrary uORB topic (say... rc_channels) and spit out a wrench input that is a function of said uORB topic.
+
+Some additional work is done at compilation to keep this separate from the default pipeline. Ideally we want a specific build and boot script but for now what I do is piggyback the multicopter build script and then change the boot (via the SD card /etc/ method) to kill the original mc_rate_control module and replace it with the mc_direct_control module.
+
+[DONE] Introduce a custom uORB topic for traj
++++++++++++++++++++++++++++++++++++++++++++++
+The problem here is that traj can take a variety of forms and to maintain generality while still being efficient with communication bandwidth, I'm not sure what is the 'right approach' here. For now, I assume we are going with the diff. flat implementation, which requires traj to be a message with a time stamp and 20 float32 numbers representing the flat outputs (x,y,z and psi) and their 0th to 4th order derivatives. All other parameters necessary to calculate the input wrench will be hardcoded into mc_direct_control (to be converted to a loading at initialization later) to save bandwidth.
+
+[WIP] Test Bandwidth Capacity of traj data
+++++++++++++++++++++++++++++++++++++++++++
+Ideally, we want the wrench input to be updated at 200Hz. But I'm not sure whether the hardware can send the traj message at 200Hz. I also figure there will be some timing features needed to update the variables as we run the low-level controller. This is where I'm at now. Should the bandwidth prove to be insufficient, there are some workarounds we can consider: 1) compressing the flat output data into a smaller message 2) storing the entire trajectory in memory before executing it 3) use the FastRTPS bridge (PepMS's method). We'll see how this goes.
+
+[TODO] Parameter Estimation for Current Platform
+++++++++++++++++++++++++++++++++++++++++++++++++
+To do a hardware test, we'll need to get reliable estimates of things like motor thrust coefficients and the mass properties.
+
+[TODO] Implement a Simple Hover with Failsafe Verification
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+I imagine that rough values of the above parameters should get us to do a rough hover. This shall be used as a test for the failsafe. I have decided to use a complete motor cut (instead of an attempt to restore the craft to a stationary hover) for simplicity. Besides... If we're going to get to the linear speeds that I personally want to hit... a hover recovery would be no better.
+
+[TODO] Tidying Up
++++++++++++++++++
+Writing the actual custom build and boot script. Assigning the parameters at initialization instead of hardcoding it. Cleaning up implementation for an actual PR into the relevant repositories.
+
+[TODO] Aggressive Trajectories
+++++++++++++++++++++++++++++++
+Try flying through gates.
 
 Implementation Thoughts
------------------------
-A few points that are worth noting.
-1. Failsafe: The ONLY failsafe response that I will be encoding is a complete kill. I do not plan to do any sophisticated
-recovery like a 'return to hover' etc. Reason is that I intend to fly at high speeds (where recovery is unlikely even with
-perfect state estimation).
-2. A submodule approach allows this type of controller to exist within the larger px4 repo. I feel that development of such
-low level controls would be beneficial to the research community and so I want to implement it in a way that can be supported
-in the long term. Thanks to the submodule architecture of the px4 flight software, this can be done pretty easily. We put the
-low level controller as a module of its own and expose the section that does the actual f(traj,x) compute. We introduce user-definable
-message types to be able to parse the traj data. And the rest (timing updates on which traj data to use etc) we implement for the
-user as these are general features that would be required of any low level + high level controller.
-3. Another way of seeing this high-level + low-level pairing is as division of a single controller. In the first part, you simulate
-the entire trajectory. In the second part you compute the motor commands as a function of this simulated trajectory. The thing is...
-you don't necessarily have to divide it as so. You could say shorten the horizon of the simulated trajectory and run it on the low-level
-side. I imagine there might be benefits to that because we have less issues of 'communicating' the data between two computers AND your state
-estimator is always going to give the best estimate onboard (where the IMU is. yes mocap is offboard but we can more afford a slower position
-update that an attitude update. Just try flying a quadcopter with a pure mocap and no IMU). Ok anyway I digress. What I'm trying to get at
-is that whatever low-level controller is supposed to do... it has to do its stuff efficiently. So #1, that piece has to be coded in simple
-and efficient forms. #2 we need to kill unnecessary apps that are running on the px4. Given that we do away with the original pos->att->rate
-piece... we really don't need their apps in the drone. And neither do we need stuff like navigator while we're at that. Long story short... we
-need our own cmake build profile where we are especially careful with what apps we launch at boot.
+=======================
+1) The idea of splitting the controller into high-level + low-level can be generalized a little further. One need not follow the above division of (simulation of full trajectory) + (unpack data and converty using fast updates of state estimation). The generalization really is (slow control [<200Hz]) + (fast control [200Hz]). How that is done is up to the designer.
+2) The guide for implementing custom uORB messages (https://dev.px4.io/v1.11/en/middleware/mavlink.html) is out of date. I think it's also more focused on getting messages from the PixRacer to the companion computer. I used the tutorial from (https://dev.px4.io/master/en/ros/mavros_custom_messages.html) which is still out of date but more detailed and closer to the latest version of the Firmware. Also of use was referencing other uORB messages in (https://github.com/mavlink/mavros/tree/master/mavros/src/plugins).
 
-Plan
-----
-Ok enough with my rambling on what I hope to reach in the long horizon. Here's where I try to flesh out what I have already done and plan to do.
-
-1) [DONE] Swap out the pos->att->rate controllers in firmware with the low level controller on mc builds. For now, I subscribe to an existing
-uORB topic (rc_channels) just to test. 
-2) [Kinda done] Custom boot to clean up unnecessary apps. I currently do this using a separate make file: px4_fmu_v4_direct (i think that's the name?)
-and then I use a file in the sd card to stop mc_rate_controller. I'll work on a proper config later on.
-3) [doing now]. Define a custom uORB topic to be published from a companion computer. For now... I'll just use the diff. flat spline as my default
-traj message form. It's smaller than the iLQR packet (i think?) and it'll let me figure out what kind of bandwidth/latency constraints we will have.
-We might need to use the FastRTPS bridge if this turns out to be a real bottleneck. PepMS over in the px4 slack has some solutions to this. Will look there
-when we get there. But for now, we'll just stream the polynomial out. Or if that's too slow, we can load it in prior to a flight. My guess is we can
-get away with that if trajectories are short.
-
-Ah yes... so testing trajectories. FOR NOW... the only trajectories I will care about is a takeoff->hover->land and a takeoff->hover->line->land. There's
-a whole can of worms to uncover in terms of parameter estimation and vibration dampening effects. I'll worry about that later. Test platform...
-to give us the best shot... is a pixracer+upboard combo. This lets us run full ubuntu 18 onboard in a compact package. I won't try streaming the traj
-packet over wifi just yet. Gonna use a wired connection to give it the best chance.
-
-4) tidy up mc_direct_control and the custom uORB message so that it can be easily changed between diff. flat approach and iLQR approach. this should be 
-a good test of generality. I worry though as traj is really going to be very different. Can it really be generalized that way? Not sure. 
+Development Repositories
+========================
+PX4 Firmware: https://github.com/lowjunen/Firmware/tree/direct_motor
+mavros/mavlink/ROS: https://github.com/lowjunen/msl_dev
