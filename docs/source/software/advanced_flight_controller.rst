@@ -5,8 +5,8 @@ Advanced Flight Controller
 
 This page will go over how to use the trajectory tracking controller. The tracking controller is designed to follow a single trajectory from start to finish using a lower level velocity controller. This controller will run closed loop on the desired trajectory, but is **not** designed to accept a constantly changing trajectory. A trajectory can either be passed via a rostopic or as a ``.txt`` file
 
-* `Usage`_
-* `ROS Parameters`_
+* :ref:`software/advanced_flight_controller:Usage`
+* :ref:`software/advanced_flight_controller:ROS Parameters`
 
 Usage
 =====

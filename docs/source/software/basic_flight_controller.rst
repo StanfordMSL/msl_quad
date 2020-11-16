@@ -6,9 +6,9 @@ The flight controller is responsible for passing high level position information
 
 This page will cover how to use the basic pose controller:
 
-* `Usage`_
-* `Troubleshooting`_
-* `ROS Parameters`_
+* :ref:`software/basic_flight_controller:Usage`
+* :ref:`software/basic_flight_controller:Troubleshooting`
+* :ref:`software/basic_flight_controller:ROS Parameters`
 
 Usage
 =====
