@@ -40,11 +40,11 @@ Flight
 
 1. Turn on Motive_ on the ``mocap`` machine. 
 2. Set ridge body of the quad with the correct orientation. Verify that the x-axis of the quad is aligned with the long axis of the room and all IR reflection spheres are being registered in motive.
-3. Turn on hand-held control :doc:`/hardware/remote_controllers`.
+3. Turn on hand-held control (see :doc:`/hardware/remote_controllers`).
 4. Check Lipo battery with battery checker.
 5. Plug into quad (PX4 initialization music will play).
 6. ``ssh`` into quad.
-7. Start the software by running ``roslaunch mslquad quad_vrpn.launch`` and your controller see :doc:`/software/index`
+7. Start the software by running ``roslaunch mslquad quad_vrpn.launch`` and your controller (see :doc:`/software/index`).
 8. Review safety checklist below.
 
   
