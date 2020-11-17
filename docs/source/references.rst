@@ -63,6 +63,8 @@ Quadrotor Trajectory Planning and Control
   and Automation (ICRA), pp. 6567-6572, 2014. *DOI: 10.1109/ICRA.2014.6907828*
   `PDF <https://msl.stanford.edu/sites/default/files/zhouschwagericra14quadvectorfield.pdf>`_
 
+- **B. E. Jackson, T. A. Howell, K. Shah, M. Schwager, and Z. Manchester**, “Scalable Cooperative Transport of Cable-Suspended Loads with UAVs Using Distributed Trajectory Optimization”, IEEE Robotics and Automation Letters 5 (2), 3368-3374 `PDF <https://roboticexplorationlab.org/papers/distributed_quads.pdf>`_
+
 .. TODO:
     - Currently get errors for repeating PDF links. Should we make all or part
       of the reference a link to the PDF?
