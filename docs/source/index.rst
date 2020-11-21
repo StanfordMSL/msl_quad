@@ -45,7 +45,7 @@ QuadsManip_ repository.
 Getting Started
 ---------------
 
-Please review our :doc:`quickstart/index` to get starte. 
+Please review our :doc:`quickstart/index` to get started. 
 
 .. Features
 .. ========
