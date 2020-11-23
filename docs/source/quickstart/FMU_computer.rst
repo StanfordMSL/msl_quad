@@ -3,8 +3,8 @@ Flight Module Unit
 ===================
 
 This runs direct flight control. Given the safety and real-time requirements
- for control, this is a discrete unit from the companion computer. This is
- usually a unit from the Pixhawk family of flight controllers running PX4.
+for control, this is a discrete unit from the companion computer. This is
+usually a unit from the Pixhawk family of flight controllers running PX4.
 
 **Current Firmware Version: PX4 v1.9**
 
@@ -15,7 +15,9 @@ the QGroundControl app. Please refer to the relevant documentation sites:
 2. https://docs.px4.io/v1.9.0/en/
 
 for initial setup. Within and after the installation of the PX4 firmware, we
-will need to make several parameter value changes with QGroundControl that reflect the choice of quadcopter hardware, companion computer and motion capture environment.
+will need to make several parameter value changes with QGroundControl that
+reflect the choice of quadcopter hardware, companion computer and motion
+capture environment.
 
 Quadcopter Hardware
 -------------------
@@ -31,11 +33,11 @@ this affects the PID values on the craft.
   :alt: Airframe selection 
   :align: center
 
-
-
 Flight Modes
 --------------
-The correct flight modes must be configured in QGroundControl to use the handheld controller properly. 
+
+The correct flight modes must be configured in QGroundControl to use the
+handheld controller properly. 
 
 .. image:: /_static/images/software/flightmodes.png
   :target: ../_static/images/software/flightmodes.png
@@ -45,17 +47,14 @@ The correct flight modes must be configured in QGroundControl to use the handhel
 
 Safety
 -------
-Configure the following safety paramters.
 
+Configure the following safety paramters.
 
 .. image:: /_static/images/software/safety.png
   :target: ../_static/images/software/safety.png
   :width: 930px
   :alt: Airframe selection 
   :align: center
-
-
-
 
 Motion Capture Environment
 --------------------------
@@ -72,14 +71,11 @@ QGroundControl and change the following:
 * EKF2_EV_GATE = 500
 * EKF2_HGT_MODE = vision
 
-
 .. image:: /_static/images/software/ekf1.png
   :target: ../_static/images/software/ekf1.png
   :width: 930px
   :alt: ekf settings 
   :align: left
-
-
 
 .. image:: /_static/images/software/ekf2.png
   :target: ../_static/images/software/ekf2.png

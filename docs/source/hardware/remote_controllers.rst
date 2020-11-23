@@ -3,7 +3,8 @@ Remote Controllers
 ==================
 
 .. meta::
-    :description lang=en: Hardware page for the quadrotor's remote control transmitter.
+    :description lang=en: Hardware page for the quadrotor's remote control
+      transmitter.
 
 The quadrotors require a standard remote control transmitter to do the
 following. 

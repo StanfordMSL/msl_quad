@@ -24,7 +24,7 @@ Diagram:
 | **Resources**:
 | `Orbitty Carrier <http://connecttech.com/product/orbitty-carrier-for-nvidia-jetson-tx2-tx1/>`_ \
  board product page with technical references.
-| `Pixracer <https://docs.px4.io/v1.9.0/en/flight_controller/pixracer.html>`_ \
+| Pixracer_ \
  documentation page.
 
 Interfacing an ODROID-XU4 with a Pixracer
@@ -53,5 +53,7 @@ Diagram, using a `Sparkfun Logic Level Converter <https://www.sparkfun.com/produ
 | **Resources**:
 | `ODROID-XU4 <https://wiki.odroid.com/odroid-xu4/hardware/expansion_connectors>`_ \
  expansion connectors technical reference.
-| `Pixracer <https://docs.px4.io/v1.9.0/en/flight_controller/pixracer.html>`_ \
+| Pixracer_ \
  documentation page.
+
+ .. _Pixracer: https://docs.px4.io/v1.9.0/en/flight_controller/pixracer.html

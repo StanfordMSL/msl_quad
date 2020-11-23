@@ -3,7 +3,8 @@ MSL Quadrotor Documentation
 ===========================
 
 .. meta::
-    :description lang=en: Documentation for code related to the MSL Quadrotors used at Stanford University.
+  :description lang=en: Documentation for code related to the MSL Quadrotors
+    used at Stanford University.
 
 .. This toctree part is needed if you want to have your content visible in the
    sidebars. Here it is hidden since the main page doesn't need to show the TOC
@@ -40,7 +41,6 @@ QuadsManip_ repository.
 .. _cad files: https://github.com/StanfordMSL/msl_quad/tree/master/Hardware
 .. _mavros: http://wiki.ros.org/mavros
 .. _QuadsManip: https://github.com/StanfordMSL/QuadsManip
-
 
 Getting Started
 ---------------

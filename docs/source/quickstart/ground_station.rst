@@ -39,7 +39,6 @@ QGroundControl on your personal computer, follow the Ubuntu Linux section of
 the `instructions page 
 <https://docs.qgroundcontrol.com/master/en/getting_started/download_and_install.html#ubuntu>`_.
 
-
 Terminator Installation
 -----------------------
 
