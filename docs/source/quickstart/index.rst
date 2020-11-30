@@ -39,7 +39,7 @@ Flight
     Quadrotors are dangerous and serious injury may occur from incorrect operation. Proceed with extreme caution. *It's better to be on the ground wishing you were the air, than in the air wishing you were on the ground.*
 
 1. Turn on Motive_ on the ``mocap`` machine. 
-2. Set ridge body of the quad with the correct orientation. Verify that the x-axis of the quad is aligned with the long axis of the room and all IR reflection spheres are being registered in motive.
+2. Set rigid body of the quad with the correct orientation. Verify that the x-axis of the quad is aligned with the long axis of the room and all IR reflection spheres are being registered in motive.
 3. Turn on hand-held control (see :doc:`/hardware/remote_controllers`).
 4. Check Lipo battery with battery checker.
 5. Plug into quad (PX4 initialization music will play).
@@ -57,7 +57,7 @@ Safety Checklist
 
     Make sure you complete the following check list *before every flight*. Most
     of the checks are automated by the controller on startup, but that is no
-    substitute for good ole human caution.
+    substitute for good 'ole human caution.
 
 
 Hardware
