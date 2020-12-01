@@ -22,9 +22,9 @@ There are three distinct computer groups that require attention during setup:
 
 1. :doc:`ground_station` **(GS)**:
    All involved computer units that are on the ground. In most cases, this
-   would be ``relay.local``, ``mocap.local`` and your own personal computer.
+   would be ``relay.local``, ``mocap.local``, and your own personal computer.
 2. :doc:`companion_computer` **(CC)**:
-   Computer used for direct access to prototype hardware and algorithms. This
+   Computer on-board the quad used for direct access to prototype hardware and algorithms. This
    is usually a Linux machine with direct access to at least one of the Ground
    Station units.
 3. :doc:`FMU_computer` **(FC)**: 
@@ -58,7 +58,7 @@ Safety Checklist
 
 .. important::
     Make sure you complete the following check list *before every flight*. Most
-    of the checks are automated by the controller on startup, but that is no
+    of the checks are automated by the controller on startup, but that is no substitute for good ol human caution 
 
 Hardware
 ----------
@@ -70,7 +70,7 @@ Hardware
 
 2. Electrical
 
-    a. The fcu serial connection is secured between the px4 and cc
+    a. The **FCU** serial connection is secured between the px4 and **CC**
     b. Battery voltage is over the nominal 11.5v (*DO NOT* start a flight with
        less than this voltage)
     c. Keep a battery checker handy
