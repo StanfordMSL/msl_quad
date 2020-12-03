@@ -36,9 +36,7 @@ QGroundControl Installation and Setup
 
 QGroundControl is used to configure the quads. To install and run 
 QGroundControl on your personal computer, follow the Ubuntu Linux section of 
-the `instructions page 
-<https://docs.qgroundcontrol.com/master/en/getting_started/download_and_install.html#ubuntu>`_.
-
+the `instructions page <https://docs.qgroundcontrol.com/master/en/getting_started/download_and_install.html#ubuntu>`_.
 
 Terminator Installation
 -----------------------

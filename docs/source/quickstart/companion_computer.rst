@@ -49,12 +49,9 @@ Installation Steps
 |installation|
 
 #. Open Etcher
-
 #. Choose "Flash from file" and choose the location of the image file mentioned
    above.
-
 #. Select the eMMC card under the "Select Target" option.
-
 #. Click "Flash!"
 
 Once the flashing begins, Etcher will inform you of it progress of flashing.
@@ -88,5 +85,5 @@ username. You will need to update a few files on the system.
    #. `/etc/hosts`
 
 .. note::
-    These files should have `quad7` for the hostnames, as the image was created
-    from our "Quad 7".
+   These files should have `quad7` for the hostnames, as the image was created
+   from our "Quad 7".

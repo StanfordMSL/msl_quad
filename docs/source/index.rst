@@ -3,7 +3,8 @@ MSL Quadrotor Documentation
 ===========================
 
 .. meta::
-    :description lang=en: Documentation for code related to the MSL Quadrotors used at Stanford University.
+  :description lang=en: Documentation for code related to the MSL Quadrotors
+    used at Stanford University.
 
 .. This toctree part is needed if you want to have your content visible in the
    sidebars. Here it is hidden since the main page doesn't need to show the TOC
@@ -14,6 +15,7 @@ MSL Quadrotor Documentation
    :titlesonly:
    :hidden:
 
+   /quickstart/index
    /hardware/index
    /software/index
    /contributing/index
@@ -26,6 +28,10 @@ MSL Quadrotor Documentation
 
 Quadrotor aerial robot developed at Multi-Robot Systems Lab.
 
+.. image:: https://raw.githubusercontent.com/StanfordMSL/msl_quad/master/Hardware/quadrotor_rendering.jpg
+  :width: 400
+  :height: 300
+
 This repository contains `CAD files`_, and code for low-level quadrotor controls
 and trajectory following through the mavros_ interface.
 
@@ -36,16 +42,21 @@ QuadsManip_ repository.
 .. _mavros: http://wiki.ros.org/mavros
 .. _QuadsManip: https://github.com/StanfordMSL/QuadsManip
 
-Features
-========
+Getting Started
+---------------
 
-- .. TODO: List our current features here
+Please review our :doc:`quickstart/index` to get started. 
 
-Installation
-============
+.. Features
+.. ========
 
-.. TODO: Definitely need to verify these are accurate before we finalize the
-   merge.
+.. - .. TODO: List our current features here
+
+.. Installation
+.. ============
+
+.. .. TODO: Definitely need to verify these are accurate before we finalize the
+..    merge.
 
 Software Versions
 -----------------
@@ -61,31 +72,19 @@ Dependencies
 - `ros_vrpn_client <https://github.com/StanfordMSL/ros_vrpn_client>`_
 - `Eigen3 <http://eigen.tuxfamily.org/>`_
 
-Compiling
----------
+.. is this all unneeded or wrong
+.. Compiling
+.. ---------
 
-    .. TODO: Add installation instructions if easy, otherwise let's make a link
+..     .. TODO: Add installation instructions if easy, otherwise let's make a link
 
-Usage
-=====
+.. Usage
+.. =====
 
-Common
-------
+.. Common
+.. ------
 
-- Start mavros and VRPN for mocap: ```roslaunch mslquad quad_vrpn.launch```
-
-Trajectory Following
-~~~~~~~~~~~~~~~~~~~~
-
-- A basic trajectory following controller is implemented in 
-  **src/px4_base_controller.cpp**.
-
-    ```roslaunch mslquad default_controller.launch```
-
-- The controller accepts trajectory from topic ```command/trajectory```, which
-  is of type *MultiDOFJointTrajectory*. It's important that the trajectory is
-  updated at a frequency of at least 10Hz since the controller uses a simple
-  lookahead strategy.
+.. - Start mavros and VRPN for mocap: ```roslaunch mslquad quad_vrpn.launch```
 
 Demo Videos
 ===========
@@ -95,6 +94,9 @@ Demo Videos
 
 .. image:: https://img.youtube.com/vi/yH0KMWm9cNU/0.jpg
     :target: https://youtu.be/yH0KMWm9cNU/
+
+.. image:: https://img.youtube.com/vi/INr92G_qOls/0.jpg
+    :target: https://youtu.be/INr92G_qOls
 
 Related Papers
 ==============
@@ -110,9 +112,10 @@ Contributing
 - Contribution is very welcome. Please fork the project and submit pull
   requests. New code will be reviewed before merging into the codebase.
 
-- Common functionality should be implemented in
-  ```src/px4_base_controller.cpp```. New controllers should derive from the base
-  controller, and override the ```controlLoop()``` function.
+.. this is too detailed for this level of page
+.. - Common functionality should be implemented in
+..   ```src/px4_base_controller.cpp```. New controllers should derive from the base
+..   controller, and override the ```controlLoop()``` function.
 
 - If contributing to documentation, this cheatsheet_ can help if you are
   unfamiliar with Markdown or RST.
