@@ -22,10 +22,6 @@ MSL Quadrotor Documentation
    /external_resources
    /references
 
-.. Actual summary of our documentation/project
-
-.. TODO: Clean up this section?
-
 Quadrotor aerial robot developed at Multi-Robot Systems Lab.
 
 .. image:: https://raw.githubusercontent.com/StanfordMSL/msl_quad/master/Hardware/quadrotor_rendering.jpg
@@ -42,21 +38,20 @@ QuadsManip_ repository.
 .. _mavros: http://wiki.ros.org/mavros
 .. _QuadsManip: https://github.com/StanfordMSL/QuadsManip
 
-Getting Started
+Installation
 ---------------
 
 Please review our :doc:`quickstart/index` to get started. 
 
-.. Features
-.. ========
+Features
+--------
 
-.. - .. TODO: List our current features here
+- Provides an extensible framework for interfacing with PX4 based flight controllers.
 
-.. Installation
-.. ============
+- Provides a ROS waypoint following interface 
 
-.. .. TODO: Definitely need to verify these are accurate before we finalize the
-..    merge.
+- Integrated in-flight safety checks with autoland on failures. 
+
 
 Software Versions
 -----------------
@@ -72,25 +67,8 @@ Dependencies
 - `ros_vrpn_client <https://github.com/StanfordMSL/ros_vrpn_client>`_
 - `Eigen3 <http://eigen.tuxfamily.org/>`_
 
-.. is this all unneeded or wrong
-.. Compiling
-.. ---------
-
-..     .. TODO: Add installation instructions if easy, otherwise let's make a link
-
-.. Usage
-.. =====
-
-.. Common
-.. ------
-
-.. - Start mavros and VRPN for mocap: ```roslaunch mslquad quad_vrpn.launch```
-
 Demo Videos
 ===========
-
-.. TODO: Keep this single video link, add more, or replace with a page of
-   demo videos (like a blog page?)
 
 .. image:: https://img.youtube.com/vi/yH0KMWm9cNU/0.jpg
     :target: https://youtu.be/yH0KMWm9cNU/
@@ -107,15 +85,8 @@ Lab research using the MSL Quadrotors can be found in the
 Contributing
 ============
 
-- Report bugs or request features by opening issues on `our Github`_
-
 - Contribution is very welcome. Please fork the project and submit pull
   requests. New code will be reviewed before merging into the codebase.
-
-.. this is too detailed for this level of page
-.. - Common functionality should be implemented in
-..   ```src/px4_base_controller.cpp```. New controllers should derive from the base
-..   controller, and override the ```controlLoop()``` function.
 
 - If contributing to documentation, this cheatsheet_ can help if you are
   unfamiliar with Markdown or RST.
@@ -126,7 +97,7 @@ Contributing
 Support
 =======
 
-.. TODO: How are we handling this? Anything yet?
+Request help, report bugs, or request features by opening issues on `our Github`_
 
 License
 =======
