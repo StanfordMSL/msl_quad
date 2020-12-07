@@ -48,7 +48,7 @@ Features
 
 - Provides an extensible framework for interfacing with PX4 based flight controllers.
 
-- Provides a ROS waypoint following interface 
+- Provides a ROS waypoint following interface.
 
 - Integrated in-flight safety checks with autoland on failures. 
 

@@ -1,8 +1,38 @@
 {
-	"folders":
-	[
-		{
-			"path": "."
-		}
-	]
+    "folders":
+    [
+        {
+            "path": ".",
+            "name": "root"
+        },
+        {
+            "path": "mslquad",
+            "name": "mslquad",
+            "folder_exclude_patterns": ["backup"],
+            "follow_symlinks": true
+        },
+        {
+            "path": "tests",
+            "name": "tests",
+            "folder_exclude_patterns": ["backup"],
+            "follow_symlinks": true
+        },
+
+        {
+            "path": "docs",
+            "name": "docs",
+            "file_exclude_patterns": ["*.css"]
+        }
+    ],
+    "settings":
+    {
+        "tab_size": 1,
+        "spell_check": true,
+        "word_wrap": "auto",
+        "wrap_width": 80,
+        "spelling_selector": "source comment - source comment.block.preprocessor, -(source, constant, keyword, storage, support, variable, markup.underline.link, meta.tag)"
+    },
+    "build_systems":
+    [
+    ]
 }
