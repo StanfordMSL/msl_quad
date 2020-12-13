@@ -39,12 +39,12 @@ QuadsManip_ repository.
 .. _QuadsManip: https://github.com/StanfordMSL/QuadsManip
 
 Installation
----------------
+============
 
 Please review our :doc:`/quickstart/index` to get started. 
 
 Features
---------
+========
 
 - Provides an extensible framework for interfacing with PX4 based flight
   controllers.
@@ -55,14 +55,14 @@ Features
 
 
 Software Versions
------------------
+=================
 
 - px4 firmware: v1.7.3
 - mavros: 0.23 or later
 - mavlink: 2018.2.2 or later
 
 Dependencies
-------------
+============
 
 - `glog <https://github.com/ethz-asl/glog_catkin>`_
 - `ros_vrpn_client <https://github.com/StanfordMSL/ros_vrpn_client>`_
