@@ -34,6 +34,7 @@ import sphinx_rtd_theme
 extensions = [
     "sphinx_rtd_theme",
     "sphinx.ext.autosectionlabel",
+    "sphinx.ext.todo",
     "recommonmark"
 ]
 

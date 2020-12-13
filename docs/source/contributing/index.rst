@@ -21,7 +21,7 @@ quickly. If you have any questions, please reach out to us on our GitHub_.
 Adding New Features
 ===================
 
-.. TODO: Add content to this. Separate page? Keep it all here? Other options?
+.. TODO:: Add content to this. Separate page? Keep it all here? Other options?
 
 Don't Forget Documentation
 ==========================

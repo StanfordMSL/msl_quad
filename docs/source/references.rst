@@ -69,7 +69,7 @@ Quadrotor Trajectory Planning and Control
   (2), 3368-3374
   `PDF <https://roboticexplorationlab.org/papers/distributed_quads.pdf>`_
 
-.. TODO:
+.. TODO::
   - Currently get errors for repeating PDF links. Should we make all or part
     of the reference a link to the PDF?
   - Once the updated lab website with filtering options for publications is
