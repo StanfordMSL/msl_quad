@@ -24,9 +24,9 @@ There are three distinct computer groups that require attention during setup:
    All involved computer units that are on the ground. In most cases, this
    would be ``relay.local``, ``mocap.local``, and your own personal computer.
 2. :doc:`companion_computer` **(CC)**:
-   Computer on-board the quad used for direct access to prototype hardware and algorithms. This
-   is usually a Linux machine with direct access to at least one of the Ground
-   Station units.
+   Computer on-board the quad used for direct access to prototype hardware and
+   algorithms. This is usually a Linux machine with direct access to at least
+   one of the Ground Station units.
 3. :doc:`FMU_computer` **(FC)**: 
    This runs direct flight control. Given the safety and real-time requirements
    for control, this is a discrete unit from the companion computer. This is
@@ -42,7 +42,9 @@ Flight
     wishing you were the air, than in the air wishing you were on the ground.*
 
 1. Turn on Motive_ on the ``mocap`` machine. 
-2. Set rigid body of the quad with the correct orientation. Verify that the x-axis of the quad is aligned with the long axis of the room and all IR reflection spheres are being registered in motive.
+2. Set rigid body of the quad with the correct orientation. Verify that the
+   x-axis of the quad is aligned with the long axis of the room and all IR
+   reflection spheres are being registered in motive.
 3. Turn on hand-held control (see :doc:`/hardware/remote_controllers`).
 4. Check Lipo battery with battery checker.
 5. Plug into quad (PX4 initialization music will play).
@@ -58,7 +60,8 @@ Safety Checklist
 
 .. important::
     Make sure you complete the following check list *before every flight*. Most
-    of the checks are automated by the controller on startup, but that is no substitute for good ol human caution 
+    of the checks are automated by the controller on startup, but that is no
+    substitute for good ol human caution 
 
 Hardware
 ----------

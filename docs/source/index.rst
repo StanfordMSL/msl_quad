@@ -41,12 +41,13 @@ QuadsManip_ repository.
 Installation
 ---------------
 
-Please review our :doc:`quickstart/index` to get started. 
+Please review our :doc:`/quickstart/index` to get started. 
 
 Features
 --------
 
-- Provides an extensible framework for interfacing with PX4 based flight controllers.
+- Provides an extensible framework for interfacing with PX4 based flight
+  controllers.
 
 - Provides a ROS waypoint following interface.
 
@@ -97,7 +98,8 @@ Contributing
 Support
 =======
 
-Request help, report bugs, or request features by opening issues on `our Github`_
+Request help, report bugs, or request features by opening issues on
+`our Github`_
 
 License
 =======
