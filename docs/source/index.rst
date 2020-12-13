@@ -19,7 +19,7 @@ MSL Quadrotor Documentation
    /hardware/index
    /software/index
    /contributing/index
-   /external_resources
+   /resources
    /references
 
 Quadrotor aerial robot developed at Multi-Robot Systems Lab.
