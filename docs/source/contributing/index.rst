@@ -11,6 +11,7 @@ Contributing
    :hidden:
 
    Documentation <getting_started_with_documentation>
+   Style Guide <rst_style_guide>
 
 Contributions to the code is always welcome. This section discusses the ways in
 which to contribute and guidelines for having your contributions accepted

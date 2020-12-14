@@ -90,7 +90,8 @@ Contributing
   requests. New code will be reviewed before merging into the codebase.
 
 - If contributing to documentation, this cheatsheet_ can help if you are
-  unfamiliar with Markdown or RST.
+  unfamiliar with Markdown or RST. Make sure to check out our :doc:`full style
+  guide. <contributing/rst_style_guide>`
   
 .. _our github: https://github.com/StanfordMSL/msl_quad/issues
 .. _cheatsheet: https://hyperpolyglot.org/lightweight-markup
