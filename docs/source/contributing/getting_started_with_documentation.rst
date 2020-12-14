@@ -1,6 +1,6 @@
-##################################
+==================================
 Getting Started With Documentation
-##################################
+==================================
 
 Documentation is a big part of adding context and ease of use with our project.
 Therefore, we stress documenting your code, features and everything else within
@@ -64,7 +64,7 @@ Once installed, create a virtual environment and activate it.
    If you would like to make this a bit easier to initialize the next time you
    start your PC, you can add the last command to your .bashrc as an alias.
 
-   ``alias rtd-env='source /path/to/virtual_environments/rtd-env/bin/activate``
+   ``alias rtd-env='source /path/to/virtual_environments/rtd-env/bin/activate'``
 
 .. _installing-necessary-tools:
 
