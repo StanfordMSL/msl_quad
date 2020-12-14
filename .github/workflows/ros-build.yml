@@ -1,6 +1,10 @@
 name: ros-build
 
-on: [pull_request]
+on:
+  push:
+    branches: [ master, devel ]
+  pull_request:
+    branches: [ master, devel ]
 
 jobs:
   industrial_ci:
