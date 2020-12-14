@@ -50,7 +50,7 @@ namespace before using this launch file.
 
 Troubleshooting
 ===============
-.. TODO: make this section a whole other page?
+.. TODO:: make this section a whole other page?
 
 Things will likely break, this is here so you don't break as well. The first you
 should do is **restart everything on the quad and make sure everything is

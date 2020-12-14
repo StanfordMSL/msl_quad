@@ -28,9 +28,11 @@ card which will be used directly on the ODroid board.
 Before we begin, we will need the following:
 
 - The Etcher USB Cloning software (https://www.balena.io/etcher/)
-- Image of the OS can be found on `kessel` at
-  `kessel.stanford.edu/media/data/odroid_images/` with the file name
-  `20190305_MSL_Quad_ODroidKernel4_14_Ubuntu16_04_Rootless_GPIO.img`
+- Image of the OS can be found `here
+  <https://drive.google.com/file/d/1YdurmZTfJEwS1GEx8Po12-XUNOBV4Fbd>`_
+  (File name of
+  `20190305_MSL_Quad_ODroidKernel4_14_Ubuntu16_04_Rootless_GPIO.img` with md5 of
+  2ab920b681a6fa5b60ab7570bb309be6)
 - An eMMC card
 - An eMMC to microSD adapter
 - A microSD card reader

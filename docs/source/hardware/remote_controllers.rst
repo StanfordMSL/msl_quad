@@ -83,7 +83,7 @@ Basic Flight Procedures
 -----------------------
 
 We summarize the basic use of the transmitter for quadrotor flight and refer
-the reader to the :doc:`quick start guide <../software/quick_start_guide>` for
+the reader to the :doc:`quick start guide </quickstart/index>` for
 additional information on setting up the quadrotor. 
 
 Preflight Check

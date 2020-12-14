@@ -11,6 +11,7 @@ Contributing
    :hidden:
 
    Documentation <getting_started_with_documentation>
+   Style Guide <rst_style_guide>
 
 Contributions to the code is always welcome. This section discusses the ways in
 which to contribute and guidelines for having your contributions accepted
@@ -18,10 +19,11 @@ quickly. If you have any questions, please reach out to us on our GitHub_.
 
 .. _github: https://github.com/StanfordMSL/msl_quad
 
-Adding New Features
-===================
+..
+    Adding New Features
+    ===================
 
-.. TODO: Add content to this. Separate page? Keep it all here? Other options?
+.. TODO:: Add content to this. Separate page? Keep it all here? Other options?
 
 Don't Forget Documentation
 ==========================

@@ -18,7 +18,7 @@ References
             year={2020}}
 
 Drone Racing Experiments
-------------------------
+========================
 
 - **R. Spica, D. Falanga, E. Cristofalo, E. Montijano, D. Scaramuzza, and M.
   Schwager**, *“A Real-Time Game Theoretic Planner for Autonomous Two-Player
@@ -44,7 +44,7 @@ Drone Racing Experiments
   `PDF <https://msl.stanford.edu/sites/g/files/sbiybj8446/f/cristofalo2020vision.pdf>`_
 
 Quadrotor Trajectory Planning and Control
------------------------------------------
+=========================================
 
 - **Z. Wang, S. Singh, M. Pavone and M. Schwager**, *“Cooperative Object
   Transport in 3D with Multiple Quadrotors using No Peer Communication,”* in
@@ -69,7 +69,7 @@ Quadrotor Trajectory Planning and Control
   (2), 3368-3374
   `PDF <https://roboticexplorationlab.org/papers/distributed_quads.pdf>`_
 
-.. TODO:
+.. TODO::
   - Currently get errors for repeating PDF links. Should we make all or part
     of the reference a link to the PDF?
   - Once the updated lab website with filtering options for publications is
