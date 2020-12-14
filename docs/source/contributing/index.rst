@@ -18,8 +18,10 @@ quickly. If you have any questions, please reach out to us on our GitHub_.
 
 .. _github: https://github.com/StanfordMSL/msl_quad
 
-Adding New Features
-===================
+..
+
+    Adding New Features
+    ===================
 
 .. TODO:: Add content to this. Separate page? Keep it all here? Other options?
 
