@@ -16,6 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: 'ros-industrial/industrial_ci@master'
+        env: ${{matrix.env}}
       - uses: actions/upload-artifact@v2
         with:
           name: test-report
