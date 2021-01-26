@@ -20,6 +20,6 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: test-report
-          path: build/mslquad/test_results/
+          path: /root/target_ws/build/test_results/
         env: ${{matrix.env}}
 
