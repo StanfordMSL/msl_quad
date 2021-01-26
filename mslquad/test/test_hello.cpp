@@ -15,7 +15,7 @@ TEST(TestSuite, testSucceed){
 
 TEST(TestSuite, testAssert){
   int n = 1;
-  ASSERT_EQ(n, 1);
+  ASSERT_EQ(n, 2);
   }
 // Run all the tests that were declared with TEST()
 int main(int argc, char **argv){
