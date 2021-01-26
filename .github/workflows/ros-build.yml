@@ -16,4 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: 'ros-industrial/industrial_ci@master'
+      - uses: actions/upload-artifact@v2
+        with:
+          name: test-report
+          path: build/mslquad/test_results/
         env: ${{matrix.env}}
+
