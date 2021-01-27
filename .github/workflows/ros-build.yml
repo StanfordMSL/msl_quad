@@ -19,6 +19,7 @@ jobs:
         env: ${{matrix.env}}
       - run: pwd
       - run: ls
+      - run: locate target_ws
       - uses: actions/upload-artifact@v2
         with:
           name: test-report
