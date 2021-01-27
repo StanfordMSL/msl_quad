@@ -16,11 +16,12 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - uses: 'ros-industrial/industrial_ci@master'
+        with:
+          BASEDIR: ws_out
         env: ${{matrix.env}}
       - run: pwd
       - run: ls
-      - run: sudo cd /root/target_ws
-      - run: ls
+      - run: "cd .."
       - run: tree
       - uses: actions/upload-artifact@v2
         with:
