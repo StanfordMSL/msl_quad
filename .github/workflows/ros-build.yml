@@ -17,9 +17,11 @@ jobs:
       - uses: actions/checkout@v1
       - uses: 'ros-industrial/industrial_ci@master'
         env: ${{matrix.env}}
+      - run: pwd
+      - run: ls
       - uses: actions/upload-artifact@v2
         with:
           name: test-report
-          path: /root/target_ws/build/test_results/
-        env: ${{matrix.env}}
+          path: target_ws/build/test_results/
+ 
 
