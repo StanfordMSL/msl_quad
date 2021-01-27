@@ -22,6 +22,6 @@ jobs:
       - uses: actions/upload-artifact@v2
         with:
           name: test-report
-          path: /home/runner/work/target_ws/build/mslquad/test_result
+          path: /home/runner/work/target_ws/build/
  
 
