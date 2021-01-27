@@ -13,21 +13,16 @@ jobs:
         env:
           - {ROS_DISTRO: melodic, ROS_REPO: main}
     env:
-      BASEDIR: /home/runner/
+      BASEDIR: /home/runner/work
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - uses: 'ros-industrial/industrial_ci@master'
         env: ${{matrix.env}}
-      - run: pwd
-      - run: ls
-      - run: "cd .."
-      - run: ls
-      - run: "cd .."
-      - run: ls
+      - run: find / -type d -name "test_results" -exec readlink -f {} \; 2>/dev/null
       - uses: actions/upload-artifact@v2
         with:
           name: test-report
-          path: target_ws/build/test_results/
+          path: /home/runner/work/target_ws/build/test_results/
  
 
