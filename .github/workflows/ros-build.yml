@@ -19,7 +19,9 @@ jobs:
         env: ${{matrix.env}}
       - run: pwd
       - run: ls
-      - run: locate target_ws
+      - run: sudo cd /root/target_ws
+      - run: ls
+      - run: tree
       - uses: actions/upload-artifact@v2
         with:
           name: test-report
