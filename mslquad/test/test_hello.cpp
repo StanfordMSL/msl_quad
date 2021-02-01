@@ -25,7 +25,7 @@ TEST(TestSuite, testFloat) {
   b = .5;
   ASSERT_EQ(a+b, 1.5);
 }
-`
+
 // Run all the tests that were declared with TEST()
 int main(int argc, char **argv) {
   testing::InitGoogleTest(&argc, argv);
