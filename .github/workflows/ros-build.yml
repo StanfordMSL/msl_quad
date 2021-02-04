@@ -12,8 +12,16 @@ jobs:
       matrix:
         env:
           - {ROS_DISTRO: melodic, ROS_REPO: main}
+    env:
+      BASEDIR: /home/runner/work
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
       - uses: 'ros-industrial/industrial_ci@master'
         env: ${{matrix.env}}
+      - uses: actions/upload-artifact@v2
+        with:
+          name: test-report
+          path: /home/runner/work/target_ws/build/mslquad/test_results/**/*.xml
+ 
+
