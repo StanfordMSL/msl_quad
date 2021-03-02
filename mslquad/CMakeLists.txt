@@ -164,6 +164,10 @@ add_executable(safety src/safety.cpp)
 target_link_libraries(safety ${catkin_LIBRARIES})
 add_dependencies(safety ${PROJECT_NAME}_generate_messages_cpp)
 
+add_executable(pilot src/pilot.cpp)
+target_link_libraries(pilot ${catkin_LIBRARIES})
+
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
