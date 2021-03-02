@@ -96,7 +96,7 @@ class PX4BaseController {
  private:
     ros::Subscriber px4PoseSub_;  // px4 pose sub
     ros::Subscriber px4VelSub_;  // px4 velocity sub
-    ros::Duration poseTimeDiff_;  // difference btwn current time and last time
+    ros::Time poseTimeDiff_;  // difference btwn current time and last time
     ros::Subscriber vrpnSub_;  // subscribe to vrpn
     geometry_msgs::PoseStamped curVrpnPose_;  // current mocap pose,
     ros::ServiceServer emergencyLandSrv_;  // service for emergency landing

@@ -59,7 +59,7 @@ find_package(Eigen3 REQUIRED)
 ## Generate services in the 'srv' folder
 add_service_files(
    FILES
-   EmergencyLand.srv
+   Land.srv
 )
 
 ## Generate actions in the 'action' folder
@@ -136,34 +136,6 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(actuator_test src/actuator_test/actuator_test.cpp)
-target_link_libraries(actuator_test ${catkin_LIBRARIES})
-
-add_executable(pos_ctrl_test src/pos_ctrl_test/pos_ctrl_test.cpp)
-target_link_libraries(pos_ctrl_test ${catkin_LIBRARIES})
-
-add_executable(vel_ctrl_test src/vel_ctrl_test/vel_ctrl_test.cpp)
-target_link_libraries(vel_ctrl_test ${catkin_LIBRARIES})
-
-add_executable(follower src/follower/follower.cpp)
-target_link_libraries(follower ${catkin_LIBRARIES})
-
-add_library(controller_lib
-  src/px4_base_controller.cpp
-  src/yaw_track_controller.cpp
-  src/pose_track_controller.cpp
-  src/traj_track_controller.cpp
-  src/se3_controller.cpp)
-add_dependencies(controller_lib ${PROJECT_NAME}_generate_messages_cpp)
-
-add_executable(default_controller 
-  src/default_controller_node.cpp)
-target_link_libraries(default_controller ${catkin_LIBRARIES} controller_lib)
-
-add_executable(safety src/safety.cpp)
-target_link_libraries(safety ${catkin_LIBRARIES})
-add_dependencies(safety ${PROJECT_NAME}_generate_messages_cpp)
-
 add_executable(pilot src/pilot.cpp)
 target_link_libraries(pilot ${catkin_LIBRARIES})
 

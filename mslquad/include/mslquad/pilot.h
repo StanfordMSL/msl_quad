@@ -9,7 +9,7 @@
 **************************************************************************/
 
 #ifndef __PILOT_H__
-#define __PILOT__
+#define __PILOT_H__
 
 // std
 #include <string>
@@ -20,7 +20,7 @@
 
 // msg
 #include "geometry_msgs/Pose.h"
-// #include "geometry_msgs/Twist.h"
+#include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseStamped.h"
 // #include "geometry_msgs/TwistStamped.h"
 // #include "geometry_msgs/Transform.h"
@@ -28,18 +28,46 @@
 // #include "nav_msgs/Odometry.h"
 // #include "mavros_msgs/ActuatorControl.h"
 // service
-// #include "mslquad/Land.h"
+#include "mslquad/Land.h"
+
+// type aliases
+using Pub = ros::Publisher;
+using Sub = ros::Subscriber; 
+using PoseSP = geometry_msgs::PoseStamped;
+using Pose = geometry_msgs::Pose;
 
 
 class Pilot {
  public:
   Pilot();
   virtual ~Pilot();
+  std::string namespace = "/";
+
+
+
   // template<class msg_t>
- // protected:
+  
+ protected:
+  // state machine
+      enum class State {
+        INIT,
+        TAKEOFF,
+        HOVER,
+        FLIGHT,
+        LAND,
+    };
+  // internals 
   std::string quadNS_ = "/";
-  void passback(const geometry_msgs::PoseStamped::ConstPtr& msg,
-                geometry_msgs::PoseStamped& receipt);
+
+  // poses
+  PoseSP localPose;  // current flight pose
+  PoseSP vrpnPose; // pose from opti-track
+  Pose initPose;  // pose at initialization 
+
+  Twist twist; // current flight twist 
+
+  // void passback(const geometry_msgs::PoseStamped::ConstPtr& msg,
+  //               geometry_msgs::PoseStamped& receipt);
 
   ros::NodeHandle nh_;
   geometry_msgs::PoseStamped local_pose;
@@ -57,12 +85,41 @@ class Pilot {
                     std::placeholders::_1,
                     std::ref(local_pose))
                   );
+ private:
+    // publishers
+    // px4 publishers
+    Pub pub_px4SetPose;  // px4 setpoint_position command
+    Pub pub_px4SetVel;  // px4 setpoint_velocity command
+    // Pub odomPub_;  // publish pose of px4 agent to the planner
+    // Pub actuatorPub_;  // px4 actuator_control topic
+
+    // subscribers
+    // flightroom
+    Sub sub_vrpn;  // subscribe to vrpn pose
+
+    // user commands
+    Sub sub_cmdPose;
+    Sub sub_cmdVel;
+    Sub sub_cmdAccel;
+
+
+    // callback methods
+
+    // actions methods 
+    void takeoff(void);
+    // main controller loop (fast, up to >200 Hz)
+    void controlLoop(void);
+
+    void sub_vrpnCB(const poseSP::ConstPtr& msg);
+    void sub_cmdPoseCB(const poseSP::ConstPtr& msg);
+    // void velSubCB(const geometry_msgs::TwistStamped::ConstPtr& msg);
+    void controlTimerCB(const ros::TimerEvent& event);
+
 
 };  // Pilot
 
 
 
-//  private:
 //   ros::Subscriber px4PoseSub_;  // px4 pose sub
 //   ros::Subscriber px4VelSub_;  // px4 velocity sub
 //   ros::Duration poseTimeDiff_;  // difference btwn current time and last time
