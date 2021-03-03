@@ -6,7 +6,7 @@
   Contact      : k2shah@stanford.edu
   Create Time  : Feb 9, 2021.
   Description  : px4 setpoint publisher class. Isolates and ensures mavros
-                 requirements are satisfied at all times.
+                 requirements are always satisfied.
 **************************************************************************/
 
 #ifndef __SETPOINT_PUBLISHER_H__
@@ -38,7 +38,7 @@ class SetpointPublisher {
   virtual ~SetpointPublisher();
   
   std::string m_namespace = "/";
-  enum class State {
+  enum class sp_states {
     INIT,
     TAKEOFF,
     STANDBY,
@@ -46,29 +46,39 @@ class SetpointPublisher {
     FLIGHT,
     LAND,
     FAILSAFE,
-  };
+  } sp_state;
   
  protected:
   // ros internals 
   ros::NodeHandle m_nh;
-  mavros_msgs::State m_mavrosState
+  mavros_msgs::State m_mavrosState;
+  
   // state machine
-  State m_state;
+  sp_states m_state;
+  
   // parameters
-  float m_takeoffHeight;
-  float m_maxVel;
-  float m_controlRate;
-  // poses
-  geometry_msgs::PoseStamped m_localPose;  // current flight pose
-  geometry_msgs::PoseStamped m_vrpnPose; // pose from opti-track
-  geometry_msgs::PoseStamped m_initPose;  // pose at initialization 
-  geometry_msgs::Pose m_landPose; // pose for landing
-  geometry_msgs::Pose m_goalPose; // goal pose 
+  float m_takeoffAlt;   // takeoff altitude
+  float m_controlHRate; // high rate
+  float m_controlLRate; // low rate
+
+  // Current States
+  geometry_msgs::PoseStamped m_localPose;  // EKF fused flight pose
+  geometry_msgs::PoseStamped m_visionPose; // raw 
+
+  // Target States
+  geometry_msgs::PoseStamped m_initPose;   // for setpoints at initialization (position control)
+  geometry_msgs::PoseStamped m_landPose;   // for setpoints at landing (position control)
+
+  geometry_msgs::Pose  m_targetPose;       // target pose (position control)
+  geometry_msgs::Twist m_targetVel;        // target velocity (velocity control)
+  geometry_msgs::Twist m_targetVel;  // target velocity
+
+
+  // add initTime
 
   geometry_msgs::Twist m_localVel; // current flight velocity
   geometry_msgs::Twist m_localAccel; //current flight acceleration 
-  geometry_msgs::Twist m_goalVel;  // goal velocity
-
+  
  private:
   // PUBLISHERS
   // px4 publishers
@@ -91,7 +101,9 @@ class SetpointPublisher {
   ros::Subscriber sub_cmdAccel;
 
   // control timers
-  ros::Timer m_controlLoop;  // for fast loop
+  ros::Timer m_fastLoop;  // for fast loop
+  ros::Timer m_slowLoop;  // for slow loop
+  // add one more for high rate
   ros::Timer m_statusLoop;  // for status loop
 
   // callback methods
@@ -112,16 +124,10 @@ class SetpointPublisher {
   void poseDelay(void);
   void poseDrift(void);
 
-
-  // actions methods 
-  void takeoff(void);
-  void land(void);
   // main controller loop (fast, up to >200 Hz)
-  void controlLoop(void);
-
-  bool landServiceHandle(
-      mslquad::Land::Request &req,
-      mslquad::Land::Response &res);
+  // main controller loop (fast, up to >200 Hz)
+  void slowLoop(void);
+  void fastLoop(void);
 
   // misc methods
   float poseDistance(geometry_msgs::Pose p1,
