@@ -12,30 +12,198 @@
 #include<cmath>
 
 Pilot::Pilot() {
-  ROS_INFO("Initalizing Controller");
+  // TO THE MOON
 
-  ros::param::get("~namespace", namespace);
-  ros::param::get("~takeoff_height", takeoffHeight);
-  ros::param::get("~max_vel", maxVel);
-  ros::param::get("~control_freq", controlRate);
+  // resolve parameters
+  ros::param::get("~m_namespace", m_namespace);
+  ROS_INFO_STREAM(m_namespace << " initalizing");
+  ros::param::get("~takeoff_height", m_takeoffHeight);
+  ros::param::get("~max_vel", m_maxVel);
+  ros::param::get("~control_freq", m_controlRate);
 
-  ROS_INFO_STREAM(namespace << "set to INIT");
+  // init state machine
+  m_state = State::INIT;
 
+  // PUBLISHERS
+  pub_px4SetPose = m_nh.advertise<geometry_msgs::PoseStamped>(
+        m_namespace +"mavros/setpoint_position/local", 1);
+  
+  pub_px4SetVel = m_nh.advertise<geometry_msgs::Twist>(
+        m_namespace +"mavros/setpoint_velocity/cmd_vel_unstamped", 1);
 
-  controlTimer = nh_.createTimer(
+  // SUBSCRIBERS
+  //px4 subscribers
+  sub_px4GetState = m_nh.subscribe<mavros_msgs::State>(
+    m_namespace + "mavros/state", 1,
+    &Pilot::sub_px4GetStateCB,this);
+
+  sub_px4GetPose = m_nh.subscribe<geometry_msgs::PoseStamped>(
+    m_namespace + "mavros/local_position/pose", 1,
+    &Pilot::sub_px4GetPoseCB, this);
+  
+  sub_px4GetVel = m_nh.subscribe<geometry_msgs::TwistStamped>(
+    m_namespace + "mavros/local_position/velocity", 1,
+    &Pilot::sub_px4GetVelCB, this);
+
+  // flight room
+  sub_vrpn = m_nh.subscribe<geometry_msgs::PoseStamped>(
+    m_namespace + "mavros/vision_pose/pose", 1,
+    &Pilot::sub_vrpnCB, this);
+  
+  // user commands 
+  sub_cmdPose = m_nh.subscribe<geometry_msgs::PoseStamped>(
+    m_namespace + "command/pose", 1,
+    &Pilot::sub_cmdPoseCB, this);
+  
+  sub_cmdVel = m_nh.subscribe<geometry_msgs::TwistStamped>(
+    m_namespace + "command/velocity", 1,
+    &Pilot::sub_cmdVelCB, this);
+  
+  // SERVICES
+  landClient = m_nh.serviceClient<mavros_msgs::CommandTOL>(
+    m_namespace + "mavros/cmd/land");
+
+  // spawn timers 
+  m_controlLoop = m_nh.createTimer(
         ros::Duration(1.0/controlRate),
-        &Pilot::controlTimerCB, this);
+        &Pilot::controlLoopCB, this);
+
+  m_statusLoop = m_nh.createTimer(
+      ros::Duration(.1),
+      &Pilot::statusLoopCB, this);
+
+  // run pre-flight checks
+  // check for mavros
+  preFlight();
 }
 
 
-void Pilot::controlTimerCB(const ros::TimerEvent& event) {
-    if (state_ == State::EMERGENCY_LAND) {
-        this->emergencyFailsafe();
-    } else {
-        this->controlLoop();
+// callback methods
+void Pilot::controlLoopCB(const ros::TimerEvent& event) {
+    switch (State) {
+      case INIT:
+        ROS_WARN("Initaliztion Failure")
+
+        break
+      case STANDBY:
+        break;
+      case TAKEOFF: takeoff();
+        break;
+
+      case HOVER:
+
+      case FLIGHT:
+
+      case LAND: land();
+        break;
+
+      case FAILSAFE:
+        break
+
+      default:
+       ROS_WARN("UNDEFINED STATE")
+       m_state = State::FAILSAFE;
     }
 }
 
+void Pilot::statusLoopCB(void) {
+    // pose time delay check
+    this -> poseDelay();
+    // pose drift 
+    this -> poseDrift(localPose.pose, vrpnPose.pose);
+}
+
+void Pilot::sub_px4GetStateCB(
+  const mavros_msgs::State::ConstPtr& msg) {
+    // store the current pose
+    m_mavrosState = *msg;
+}
+
+
+void Pilot::sub_px4GetPoseCB(
+  const geometry_msgs::PoseStamped::ConstPtr& msg) {
+    // store the current pose
+    m_localPose = *msg;
+}
+
+void Pilot::sub_px4GetVelCB(
+  const geometry_msgs::TwistStamped::ConstPtr& msg) {
+    // store the current velocity
+    m_localVel = *msg;
+}
+
+void Pilot::sub_vrpnCB(
+  const geometry_msgs::PoseStamped::ConstPtr& msg){
+    // store the VRPN pose
+    vrpnPose = *msg
+}
+
+void Pilot::preFlight(void){
+  ROS_INFO_STREAM(m_namespace << " waiting for internal pose.");
+  while (ros::ok() && m_localPose.header.seq < 100) {
+    ros::spinOnce();
+    ros::Duration(1.0).sleep();
+  }
+  ROS_INFO("Inital Pose: (%f, %f, %f)",
+            m_localPose.position.x,
+            m_localPose.position.y,
+            m_localPose.position.z);
+  m_initPose = m_localPose; 
+
+
+  if (m_takeoffHeight > 0){
+    auto
+  }
+}
+
+void Pilot::takeoff(void){
+
+}
+
+void Pilot::land(void){
+  if (land_client.call(srv_land) && srv_land.response.success)
+    {
+      ROS_INFO("Land Sent %d", srv_land.response.success);
+    }
+  while
+}
+
+
+bool Pilot::landServiceHandle(
+        mslquad::Land::Request &req,
+        mslquad::Land::Response &res) {
+    m_landPose = req.landpos;
+    ROS_WARN("LANDING");
+    ROS_INFO("Pose: (%f, %f, %f)",
+            landPose.position.x,
+            landPose.position.y,
+            landPose.position.z);
+    m_state = State::LAND
+    res.success = true;
+    return true;
+}
+void Pilot::poseDelay(void){
+  // find delay since last pose 
+    double delay = ros::Time::now().toSec() - localPose.header.stamp.toSec();
+    if (delay > 0.5) {
+        ROS_ERROR("Critical Pose DELAY Detected");
+        State = LAND;
+    } else if (poseTimeDiff_.toSec() > 0.15) {
+        ROS_WARN("Moderate Pose DELAY Detected");
+    }
+}
+
+void Pilot::poseDrift(Pose p1, Pose p2){
+  dx = p1.position.x - p1.position.x
+  dy = p1.position.y - p1.position.y
+  dz = p1.position.z - p1.position.z
+  double drift = sqrt(pow(dx, 2) + pow(dy, 2) + pow(dz, 2))
+  if (drift > .01 ){
+    ROS_ERROR("Critical Pose DRIFT Detected");
+        State = LAND;
+  } 
+
+}
 
 // void Pilot::passback(const geometry_msgs::PoseStamped::ConstPtr& msg,
 //                 geometry_msgs::PoseStamped& receipt) {
@@ -43,12 +211,12 @@ void Pilot::controlTimerCB(const ros::TimerEvent& event) {
 // }
 
 Pilot::~Pilot() {
-  ROS_INFO("Terminating Controller");
+  ROS_WARN("Terminating Controller");
 }
 
 int main(int argc, char const *argv[]) {
     Pilot pilot;
-    ROS_INFO(pilot.namespace+" initlaized")
+    ROS_INFO(pilot.m_namespace+" initlaized")
     ros::spin();
     return 0;
   }

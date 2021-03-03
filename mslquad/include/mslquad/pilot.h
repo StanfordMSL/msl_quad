@@ -13,108 +13,120 @@
 
 // std
 #include <string>
-#include <Eigen/Dense>
+// #include <Eigen/Dense>
 
 // ros
 #include "ros/ros.h"
 
 // msg
+#include "mavros_msgs/State.h"
 #include "geometry_msgs/Pose.h"
-#include "geometry_msgs/Twist.h"
 #include "geometry_msgs/PoseStamped.h"
-// #include "geometry_msgs/TwistStamped.h"
+#include "geometry_msgs/Twist.h"
+#include "geometry_msgs/TwistStamped.h"
 // #include "geometry_msgs/Transform.h"
 // #include "trajectory_msgs/MultiDOFJointTrajectory.h"
 // #include "nav_msgs/Odometry.h"
-// #include "mavros_msgs/ActuatorControl.h"
-// service
-#include "mslquad/Land.h"
 
-// type aliases
-using Pub = ros::Publisher;
-using Sub = ros::Subscriber; 
-using PoseSP = geometry_msgs::PoseStamped;
-using Pose = geometry_msgs::Pose;
+// services
+#include <mavros_msgs/CommandTOL.h>
+#include "mslquad/Land.h"
 
 
 class Pilot {
  public:
   Pilot();
   virtual ~Pilot();
-  std::string namespace = "/";
-
-
-
-  // template<class msg_t>
+  
+  std::string m_namespace = "/";
+  enum class State {
+    INIT,
+    TAKEOFF,
+    STANDBY,
+    HOVER,
+    FLIGHT,
+    LAND,
+    FAILSAFE,
+  };
   
  protected:
+  // ros internals 
+  ros::NodeHandle m_nh;
+  mavros_msgs::State m_mavrosState
   // state machine
-      enum class State {
-        INIT,
-        TAKEOFF,
-        HOVER,
-        FLIGHT,
-        LAND,
-    };
-  // internals 
-  std::string quadNS_ = "/";
-
+  State m_state;
+  // parameters
+  float m_takeoffHeight;
+  float m_maxVel;
+  float m_controlRate;
   // poses
-  PoseSP localPose;  // current flight pose
-  PoseSP vrpnPose; // pose from opti-track
-  Pose initPose;  // pose at initialization 
+  geometry_msgs::PoseStamped m_localPose;  // current flight pose
+  geometry_msgs::PoseStamped m_vrpnPose; // pose from opti-track
+  geometry_msgs::PoseStamped m_initPose;  // pose at initialization 
+  geometry_msgs::Pose m_landPose; // pose for landing
+  geometry_msgs::Pose m_goalPose; // goal pose 
 
-  Twist twist; // current flight twist 
+  geometry_msgs::Twist m_localVel; // current flight velocity
+  geometry_msgs::Twist m_localAccel; //current flight acceleration 
+  geometry_msgs::Twist m_goalVel;  // goal velocity
 
-  // void passback(const geometry_msgs::PoseStamped::ConstPtr& msg,
-  //               geometry_msgs::PoseStamped& receipt);
-
-  ros::NodeHandle nh_;
-  geometry_msgs::PoseStamped local_pose;
-  // void CB(const geometry_msgs::PoseStamped::ConstPtr& msg);
-  // auto CB = boost::bind(
-  //                   passback,
-  //                   std::placeholders::_1,
-  //                   local_pose);
-  ros::Subscriber PoseSub_ = nh_.subscribe<geometry_msgs::PoseStamped>(
-                  quadNS_+"mavros/local_position/pose",
-                  1,
-                  std::bind(
-                    Pilot::passback,
-                    this,
-                    std::placeholders::_1,
-                    std::ref(local_pose))
-                  );
  private:
-    // publishers
-    // px4 publishers
-    Pub pub_px4SetPose;  // px4 setpoint_position command
-    Pub pub_px4SetVel;  // px4 setpoint_velocity command
-    // Pub odomPub_;  // publish pose of px4 agent to the planner
-    // Pub actuatorPub_;  // px4 actuator_control topic
+  // PUBLISHERS
+  // px4 publishers
+  ros::Publisher pub_px4SetPose;  // px4 setpoint_position command
+  ros::Publisher pub_px4SetVel;  // px4 setpoint_velocity command
+  // Pub odomPub_;  // publish pose of px4 agent to the planner
+  // Pub actuatorPub_;  // px4 actuator_control topic
 
-    // subscribers
-    // flightroom
-    Sub sub_vrpn;  // subscribe to vrpn pose
+  // SUBSCRIBERS
+  // px4 subscribers
+  ros::Subscriber sub_px4GetPose;  // px4 get local position
+  ros::Subscriber sub_px4GetVel;  // px4 get local velocity
 
-    // user commands
-    Sub sub_cmdPose;
-    Sub sub_cmdVel;
-    Sub sub_cmdAccel;
+  // flight room
+  ros::Subscriber sub_vrpn;  // subscribe to vrpn pose
+
+  // user commands
+  ros::Subscriber sub_cmdPose;
+  ros::Subscriber sub_cmdVel;
+  ros::Subscriber sub_cmdAccel;
+
+  // control timers
+  ros::Timer m_controlLoop;  // for fast loop
+  ros::Timer m_statusLoop;  // for status loop
+
+  // callback methods
+  // loops
+  void controlLoopCB(const ros::TimerEvent& event);
+  void statusLoopCB(const ros::TimerEvent& event);
+  // px4 getters
+  void sub_px4GetPoseCB(const geometry_msgs::PoseStamped::ConstPtr& msg);
+  void sub_px4GetVelCB(const geometry_msgs::TwistStamped;::ConstPtr& msg);
+  // vrpn
+  void sub_vrpnCB(const geometry_msgs::PoseStamped::ConstPtr& msg);
+  // user commands
+  void sub_cmdPoseCB(const geometry_msgs::PoseStamped::ConstPtr& msg);
+  // void velSubCB(const geometry_msgs::TwistStamped::ConstPtr& msg);
+
+  // status methods
+  void preFlight(void);
+  void poseDelay(void);
+  void poseDrift(void);
 
 
-    // callback methods
+  // actions methods 
+  void takeoff(void);
+  void land(void);
+  // main controller loop (fast, up to >200 Hz)
+  void controlLoop(void);
 
-    // actions methods 
-    void takeoff(void);
-    // main controller loop (fast, up to >200 Hz)
-    void controlLoop(void);
+  bool landServiceHandle(
+      mslquad::Land::Request &req,
+      mslquad::Land::Response &res);
 
-    void sub_vrpnCB(const poseSP::ConstPtr& msg);
-    void sub_cmdPoseCB(const poseSP::ConstPtr& msg);
-    // void velSubCB(const geometry_msgs::TwistStamped::ConstPtr& msg);
-    void controlTimerCB(const ros::TimerEvent& event);
-
+  // misc methods
+  float poseDistance(geometry_msgs::Pose p1,
+                     geometry_msgs::Pose p2); // checks distance btw two poses
 
 };  // Pilot
 
@@ -230,10 +242,7 @@ class Pilot {
 //     // timer callback
 //     virtual void statusLoop(void);
 //     // failsafe function called if state:: is changed to emergency land
-//     void emergencyFailsafe(void);
-//     bool emergencyLandHandle(
-//         mslquad::EmergencyLand::Request &req,
-//         mslquad::EmergencyLand::Response &res);
+ 
 // };
 
 
