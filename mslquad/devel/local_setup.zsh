@@ -1,0 +1,1 @@
+/home/lowjunen/StanfordMSL/msl_quad/mslquad/devel/.private/catkin_tools_prebuild/local_setup.zsh

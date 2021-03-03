@@ -1,15 +1,16 @@
 /* copyright[2021] <msl>
 **************************************************************************
-  File Name    : pilot.h
+  File Name    : setpoint_publisher.h
   Author       : Kunal Shah, Jun En Low, Alexander Koufos
                  Multi-Robot Systems Lab (MSL), Stanford University
   Contact      : k2shah@stanford.edu
   Create Time  : Feb 9, 2021.
-  Description  : px4 pilot class
+  Description  : px4 setpoint publisher class. Isolates and ensures mavros
+                 requirements are satisfied at all times.
 **************************************************************************/
 
-#ifndef __PILOT_H__
-#define __PILOT_H__
+#ifndef __SETPOINT_PUBLISHER_H__
+#define __SETPOINT_PUBLISHER_H__
 
 // std
 #include <string>
@@ -30,13 +31,11 @@
 
 // services
 #include <mavros_msgs/CommandTOL.h>
-#include "mslquad/Land.h"
 
-
-class Pilot {
+class SetpointPublisher {
  public:
-  Pilot();
-  virtual ~Pilot();
+  SetpointPublisher();
+  virtual ~SetpointPublisher();
   
   std::string m_namespace = "/";
   enum class State {
@@ -249,4 +248,4 @@ class Pilot {
 
 
 
-#endif  // __PILOT_H__
+#endif  // __SETPOINT_PUBLISHER_H__
