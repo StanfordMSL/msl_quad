@@ -1,17 +1,18 @@
 /* copyright[2019] <msl>
 **************************************************************************
-  File Name    : pilot.cpp
+  File Name    : setpoint_publisher.cpp
   Author       : Kunal Shah, Jun En Low, Alexander Koufos
                  Multi-Robot Systems Lab (MSL), Stanford University
   Contact      : k2shah@stanford.edu
   Create Time  : Feb 9, 2021.
-  Description  : px4 pilot class
+  Description  : px4 setpoint publisher class. Isolates and ensures mavros
+                 requirements are satisfied at all times.
 **************************************************************************/
 
-#include<mslquad/pilot.h>
+#include<mslquad/setpoint_publisher.h>
 #include<cmath>
 
-Pilot::Pilot() {
+SetpointPublisher::SetpointPublisher() {
   // TO THE MOON
 
   // resolve parameters
@@ -79,7 +80,7 @@ Pilot::Pilot() {
 
 
 // callback methods
-void Pilot::controlLoopCB(const ros::TimerEvent& event) {
+void SetpointPublisher::controlLoopCB(const ros::TimerEvent& event) {
     switch (State) {
       case INIT:
         ROS_WARN("Initaliztion Failure")
@@ -106,39 +107,39 @@ void Pilot::controlLoopCB(const ros::TimerEvent& event) {
     }
 }
 
-void Pilot::statusLoopCB(void) {
+void SetpointPublisher::statusLoopCB(void) {
     // pose time delay check
     this -> poseDelay();
     // pose drift 
     this -> poseDrift(localPose.pose, vrpnPose.pose);
 }
 
-void Pilot::sub_px4GetStateCB(
+void SetpointPublisher::sub_px4GetStateCB(
   const mavros_msgs::State::ConstPtr& msg) {
     // store the current pose
     m_mavrosState = *msg;
 }
 
 
-void Pilot::sub_px4GetPoseCB(
+void SetpointPublisher::sub_px4GetPoseCB(
   const geometry_msgs::PoseStamped::ConstPtr& msg) {
     // store the current pose
     m_localPose = *msg;
 }
 
-void Pilot::sub_px4GetVelCB(
+void SetpointPublisher::sub_px4GetVelCB(
   const geometry_msgs::TwistStamped::ConstPtr& msg) {
     // store the current velocity
     m_localVel = *msg;
 }
 
-void Pilot::sub_vrpnCB(
+void SetpointPublisher::sub_vrpnCB(
   const geometry_msgs::PoseStamped::ConstPtr& msg){
     // store the VRPN pose
     vrpnPose = *msg
 }
 
-void Pilot::preFlight(void){
+void SetpointPublisher::preFlight(void){
   ROS_INFO_STREAM(m_namespace << " waiting for internal pose.");
   while (ros::ok() && m_localPose.header.seq < 100) {
     ros::spinOnce();
@@ -156,11 +157,11 @@ void Pilot::preFlight(void){
   }
 }
 
-void Pilot::takeoff(void){
+void SetpointPublisher::takeoff(void){
 
 }
 
-void Pilot::land(void){
+void SetpointPublisher::land(void){
   if (land_client.call(srv_land) && srv_land.response.success)
     {
       ROS_INFO("Land Sent %d", srv_land.response.success);
@@ -169,7 +170,7 @@ void Pilot::land(void){
 }
 
 
-bool Pilot::landServiceHandle(
+bool SetpointPublisher::landServiceHandle(
         mslquad::Land::Request &req,
         mslquad::Land::Response &res) {
     m_landPose = req.landpos;
@@ -182,7 +183,7 @@ bool Pilot::landServiceHandle(
     res.success = true;
     return true;
 }
-void Pilot::poseDelay(void){
+void SetpointPublisher::poseDelay(void){
   // find delay since last pose 
     double delay = ros::Time::now().toSec() - localPose.header.stamp.toSec();
     if (delay > 0.5) {
@@ -193,7 +194,7 @@ void Pilot::poseDelay(void){
     }
 }
 
-void Pilot::poseDrift(Pose p1, Pose p2){
+void SetpointPublisher::poseDrift(Pose p1, Pose p2){
   dx = p1.position.x - p1.position.x
   dy = p1.position.y - p1.position.y
   dz = p1.position.z - p1.position.z
@@ -205,18 +206,18 @@ void Pilot::poseDrift(Pose p1, Pose p2){
 
 }
 
-// void Pilot::passback(const geometry_msgs::PoseStamped::ConstPtr& msg,
+// void SetpointPublisher::passback(const geometry_msgs::PoseStamped::ConstPtr& msg,
 //                 geometry_msgs::PoseStamped& receipt) {
 //   receipt = *msg;
 // }
 
-Pilot::~Pilot() {
+SetpointPublisher::~SetpointPublisher() {
   ROS_WARN("Terminating Controller");
 }
 
 int main(int argc, char const *argv[]) {
-    Pilot pilot;
-    ROS_INFO(pilot.m_namespace+" initlaized")
+    SetpointPublisher sp;
+    ROS_INFO(sp.m_namespace+" initialized")
     ros::spin();
     return 0;
   }
